@@ -3,5 +3,19 @@
 
     <string name="hello">Hello World, GeoAlarm!</string>
     <string name="app_name">GeoAlarm</string>
+    <string name="map_label">Map</string>
+    <string name="trip_label">Plan Trip</string>
+    <string name="options_label">Options</string>
+    <string name="man_menu_label">Main Menu</string>
+    <string name="empty"></string>
+    <string name="time_remaining">Time Remaining:</string>
+    <string name="dist_remaining">Distance Remaining:</string>
+    <string name="back_label">Back</string>
+    <string name="service_label">Service:</string>
+    <string name="star_loc_label">Starting location:</string>
+    <string name="destination">Destination:</string>
+    <string name="alarm_options_label">Alarm Options</string>
+    <string name="set_alarm_label">Set Alarm</string>
+    <string name="line_label">Line:</string>
 
 </resources>
