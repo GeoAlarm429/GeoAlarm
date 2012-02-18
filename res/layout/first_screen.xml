@@ -12,7 +12,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="42dp"
         android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_options_button" />
+        android:text="@string/first_screen_options_button"
+        android:onClick="showOptionsScreen" />
 
     <Button
         android:id="@+id/firstScreenTripButton"
@@ -22,7 +23,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_trip_button" />
+        android:text="@string/first_screen_trip_button" 
+        android:onClick="showTripScreen" />
 
     <Button
         android:id="@+id/firstScreenMapButton"
@@ -32,8 +34,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_map_button" />
-
+        android:text="@string/first_screen_map_button" 
+        android:onClick="showMapScreen" />
+
     <ImageView
         android:id="@+id/firstScreenImageView"
         android:layout_width="wrap_content"
@@ -42,6 +45,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:contentDescription="@string/logo_string"
         android:src="@drawable/ic_launcher" />
 
     <TextView

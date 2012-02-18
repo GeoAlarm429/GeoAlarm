@@ -7,5 +7,12 @@
     <string name="first_screen_trip_button">Trip</string>
     <string name="first_screen_options_button">Options</string>
     <string name="copyright_notice">© 2012 GeoAlarm</string>
+    <string name="logo_string">GeoAlarm logo</string>
+    <string name="alarm_options_button">Alarm Options</string>
+    <string name="set_trip_button">Set</string>
+    <string-array name="mode_of_travel">
+        <item >The L</item>
+        <item >The Bus</item>
+    </string-array>
 
 </resources>
