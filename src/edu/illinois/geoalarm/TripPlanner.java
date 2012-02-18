@@ -13,6 +13,9 @@ public class TripPlanner extends Activity {
         super.onCreate(savedInstanceState);                
         setContentView(R.layout.trip_screen);        
         
+        /* Here we set up a Spinner.  A Spinner is like an Android drop down list.
+         * We use this Spinner to handle mode of travel selection.
+         */
         Spinner modeOfTravelSpinner = (Spinner) findViewById(R.id.modeOfTravelSpinner);
         ArrayAdapter<CharSequence> modeOfTravelAdapter = ArrayAdapter.createFromResource
         		(this, R.array.mode_of_travel, android.R.layout.simple_spinner_item);

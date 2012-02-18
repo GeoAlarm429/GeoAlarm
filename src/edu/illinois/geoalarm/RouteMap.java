@@ -4,6 +4,12 @@ import android.os.Bundle;
 
 import com.google.android.maps.MapActivity;
 
+/**
+ * A MapActivity class that will be responsible for displaying the transit map.
+ * @author deflume1
+ *
+ */
+
 public class RouteMap extends MapActivity {
 
 	/** Called when the activity is first created. */
@@ -13,9 +19,13 @@ public class RouteMap extends MapActivity {
         setContentView(R.layout.map_screen);
     }
 	
+    /**
+     * This method returns whether routes are currently being displayed on the map.
+     * Right now, they're not.
+     */
 	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
+	protected boolean isRouteDisplayed() 
+	{
 		return false;
 	}
 
