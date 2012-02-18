@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
+
     <Button
         android:id="@+id/firstScreenOptionsButton"
         android:layout_width="wrap_content"
@@ -11,8 +11,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="42dp"
+        android:background="@drawable/first_screen_buttons"
         android:text="@string/first_screen_options_button" />
-
+
     <Button
         android:id="@+id/firstScreenTripButton"
         android:layout_width="wrap_content"
@@ -20,8 +21,9 @@
         android:layout_above="@+id/firstScreenOptionsButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
+        android:background="@drawable/first_screen_buttons"
         android:text="@string/first_screen_trip_button" />
-
+
     <Button
         android:id="@+id/firstScreenMapButton"
         android:layout_width="wrap_content"
@@ -29,6 +31,26 @@
         android:layout_above="@+id/firstScreenTripButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
+        android:background="@drawable/first_screen_buttons"
         android:text="@string/first_screen_map_button" />
+
+    <ImageView
+        android:id="@+id/firstScreenImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/firstScreenMapButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/copyrightTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/copyright_notice"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
