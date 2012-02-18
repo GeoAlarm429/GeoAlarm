@@ -3,6 +3,7 @@ package edu.illinois.geoalarm;
 import android.app.Activity;
 import android.os.Bundle;
 //sweet comment 2
+// slight change
 public class GeoAlarm extends Activity {
     /** Called when the activity is first created. */
     @Override
