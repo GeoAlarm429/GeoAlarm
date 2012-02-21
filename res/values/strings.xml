@@ -18,5 +18,10 @@
     <string name="set_alarm_label">Set Alarm</string>
     <string name="line_label">Line:</string>
     <string name="digitalclock">DigitalClock</string>
+    <string-array name="travel_type_array">
+        <item>Select</item><item >Bus</item>
+        <item >Train</item>
+        
+    </string-array>
 
 </resources>
