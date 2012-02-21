@@ -15,7 +15,7 @@ public class Options extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
-        setContentView(R.layout.options_screen);
+        setContentView(R.layout.options);
     }
 
 }

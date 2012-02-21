@@ -16,7 +16,7 @@ public class RouteMap extends MapActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
-        setContentView(R.layout.map_screen);
+        setContentView(R.layout.map);
     }
 	
     /**

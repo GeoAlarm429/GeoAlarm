@@ -1,60 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/sears_tower"
+    android:gravity="bottom"
+    android:orientation="vertical" >
+
+    <DigitalClock
+        android:id="@+id/digitalClock1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/digitalclock" />
 
     <Button
-        android:id="@+id/firstScreenOptionsButton"
-        android:layout_width="wrap_content"
+        android:id="@+id/mapButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="42dp"
-        android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_options_button"
-        android:onClick="showOptionsScreen" />
-
-    <Button
-        android:id="@+id/firstScreenTripButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/firstScreenOptionsButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_trip_button" 
-        android:onClick="showTripScreen" />
-
-    <Button
-        android:id="@+id/firstScreenMapButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/firstScreenTripButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/first_screen_buttons"
-        android:text="@string/first_screen_map_button" 
+        android:layout_gravity="bottom"
+        android:text="@string/map_label" 
         android:onClick="showMapScreen" />
 
-    <ImageView
-        android:id="@+id/firstScreenImageView"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/tripButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/firstScreenMapButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@string/logo_string"
-        android:src="@drawable/ic_launcher" />
+        android:layout_gravity="bottom"
+        android:onClick="showTripScreen"
+        android:text="@string/trip_label" />
 
-    <TextView
-        android:id="@+id/copyrightTextView"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/optionsButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/copyright_notice"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_gravity="bottom"
+        android:text="@string/options_label" 
+        android:onClick="showOptionsScreen"/>
 
-</RelativeLayout>
+</LinearLayout>
