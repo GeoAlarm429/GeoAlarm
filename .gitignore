@@ -52,4 +52,5 @@ local.properties
 .project
 *.orig
 
-!*/lib
+#include web services API
+!jaxws-api.jar
