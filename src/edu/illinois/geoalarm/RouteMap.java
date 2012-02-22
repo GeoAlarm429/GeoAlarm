@@ -1,7 +1,10 @@
 package edu.illinois.geoalarm;
 
+import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -14,6 +17,8 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
@@ -31,6 +36,7 @@ public class RouteMap extends MapActivity {
 	private Button backBtn;
 	private Location currentLocation;
 	private GeoPoint centerPoint;
+	private List<Overlay> currentMarkerOverlays;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -78,6 +84,16 @@ public class RouteMap extends MapActivity {
 	  
 		// Point for the current location
 		centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+		
+		// Show a marker on the map
+		currentMarkerOverlays = mainMap.getOverlays(); 
+	    Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
+	    
+	    CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
+        OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
+        
+        itemizedOverlay.addOverlay(overlayitem);  
+        currentMarkerOverlays.add(itemizedOverlay);
 	}
 
 	/**
