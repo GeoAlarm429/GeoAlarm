@@ -3,16 +3,16 @@ package edu.illinois.geoalarm;
 import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
-@SuppressWarnings("unchecked")
 /**
  * @author Seungmok Lee, Hyungjoo Kim
  */
+@SuppressWarnings("rawtypes")
 public class CurrMarkerOverlay extends ItemizedOverlay {
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
-	@SuppressWarnings("unused")
 	private Context mapContext;
 	
 	public CurrMarkerOverlay(Drawable defaultMarker, Context context) {
@@ -34,4 +34,13 @@ public class CurrMarkerOverlay extends ItemizedOverlay {
 		overlays.add(overlay); 
 	    populate(); 
 	}	
+	
+	@SuppressWarnings("unused")
+	@Override
+	protected boolean onTap(int index) {
+		OverlayItem item = overlays.get(index);
+
+		Toast.makeText(mapContext, "Give me data", Toast.LENGTH_LONG).show();
+		return true;
+	}
 }

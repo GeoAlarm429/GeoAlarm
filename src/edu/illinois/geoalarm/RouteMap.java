@@ -104,5 +104,4 @@ public class RouteMap extends MapActivity {
 	protected boolean isRouteDisplayed() {
 		return false;
 	}
-
 }
