@@ -51,6 +51,3 @@ local.properties
 .classpath
 .project
 *.orig
-
-#include web services API
-!jaxws-api.jar
