@@ -93,14 +93,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/alarm_options_label" />
+            android:text="@string/alarm_options_label"
+            android:onClick="configureAlarmOptions" />
 
         <Button
             android:id="@+id/setAlarmButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/set_alarm_label" />
+            android:text="@string/set_alarm_label"
+            android:onClick="setAlarm" />
 
     </LinearLayout>
 

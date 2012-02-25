@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -40,11 +41,23 @@ public class TripPlannerBus extends Activity
     }	
 	
 	/**
+     * This method is called when the activity is going to become visible to the user.
+     * We setup the selection event listener for the Spinner here.
+     */
+    @Override
+    public void onStart()
+    {   	
+    	/* Call superclass constructor.  Required */
+    	super.onStart();
+    	setServiceSelectListeners();    	
+    }
+	
+	/**
 	 * This function tries to load the existing SQLite DB
 	 */
 	public void loadDatabase()
 	{
-		database = new GeoAlarmDB(this);
+		database = new GeoAlarmDB(this.getApplicationContext());
 		
 		// Check the custom SQLite helper functions that load existing DB
 		try
@@ -90,9 +103,26 @@ public class TripPlannerBus extends Activity
 		destinationSpinner = (Spinner) findViewById(R.id.destinationSpinner);
 		List<String> locationList = new ArrayList<String>();
 		
-		/* Insert DB call to get all locations to populate Spinner */		
-		Cursor theCursor = database.geoAlarmDB.query("Routes", null, null, null, null, null, null);
+		/* Insert DB call to get all locations to populate Spinner */					
 
+		Cursor aCursor = database.geoAlarmDB.rawQuery("select * from Routes", null);
+		if(aCursor != null)
+		{
+			
+			Collections.addAll(locationList, aCursor.getColumnNames());
+			/*
+			while(aCursor.isAfterLast() != false)
+			{
+				aCursor.moveToFirst();	
+				int ind = aCursor.getColumnIndex("name");
+				locationList.add(aCursor.getString(ind));
+				aCursor.moveToNext();
+			}
+			*/
+		}
+		
+		/*Cursor theCursor = database.geoAlarmDB.query("Transportation", null, null, null, null, null, null);	
+		
 		if(theCursor != null)
 		{
 			theCursor.moveToFirst();
@@ -104,19 +134,19 @@ public class TripPlannerBus extends Activity
 			{
 				int nameColumn = theCursor.getColumnIndex("name");
 				lineNames[i] = theCursor.getString(nameColumn);
-
+				
 				theCursor.moveToNext();
 			}
-			*/
+			
 		}
 
 			theCursor.close();
 			database.geoAlarmDB.close();    
-		/*														   */
+		*/													   
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, locationList);		
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		serviceSelectSpinner.setAdapter(adapter);				
+		startingLocationSpinner.setAdapter(adapter);				
 	}
 	
 	/**
@@ -160,20 +190,20 @@ public class TripPlannerBus extends Activity
 	 */
 	public void configureAlarmOptions()
 	{
+		AlertDialog alertDialog = new AlertDialog.Builder(this.getBaseContext()).create();
 				
 	}
 	
 	/**
-     * This method is called when the activity is going to become visible to the user.
-     * We setup the selection event listener for the Spinner here.
-     */
-    @Override
-    public void onStart()
-    {   	
-    	/* Call superclass constructor.  Required */
-    	super.onStart();
-    	setServiceSelectListeners();    	
-    }
+	 * This method is used to launch the trip setting intent.  The method is bound to the button using the
+	 * onClick XML attribute.
+	 */
+	public void setAlarm()
+	{		
+		
+	}
+	
+	
 	
 	
 	
