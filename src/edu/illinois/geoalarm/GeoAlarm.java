@@ -62,16 +62,15 @@ public class GeoAlarm extends Activity
 			}
 		});
 		
-    
 		// Execute SQLite to retrieve lines
-		Cursor theCursor = database.geoAlarmDB.query("lines", null, "type = " + type, null, null, null, null);
+		Cursor theCursor = database.geoAlarmDB.query("Routes", null, null, null, null, null, null);
 
 		if(theCursor != null)
 		{
 			theCursor.moveToFirst();
-			
+					
 			String[] lineNames = theCursor.getColumnNames();
-			
+					
 			for(int i = 0; theCursor.isAfterLast() != false; i++)
 			{
 				int nameColumn = theCursor.getColumnIndex("name");
@@ -82,7 +81,8 @@ public class GeoAlarm extends Activity
 		}
 
 		theCursor.close();
-		database.geoAlarmDB.close();
+		database.geoAlarmDB.close();    
+		
     }
    
 }
