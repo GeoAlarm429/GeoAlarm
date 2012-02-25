@@ -2,9 +2,11 @@ package edu.illinois.geoalarm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
@@ -27,13 +29,14 @@ public class TripPlannerBus extends Activity
 	GeoAlarmDB database;
 	
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+	{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.trip_cta_bus);
         
-        populateServiceSpinner();
-        populateStartingAndDestination();
         loadDatabase();
+        populateServiceSpinner();
+        populateStartingAndDestination();        
     }	
 	
 	/**
@@ -41,6 +44,8 @@ public class TripPlannerBus extends Activity
 	 */
 	public void loadDatabase()
 	{
+		database = new GeoAlarmDB(this);
+		
 		// Check the custom SQLite helper functions that load existing DB
 		try
 		{
@@ -59,9 +64,7 @@ public class TripPlannerBus extends Activity
 		catch (SQLException sql)
 		{
 			throw new Error("Unable to execute sql in: " + sql.toString());
-		}
-
-	
+		}	
 	}
 	
 	/**
@@ -70,7 +73,7 @@ public class TripPlannerBus extends Activity
 	 */
 	public void populateServiceSpinner()
 	{	
-		serviceSelectSpinner = (Spinner) findViewById(R.id.tripServiceSelectSpinner);        
+		serviceSelectSpinner = (Spinner) findViewById(R.id.serviceSelectSpinner);        
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 			this, R.array.travel_type_array, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -87,8 +90,28 @@ public class TripPlannerBus extends Activity
 		destinationSpinner = (Spinner) findViewById(R.id.destinationSpinner);
 		List<String> locationList = new ArrayList<String>();
 		
-		/* Insert DB call to get all locations to populate Spinner */
-		
+		/* Insert DB call to get all locations to populate Spinner */		
+		Cursor theCursor = database.geoAlarmDB.query("Routes", null, null, null, null, null, null);
+
+		if(theCursor != null)
+		{
+			theCursor.moveToFirst();
+							
+			Collections.addAll(locationList, theCursor.getColumnNames());
+			
+			/*
+			for(int i = 0; theCursor.isAfterLast() != false; i++)
+			{
+				int nameColumn = theCursor.getColumnIndex("name");
+				lineNames[i] = theCursor.getString(nameColumn);
+
+				theCursor.moveToNext();
+			}
+			*/
+		}
+
+			theCursor.close();
+			database.geoAlarmDB.close();    
 		/*														   */
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, locationList);		

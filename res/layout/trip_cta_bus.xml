@@ -21,9 +21,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/service_label" />
-
+
             <Spinner
-                android:id="@+id/serviceSpinner"
+                android:id="@+id/serviceSelectSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

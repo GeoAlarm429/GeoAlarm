@@ -21,7 +21,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 
 	private static final int DATABASE_VERSION = 1;
 	// Android's default system path for databases
-	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases";
+	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases/";
 	// The name of the database
 	private static String DB_NAME = "geoAlarmDB";
 	public SQLiteDatabase geoAlarmDB;
@@ -80,6 +80,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}
 		catch(SQLiteException e) {
 			//database does't exist yet
+			throw new Error("SO MUCH SQLITE EXCEPTION");
 		}
 
 		if(checkDB != null) {
