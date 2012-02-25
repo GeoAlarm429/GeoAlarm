@@ -105,8 +105,7 @@ public class TripPlannerBus extends Activity
 	 */
 	public void configureAlarmOptions()
 	{
-		
-		
+				
 	}
 	
 	/**
