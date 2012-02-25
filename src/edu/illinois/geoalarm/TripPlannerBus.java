@@ -1,9 +1,11 @@
 package edu.illinois.geoalarm;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,6 +24,7 @@ public class TripPlannerBus extends Activity
 	Spinner serviceSelectSpinner;
 	Spinner startingLocationSpinner;
 	Spinner destinationSpinner;
+	GeoAlarmDB database;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,7 +33,36 @@ public class TripPlannerBus extends Activity
         
         populateServiceSpinner();
         populateStartingAndDestination();
+        loadDatabase();
     }	
+	
+	/**
+	 * This function tries to load the existing SQLite DB
+	 */
+	public void loadDatabase()
+	{
+		// Check the custom SQLite helper functions that load existing DB
+		try
+		{
+			database.createDataBase();
+		}
+		catch (IOException e)
+		{
+			throw new Error("Unable to create/find database");
+		}
+
+		// Open the SQLite database
+		try
+		{
+			database.openDataBase();
+		}
+		catch (SQLException sql)
+		{
+			throw new Error("Unable to execute sql in: " + sql.toString());
+		}
+
+	
+	}
 	
 	/**
 	 * This method populates the serviceSpinner, and sets the choice to Bus, since that had to be chosen
