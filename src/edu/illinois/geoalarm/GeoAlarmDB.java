@@ -80,7 +80,6 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}
 		catch(SQLiteException e) {
 			//database does't exist yet
-			throw new Error("SO MUCH SQLITE EXCEPTION");
 		}
 
 		if(checkDB != null) {

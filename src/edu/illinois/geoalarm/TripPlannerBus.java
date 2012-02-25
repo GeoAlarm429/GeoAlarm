@@ -103,25 +103,9 @@ public class TripPlannerBus extends Activity
 		destinationSpinner = (Spinner) findViewById(R.id.destinationSpinner);
 		List<String> locationList = new ArrayList<String>();
 		
-		/* Insert DB call to get all locations to populate Spinner */					
-
-		Cursor aCursor = database.geoAlarmDB.rawQuery("select * from Routes", null);
-		if(aCursor != null)
-		{
-			
-			Collections.addAll(locationList, aCursor.getColumnNames());
-			/*
-			while(aCursor.isAfterLast() != false)
-			{
-				aCursor.moveToFirst();	
-				int ind = aCursor.getColumnIndex("name");
-				locationList.add(aCursor.getString(ind));
-				aCursor.moveToNext();
-			}
-			*/
-		}
+		/* Insert DB call to get all locations to populate Spinner */
 		
-		/*Cursor theCursor = database.geoAlarmDB.query("Transportation", null, null, null, null, null, null);	
+		Cursor theCursor = database.geoAlarmDB.query("Routes", null, null, null, null, null, null);	
 		
 		if(theCursor != null)
 		{
@@ -129,11 +113,11 @@ public class TripPlannerBus extends Activity
 							
 			Collections.addAll(locationList, theCursor.getColumnNames());
 			
-			/*
+			
 			for(int i = 0; theCursor.isAfterLast() != false; i++)
 			{
 				int nameColumn = theCursor.getColumnIndex("name");
-				lineNames[i] = theCursor.getString(nameColumn);
+				locationList.add(theCursor.getString(nameColumn));
 				
 				theCursor.moveToNext();
 			}
@@ -142,7 +126,7 @@ public class TripPlannerBus extends Activity
 
 			theCursor.close();
 			database.geoAlarmDB.close();    
-		*/													   
+													   
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, locationList);		
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
