@@ -7,8 +7,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class GeoAlarm extends Activity
@@ -46,21 +47,22 @@ public class GeoAlarm extends Activity
 		}
 
 		Spinner type = (Spinner) findViewById(R.id.spinner1);
-		type.OnItemSelectedListener(new View.OnItemSelectedListener()
-		{
-			public void onSelect(View v)
-			{
-				AdapterView<?> parent, View view, int pos, long id);
-
+		type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+		{	
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int pos, long id) {
 				Toast.makeText(parent.getContext(), "The planet is " +
-		          parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
-		    }
+				          parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
+				
+			}
+
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 		
-
-	
-		
-    }
+    
 		// Execute SQLite to retrieve lines
 		Cursor theCursor = database.geoAlarmDB.query("lines", null, "type = " + type, null, null, null, null);
 
@@ -68,7 +70,7 @@ public class GeoAlarm extends Activity
 		{
 			theCursor.moveToFirst();
 			
-			String[] lineNames;
+			String[] lineNames = theCursor.getColumnNames();
 			
 			for(int i = 0; theCursor.isAfterLast() != false; i++)
 			{
