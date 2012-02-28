@@ -4,18 +4,19 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
+
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 /**
- * To show marker on the map
+ * To show near bus stops on the map
  * @author Seungmok Lee, Hyungjoo Kim
  */
-public class CurrMarkerOverlay extends ItemizedOverlay<OverlayItem> {
+public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private Context mapContext;
-	
-	public CurrMarkerOverlay(Drawable defaultMarker, Context context) {
+
+	public NearStopOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
 		mapContext = context;
 	}
@@ -28,12 +29,12 @@ public class CurrMarkerOverlay extends ItemizedOverlay<OverlayItem> {
 	@Override
 	public int size() {
 		return overlays.size();
-	}
-
+	}	
+	
 	public void addOverlay(OverlayItem overlay) { 
 		overlays.add(overlay); 
 	    populate(); 
-	}	
+	}
 	
 	/**
 	 * Called when the bus icon is tapped
