@@ -20,13 +20,14 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/service_label" />
-
+
             <Spinner
-                android:id="@+id/spinner1"
+                android:id="@+id/serviceSelectSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right" />
+
         </TableRow>
 
         <TableRow
@@ -40,13 +41,14 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/star_loc_label" />
-
+
             <Spinner
-                android:id="@+id/spinner2"
+                android:id="@+id/startingLocationSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_weight="1" />
+
         </TableRow>
 
         <TableRow
@@ -60,12 +62,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/destination" />
-
+
             <Spinner
-                android:id="@+id/spinner3"
+                android:id="@+id/destinationSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
+
         </TableRow>
     </TableLayout>
 
