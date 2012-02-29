@@ -42,7 +42,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     private static final String DB_CREATE_SQL = "CREATE TABLE " + DB_TABLE_NAME +  
 												" (" + DB_ID + " INTEGER PRIMARY KEY, " + DB_LONGITUDE + 
 												" DOUBLE, " + DB_LATITUDE + " DOUBLE, " +
-												DB_BUSSTOPS_NAME + " DOUBLE);)";
+												DB_BUSSTOPS_NAME + " VARCHAR);)";
     
     private ArrayList<StopInfo> nearStops;
     /*----- We (Seung Mok Lee and Hyung Joo Kim added this part) -----*/
@@ -248,7 +248,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-	       Log.i("onCreate", "Creating the MTDData database...");
+	       Log.i("onCreate", "Creating the database...");
 	       db.execSQL(DB_CREATE_SQL);
 	}
 
