@@ -13,9 +13,9 @@
             android:id="@+id/tableRow1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/serviceTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".25"
