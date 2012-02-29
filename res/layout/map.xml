@@ -56,6 +56,12 @@
             android:layout_height="0dp"
             android:layout_weight=".5" >
 
+            <CheckBox
+                android:id="@+id/satellite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Satellite" />
+
             <TextView
                 android:id="@+id/TextView1"
                 android:layout_width="0dp"
