@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -36,6 +37,7 @@ public class RouteMap extends MapActivity {
 	private MapView mainMap;
 	private MapController mapControl;
 	private Button backBtn;
+	private CheckBox satellite;
 	private Location currentLocation;
 	private GeoPoint centerPoint;
 	private List<Overlay> currentMarkerOverlays;
@@ -61,6 +63,7 @@ public class RouteMap extends MapActivity {
         		
         mainMap = (MapView)findViewById(R.id.mainMap);
         backBtn = (Button)findViewById(R.id.backBtn);
+        satellite = (CheckBox)findViewById(R.id.satellite);
         
         // Get current location and show it on the map
         showCurrentLocation();
@@ -80,6 +83,17 @@ public class RouteMap extends MapActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent(RouteMap.this, GeoAlarm.class);
 				startActivityForResult(intent, LAUNCH_ACTIVITY);
+			}
+		});
+        
+        satellite.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				if(satellite.isChecked()){
+					mainMap.setSatellite(true);
+				}
+				else
+					mainMap.setSatellite(false);
 			}
 		});
     }
@@ -129,7 +143,6 @@ public class RouteMap extends MapActivity {
 		NearStopOverlay itemizedOverlay = new NearStopOverlay(drawable, this);
 		
 		if(!nearStops.isEmpty()){
-			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
 			for(StopInfo stopToShow : nearStops){
 				
 				// A point to show on the map
@@ -140,7 +153,7 @@ public class RouteMap extends MapActivity {
 			nearStopsOverlays.add(itemizedOverlay);
 		}
 		else {
-			
+			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
 			onResume();
 		}
 	}
