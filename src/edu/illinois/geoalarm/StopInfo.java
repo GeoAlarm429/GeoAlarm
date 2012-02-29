@@ -5,20 +5,20 @@ package edu.illinois.geoalarm;
  * @author Seungmok Lee, Hyungjoo Kim
  */
 public class StopInfo {
-	private String fullName;
+	private String name;
 	private double latitude;
 	private double longitude;
 	
 	public StopInfo(String fullName, double latitude, double longitude) {
 		super();
-		this.fullName = fullName;
+		this.name = fullName;
 		this.latitude = latitude;
 		this.longitude = longitude;
 	}
 
 	// Getters
 	public String getFullName() {
-		return fullName;
+		return name;
 	}
 
 	public double getLatitude() {

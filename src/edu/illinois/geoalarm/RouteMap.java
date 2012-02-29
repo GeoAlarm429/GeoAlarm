@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
@@ -22,7 +21,6 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
-import com.slee.Helper.MTDDbController;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
