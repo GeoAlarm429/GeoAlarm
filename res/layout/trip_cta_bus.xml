@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:baselineAligned="false" >
-
+
     <TableLayout
         android:id="@+id/tableLayout1"
         android:layout_width="match_parent"
@@ -14,14 +14,14 @@
             android:id="@+id/tableRow1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
                 android:id="@+id/serviceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/service_label" />
-
+
             <Spinner
                 android:id="@+id/serviceSelectSpinner"
                 android:layout_width="0dp"
@@ -35,14 +35,14 @@
             android:id="@+id/tableRow2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
                 android:id="@+id/startingLocationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/star_loc_label" />
-
+
             <Spinner
                 android:id="@+id/startingLocationSpinner"
                 android:layout_width="match_parent"
@@ -56,14 +56,14 @@
             android:id="@+id/tableRow3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
                 android:id="@+id/destinationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/destination" />
-
+
             <Spinner
                 android:id="@+id/destinationSpinner"
                 android:layout_width="0dp"
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
     </LinearLayout>
-
+
     <LinearLayout
         android:id="@+id/LinearLayout2"
         android:layout_width="match_parent"
@@ -87,7 +87,7 @@
         android:layout_gravity="center|bottom"
         android:layout_weight="1"
         android:orientation="vertical" >
-
+
         <Button
             android:id="@+id/alarmOptionsButton"
             android:layout_width="wrap_content"
@@ -95,7 +95,7 @@
             android:layout_gravity="center"
             android:text="@string/alarm_options_label"
             android:onClick="configureAlarmOptions" />
-
+
         <Button
             android:id="@+id/setAlarmButton"
             android:layout_width="wrap_content"

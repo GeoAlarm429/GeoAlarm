@@ -109,17 +109,22 @@ public class TripPlannerBus extends Activity
 		
 		if(theCursor != null)
 		{
-			theCursor.moveToFirst();
+			boolean hasData = theCursor.moveToFirst();
 							
 			Collections.addAll(locationList, theCursor.getColumnNames());
 			
-			
-			for(int i = 0; theCursor.isAfterLast() != false; i++)
+			if(hasData)
 			{
-				int nameColumn = theCursor.getColumnIndex("name");
-				locationList.add(theCursor.getString(nameColumn));
+			
+				for(int i = 0; theCursor.isAfterLast() != false; i++)
+				{
+					int nameColumn = theCursor.getColumnIndex("name");
 				
-				theCursor.moveToNext();
+					String newName = theCursor.getString(nameColumn);
+					locationList.add(newName);
+				
+					theCursor.moveToNext();
+				}
 			}
 			
 		}
