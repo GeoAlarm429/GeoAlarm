@@ -129,6 +129,7 @@ public class RouteMap extends MapActivity {
 		NearStopOverlay itemizedOverlay = new NearStopOverlay(drawable, this);
 		
 		if(!nearStops.isEmpty()){
+			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
 			for(StopInfo stopToShow : nearStops){
 				
 				// A point to show on the map
@@ -139,7 +140,7 @@ public class RouteMap extends MapActivity {
 			nearStopsOverlays.add(itemizedOverlay);
 		}
 		else {
-			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
+			
 			onResume();
 		}
 	}

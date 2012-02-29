@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.Log;
 
 /**
  * @author GeoAlaem
@@ -39,9 +40,9 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 
     // SQL command to create a table
     private static final String DB_CREATE_SQL = "CREATE TABLE " + DB_TABLE_NAME +  
-												" (" + " TEXT, " + DB_BUSSTOPS_NAME + 
-												" TEXT PRIMARY KEY, " + DB_LATITUDE + " DOUBLE, " +
-												 DB_LONGITUDE + " DOUBLE);)";
+												" (" + DB_ID + " INTEGER PRIMARY KEY, " + DB_LONGITUDE + 
+												" DOUBLE, " + DB_LATITUDE + " DOUBLE, " +
+												DB_BUSSTOPS_NAME + " DOUBLE);)";
     
     private ArrayList<StopInfo> nearStops;
     /*----- We (Seung Mok Lee and Hyung Joo Kim added this part) -----*/
@@ -57,7 +58,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	 */
 	public GeoAlarmDB(Context context)
 	{
-		super(context, DB_NAME, null, 1);
+		super(context, DB_NAME, null, DATABASE_VERSION);
 		this.myContext = context;
 	}
 
@@ -175,7 +176,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	 */
 	public ArrayList<StopInfo> getAroundMe(Location current){
 		// Get all data
-	   	Cursor result = geoAlarmDB.query(DB_TABLE_NAME, new String[] { DB_ID, DB_LONGITUDE, DB_LATITUDE, DB_BUSSTOPS_NAME }, 
+	   	Cursor result = geoAlarmDB.query(DB_TABLE_NAME, null, 
 									null, null, null, null, null);
 	   	
     	if (result != null){
@@ -200,7 +201,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     		float distance = current.distanceTo(tempLocation);
     		
     		// if the point is within 400 meters, store it to the array list
-    		if ((int)distance < 2000){
+    		if ((int)distance < 400){
     			tempStop = new StopInfo(result.getString(3), latitude, longitude);
     			nearStops.add(tempStop);
     		}
@@ -247,7 +248,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-
+	       Log.i("onCreate", "Creating the MTDData database...");
+	       db.execSQL(DB_CREATE_SQL);
 	}
 
 	@Override
