@@ -23,5 +23,7 @@
         <item >Train</item>
         
     </string-array>
+    <string name="serviceBusTextFieldString">Bus</string>
+    <string name="busLineTextFieldString">Line:</string>
 
 </resources>

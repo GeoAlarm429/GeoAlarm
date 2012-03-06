@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -212,6 +214,87 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     	result.close();
     	return nearStops;
 	}
+	
+	/**
+	 * This method returns an ArrayList<<String>> containing the names of the bus lines,
+	 * ordered by spelling
+	 * in the database.
+	 * @return An ArrayList<<String>> of the bus lines in the database
+	 */
+	public ArrayList<String> getBusLines()
+	{
+		ArrayList<String> lineList = new ArrayList<String>();
+		
+		Cursor result = geoAlarmDB.query("Routes", new String[] {"name"}, null, null, null, null, "name");
+		
+		if(result.moveToFirst())
+		{
+			while(result.isAfterLast() != false)
+			{
+				int nameColumn = result.getColumnIndex("name");
+			
+				String newName = result.getString(nameColumn);
+				lineList.add(newName);
+			
+				result.moveToNext();
+			}
+		}
+		
+		return lineList;
+	}
+	
+	/**
+	 * This method returns an ArrayList<<String>> containing the stops on a particular
+	 * bus line. It first queries the Routes table to get the routeID corresponding to
+	 * the selectedLine.  Then it queries the Route_Station table to get all the stationIDs
+	 * associated with that route.  Finally, it queries the Station table to get the 
+	 * station names.
+	 * @param selectedLine The line selected by the user
+	 * @return A list of the stations associated with a particular line
+	 */
+	public ArrayList<String> getLineStops(String selectedLine) 
+	{
+		ArrayList<String> stopList = new ArrayList<String>();
+		
+		/* Get corresponding routeID from Routes table */
+		Cursor result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = " + selectedLine, null, null, null, null);
+		int routeID = 0;		
+		if(result.moveToFirst())
+		{
+			int columnIndex = result.getColumnIndex("routeID");
+			routeID = result.getInt(columnIndex);
+		}
+		
+		/* Get list of stationIDs from Route_Station table */
+		result = geoAlarmDB.query("Route_Station", new String[] {"stationID"}, "routeID =" + routeID, null, null, null, null);		
+		ArrayList<Integer> stationIDList = new ArrayList<Integer>();		
+		if(result.moveToFirst())
+		{
+			while(result.isAfterLast() == false)
+			{
+				int columnIndex = result.getColumnIndex("stationID");
+				stationIDList.add(new Integer(result.getInt(columnIndex)));
+				result.moveToNext();
+			}
+		}
+		
+		/* Get stationID names from Station table */		
+		for(int stationIDIndex = 0; stationIDIndex < stationIDList.size(); stationIDIndex++)
+		{
+			result = geoAlarmDB.query("Station", new String[]{"name"}, "stationID =" + stationIDList.get(stationIDIndex), null, null, null, null);
+			if(result.moveToFirst())
+			{
+				while(result.isAfterLast() == false)
+				{
+					int columnIndex = result.getColumnIndex("name");
+					stopList.add(result.getString(columnIndex));
+					result.moveToNext();
+				}
+			}
+		}
+		
+		return stopList;
+	}
 
 	public Context getMyContext()
 	{
@@ -256,4 +339,6 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 	}
+
+	
 }

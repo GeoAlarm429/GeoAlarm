@@ -66,7 +66,7 @@ public class GeoAlarm extends Activity {
 	 */
 	public void showTripScreen(View view)
 	{
-		Intent intent = new Intent(view.getContext(), TripPlanner.class);
+		Intent intent = new Intent(view.getContext(), TripPlannerBus.class);
 		startActivityForResult(intent, 0);
 	}
 	
