@@ -24,6 +24,7 @@ public class GeoAlarm extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        
         // Instantiate the database
 		database = new GeoAlarmDB(this.getApplicationContext());
 
@@ -48,6 +49,7 @@ public class GeoAlarm extends Activity {
 		}
 		
 		database.geoAlarmDB.close();
+		
     }
 
     /** This method is called when the Map button is clicked.

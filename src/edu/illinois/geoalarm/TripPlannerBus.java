@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -39,8 +40,8 @@ public class TripPlannerBus extends Activity
 	private Button setAlarmButton;
 	private GeoAlarmDB database;
 	private String selectedLine;
-	private String selectedStartingStation;
-	private String selectionDestinationStation;
+	private String selectedStartingStation = "";
+	private String selectionDestinationStation = "";
 	private String selectedNotification;
 	private String selectedNotificationTime;
 	private boolean setTimeManual;
@@ -65,6 +66,8 @@ public class TripPlannerBus extends Activity
 		setTimeManual = false;
         
         loadDatabase();        
+        setLineSpinnerEventListeners();
+        setStationSpinnerEventListeners();
 		populateLineSpinner();		 
     }	
 	
@@ -95,28 +98,16 @@ public class TripPlannerBus extends Activity
 	 * This function tries to load the existing SQLite DB
 	 */
 	public void loadDatabase()
-	{
-		database = new GeoAlarmDB(this.getApplicationContext());
-		
-		// Check the custom SQLite helper functions that load existing DB
-		try
-		{
-			database.createDataBase();
-		}
-		catch (IOException e)
-		{
-			throw new Error("Unable to create/find database");
-		}
-
-		// Open the SQLite database
-		try
-		{
-			database.openDataBase();
-		}
-		catch (SQLException sql)
-		{
-			throw new Error("Unable to execute sql in: " + sql.toString());
-		}	
+	{		
+			database = new GeoAlarmDB(this);
+	        try 
+	        {
+	        	database.openDataBase();
+	        } 
+	        catch (SQLException e) 
+	        {
+	        		throw e;
+	        }
 	}
 	
 	/**
@@ -196,9 +187,14 @@ public class TripPlannerBus extends Activity
     	    	{
     	    		selectedStartingStation = startingLocationSpinner.getSelectedItem().toString(); 	
     	    		
-    	    		if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
+    	    		if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION &&
+    	    				!(selectionDestinationStation.equalsIgnoreCase(selectedStartingStation)))
     	    		{
     	    			setAlarmButton.setEnabled(true);
+    	    		}
+    	    		else
+    	    		{
+    	    			setAlarmButton.setEnabled(false);
     	    		}
     	    	}
     	    	
@@ -221,9 +217,14 @@ public class TripPlannerBus extends Activity
     	    	{
     	    		selectionDestinationStation = destinationLocationSpinner.getSelectedItem().toString(); 	
     	    		
-    	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
+    	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION && 
+    	    				!(selectionDestinationStation.equalsIgnoreCase(selectedStartingStation)))
     	    		{
     	    			setAlarmButton.setEnabled(true);
+    	    		}
+    	    		else
+    	    		{
+    	    			setAlarmButton.setEnabled(false);
     	    		}
     	    	}    	    	
     	    }
@@ -344,11 +345,9 @@ public class TripPlannerBus extends Activity
 	 */
 	public void setAlarm(View view)
 	{		
-		
+		database.close();		
+		Intent intent = new Intent(view.getContext(), RouteMap.class);
+		startActivityForResult(intent, 0);		
 	}
-	
-	
-	
-	
 	
 }
