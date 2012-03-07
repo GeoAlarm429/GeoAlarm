@@ -24,6 +24,12 @@ public class GeoAlarm extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        
+        if (Splash.flag == true){
+            Intent intent = new Intent (this, Splash.class);
+            startActivity(intent);            	
+        }
+
         // Instantiate the database
 		database = new GeoAlarmDB(this.getApplicationContext());
 
