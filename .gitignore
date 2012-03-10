@@ -49,3 +49,4 @@ local.properties
 .classpath
 .project
 *.orig
+project.properties

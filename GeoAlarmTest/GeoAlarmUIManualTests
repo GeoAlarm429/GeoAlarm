@@ -1,0 +1,84 @@
+GeoAlarm UI Tests
+Authors: Chris, Sri
+
+This file describes a series of manual tests, that should be carried out on the GeoAlarm application to test
+the User Interface and View transitions.
+
+Some of these tests may later be automated using the robotium test suite (http://code.google.com/p/robotium/)
+
+Test 1: Application Launch
+	Prerequisites:
+		None
+	Procedure:
+		1)Launch the GeoAlarm Application
+	Expected Result:
+		1) Application launches
+		2) 3 buttons are displayed
+			i) Map
+			ii) Plan Trip
+			iii) Options
+		3) A Sears Tower background image displays
+		4) A digital clock displays above the Map button
+		
+Test 2: Click Map Button
+	Prerequisites:
+		Successful Application Launch
+	Procedure:
+		1) Click Map Button
+	Expected Result:
+		1) Application transitions to Maps view
+		2) Hardware back button allows return to launch screen
+		
+Test 3: Click Plan Trip Button
+	Prerequisites:
+		Successful Application Launch
+	Procedure:
+		1) Click Plan Trip button
+	Expected Result:
+		1) Application transitions to TripPlanner view
+		2) Service label is visible
+		3) Service selection Spinner is visible
+		4) Hardware back button allows return to launch screen
+		
+Test 4: Select Bus Service
+	Prerequisites:
+		Successful Application Launch
+		Plan Trip button clicked
+	Procedure:
+		1) Click Service select Spinner
+		2) Select Bus Option
+	Expected Result:
+		1) Application transitions to TripPlannerBus view
+		2) Hardware back button allows return to TripPlanner view
+		
+Test 5: Select Train Service
+	Prerequisites:
+		Successful Application Launch
+		Plan Trip button clicked
+	Procedure:
+		1) Click Service select Spinner
+		2) Select Train Option
+	Expected Result:
+		1) Application transitions to TripPlannerTrain view
+		2) Hardware back button allows return to TripPlanner view
+
+Test 6: Select the Map View
+	Prerequisites:
+		Successful Application Launch
+		Map button clicked
+		Successful display of Map
+	Procedure: 
+		1) Click appropriate check box to select normal map view or satellite view 
+	Expected Result:
+		1) Application transitions from normal view to satellite view or vice versa
+
+Test 7: View the desired bus stop
+	Prerequisites: 
+		Successful Application Launch
+		Map Button Clicked
+		Successful display of Map
+	Procedure:
+		1) Tap on desired bus icon 
+	Expected Result:
+		1) Current Stop appears in Red Marker
+		2) Displays all neighboring stops within a desired vicinity

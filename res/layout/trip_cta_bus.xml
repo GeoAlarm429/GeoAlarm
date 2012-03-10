@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
+    android:orientation="vertical"
+    android:baselineAligned="false" >
+
     <TableLayout
         android:id="@+id/tableLayout1"
         android:layout_width="match_parent"
@@ -15,38 +16,38 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/serviceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/service_label" />
-
-            <Spinner
-                android:id="@+id/spinner1"
-                android:layout_width="0dp"
+
+            <TextView
+                android:id="@+id/busServiceTextField"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="right" />
+                android:text="@string/serviceBusTextFieldString"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/lineTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/star_loc_label" />
-
+                android:text="@string/busLineTextFieldString" />
+
             <Spinner
-                android:id="@+id/spinner2"
+                android:id="@+id/lineSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
                 android:layout_weight="1" />
+
         </TableRow>
 
         <TableRow
@@ -55,48 +56,49 @@
             android:layout_height="wrap_content" >
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/startingLocationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/destination" />
-
+                android:text="@string/star_loc_label" />
+
             <Spinner
-                android:id="@+id/spinner3"
+                android:id="@+id/startingLocationSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
+
+        </TableRow>
+        <TableRow>
+
+            <TextView
+                android:id="@+id/destinationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/destination" />
+        
+        	<Spinner
+        	    android:id="@+id/destinationSpinner"
+        	    android:layout_width="0dp"
+        	    android:layout_height="wrap_content"
+        	    android:layout_weight="1" />
+            
         </TableRow>
     </TableLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/LinearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center|bottom"
-        android:layout_weight="1"
-        android:orientation="vertical" >
-
+    
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/alarmOptionsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/alarm_options_label" />
+            android:text="@string/alarm_options_label" 
+            android:onClick="configureAlarmOptions" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/setAlarmButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/set_alarm_label" />
-    </LinearLayout>
+            android:text="@string/set_alarm_label"
+            android:onClick="setAlarm" />
 
 </LinearLayout>

@@ -45,8 +45,6 @@ public class RouteMap extends MapActivity {
 	private ArrayList<StopInfo> nearStops;
 	private Location mapCenter;
 	private GeoAlarmDB dbController;
-	
-	private static String[] stoplist;
 
 	/** Called when the activity is first created. 
 	 * @author Hyung Joo Kim and Seung Mok Lee
@@ -79,12 +77,6 @@ public class RouteMap extends MapActivity {
         
         showNearBusStopsOnMap(currentLocation);
         
-        //stoplist = dbController.getColumn("stationID");
-        
-        /*if(stoplist.length == 0){
-        	Toast.makeText(RouteMap.this, "NO DATA", Toast.LENGTH_LONG).show();
-        }
-        */
         // Event Listeners
         backBtn.setOnClickListener(new OnClickListener() {
 			
@@ -161,7 +153,7 @@ public class RouteMap extends MapActivity {
 			nearStopsOverlays.add(itemizedOverlay);
 		}
 		else {
-			//Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
+			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
 			onResume();
 		}
 	}

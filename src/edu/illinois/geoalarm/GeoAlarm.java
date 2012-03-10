@@ -50,8 +50,9 @@ public class GeoAlarm extends Activity {
 		database.geoAlarmDB.close();
     }
 
-    /* This method is called when the Map button is clicked.
-     * It launches the RouteMap activity.
+    /** This method is called when the Map button is clicked.
+     *  It launches the RouteMap activity.
+ 	 *  We use the onClick XML attribute in main.xml to bind the method to the click event.
      */
 	public void showMapScreen(View view)
 	{
@@ -59,17 +60,19 @@ public class GeoAlarm extends Activity {
 		startActivityForResult(intent, 0);		
 	}
 	
-	/* This method is called when the Trip button is clicked.
-	 * It launches the TripPlanner activity.
+	/** This method is called when the Trip button is clicked.
+	 *  It launches the TripPlanner activity.
+	 *  We use the onClick XML attribute in main.xml to bind the method to the click event.
 	 */
 	public void showTripScreen(View view)
 	{
-		Intent intent = new Intent(view.getContext(), TripPlanner.class);
+		Intent intent = new Intent(view.getContext(), TripPlannerBus.class);
 		startActivityForResult(intent, 0);
 	}
 	
-	/* This method is called when the Options button is clicked.
-	 * It launched the Options activity.
+	/** This method is called when the Options button is clicked.
+	 *  It launched the Options activity.
+	 *  We use the onClick XML attribute in main.xml to bind the method to the click event.
 	 */
 	public void showOptionsScreen(View view)
 	{
