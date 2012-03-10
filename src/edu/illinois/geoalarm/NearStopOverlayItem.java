@@ -8,7 +8,6 @@ import com.google.android.maps.OverlayItem;
  * @author Seungmok Lee, Hyungjoo Kim
  */
 public class NearStopOverlayItem extends OverlayItem {
-	@SuppressWarnings("unused")
 	private StopInfo busStop;
 	
 	/**
@@ -26,5 +25,9 @@ public class NearStopOverlayItem extends OverlayItem {
 	public NearStopOverlayItem(StopInfo stop) {
 		super(new GeoPoint((int)(stop.getLatitude()*1E6), (int)(stop.getLongitude()*1E6)), stop.getFullName(), "Tap to see bus information");
 		busStop = stop;
+	}
+	
+	public StopInfo getBusStop() {
+		return busStop;
 	}
 }
