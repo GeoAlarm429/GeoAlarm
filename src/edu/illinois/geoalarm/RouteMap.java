@@ -22,6 +22,7 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import android.os.Vibrator;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
@@ -45,7 +46,8 @@ public class RouteMap extends MapActivity {
 	private ArrayList<StopInfo> nearStops;
 	private Location mapCenter;
 	private GeoAlarmDB dbController;
-	
+	private Vibrator theVibrator;
+
 	private static String[] stoplist;
 
 	/** Called when the activity is first created. 
