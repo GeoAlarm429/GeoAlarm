@@ -256,4 +256,29 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 	}
+	
+    public String[] getColumn(String column){
+    	try{
+    		Cursor cursor = this.geoAlarmDB.query(DB_TABLE_NAME, new String[] { column }, null, null, null, null, null);
+    		if(cursor.getCount() > 0){
+	    		String[] result = new String[cursor.getCount()];
+	    		
+	    		int index = 0;
+	    		
+	    		// Store all the bus stops into string array
+	    		while (cursor.moveToNext()){
+	    			result[index] = cursor.getString(cursor.getColumnIndex(column));
+	    			index++;
+	    		}
+	    		
+	    		return result;
+	    	}
+	    	else {
+	    		return null;
+	    	}
+    	} catch (Exception e) {
+			Log.e("ErrorMessage : ", e.getMessage());
+			return null;
+		}
+    }
 }
