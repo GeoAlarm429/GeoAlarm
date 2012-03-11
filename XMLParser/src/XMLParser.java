@@ -31,6 +31,8 @@ import org.xml.sax.SAXException;
 
 
 public class XMLParser {
+	
+	// Constants
 	private static final String API_KEY = "ef23cfb988384e259056b4098c70d877";
 	private static final String VERSION = "v2.1";
 	private static final String STATIONS_URL = "http://developer.cumtd.com/api/" + VERSION +
@@ -238,8 +240,17 @@ public class XMLParser {
 				return document;
 	}
 	
-	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException { // TODO: Change the function name to gatherData()
+	/**
+	 * Parse the required XML.
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws XPathExpressionException
+	 * @throws InterruptedException
+	 */
+	public static void parse() throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, InterruptedException { // TODO: Change the function name to gatherData()
 		parseXmlFile();
+		GoogleTransit.getGoogleTransit();
 		// gets all routes
 		String routesStr = 
 				//getData(ROUTES_URL);

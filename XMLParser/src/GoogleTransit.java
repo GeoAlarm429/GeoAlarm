@@ -13,44 +13,28 @@ import java.nio.channels.ReadableByteChannel;
 
 public class GoogleTransit {
 
-	private static final String GoogleTransitURL = "http://developer.cumtd.com/gtfs/google_transit.zip";
+	// Constants
+	private static final String GOOGLE_TRANSIT_URL = "http://developer.cumtd.com/gtfs/google_transit.zip";
+	private static final String FILENAME = "google_transit.zip";
 	
-	private static void wget() {
-        BufferedInputStream in = null;
-        FileOutputStream fout = null;
-        try
-        {
-                in = new BufferedInputStream(new URL(GoogleTransitURL).openStream());
-                fout = new FileOutputStream("google_transit.zip");
-
-                byte data[] = new byte[1024];
-                int count;
-                while ((count = in.read(data, 0, 1024)) != -1)
-                {
-                        fout.write(data, 0, count);
-                }
-                
-                if (in != null)
-                    in.close();
-                if (fout != null)
-                    fout.close();
-        } catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-	}
-	public static void main(String[] args) {
+	/**
+	 * We want to download the google_transit file that would better
+	 * help us populate our database.
+	 * @throws InterruptedException 
+	 */
+	public static void getGoogleTransit() throws InterruptedException {
 		try {
-			Runtime.getRuntime().exec("rm -rf google_transit");
-			Runtime.getRuntime().exec("mkdir google_transit");
-			wget();
-			Runtime.getRuntime().exec("unzip google_transit.zip -d google_transit");
-			Runtime.getRuntime().exec("rm -f google_transit.zip");
+			Runtime runtime = Runtime.getRuntime();
+			runtime.exec("rm -rf google_transit").waitFor();
+			System.out.println("Creating folder 'google_transit'...");
+			runtime.exec("mkdir google_transit").waitFor();
+			System.out.println("Downloading 'google_transit.zip'...");
+			runtime.exec("wget " + GOOGLE_TRANSIT_URL).waitFor();
+			//wget();
+			System.out.println("Extracting files...");
+			runtime.exec("unzip google_transit.zip -d google_transit").waitFor();
+			System.out.println("Cleaning up...");
+			runtime.exec("rm -f google_transit.zip");
 		} catch (IOException e) {
 			System.out.println("ERROR: Unexpected error detected.");
 		}
