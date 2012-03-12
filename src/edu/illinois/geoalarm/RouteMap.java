@@ -119,7 +119,6 @@ public class RouteMap extends MapActivity {
 
 	/**
 	 * Method to show current location on the map
-	 * @author Hyung Joo Kim and Seung Mok Lee
 	 */
 	private void showCurrentLocation() {
 		setCurrentPoint();
@@ -161,8 +160,7 @@ public class RouteMap extends MapActivity {
 
     /**
      * Helper function to show the bus stops near the current location on the map
-     * @param currentLocation 
-     * @author Hyung Joo Kim and Seung Mok Lee
+     * @param currentLocation
      */
 	private void showNearBusStopsOnMap(Location currentLocation) {
 		mapOverlays = mainMap.getOverlays();
@@ -188,7 +186,6 @@ public class RouteMap extends MapActivity {
 	
     /**
      * Called when the user move the center of the map
-     * @author Hyung Joo Kim and Seung Mok Lee
      */
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
