@@ -33,16 +33,5 @@ public class CurrMarkerOverlay extends ItemizedOverlay<OverlayItem> {
 	public void addOverlay(OverlayItem overlay) { 
 		overlays.add(overlay); 
 	    populate(); 
-	}	
-	
-	/**
-	 * Called when the bus icon is tapped
-	 */
-	@Override
-	protected boolean onTap(int index) {
-		OverlayItem item = overlays.get(index);
-
-		Toast.makeText(mapContext, "TESTING---TESTING---TESTING", Toast.LENGTH_LONG).show();
-		return true;
 	}
 }

@@ -15,6 +15,7 @@ import com.google.android.maps.OverlayItem;
 public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private Context mapContext;
+	private ArrayList<StopInfo> startAndDest = new ArrayList<StopInfo>(2);
 
 	public NearStopOverlay(Drawable defaultMarker, Context context) {
 		super(boundCenterBottom(defaultMarker));
@@ -41,9 +42,19 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 	 */
 	@Override
 	protected boolean onTap(int index) {
-		OverlayItem item = overlays.get(index);
+		NearStopOverlayItem item = (NearStopOverlayItem) overlays.get(index);
+		
+/*		StopInfo busStop = item.getBusStop();
+		if(busStop.getIsSelected()){
+			busStop.setSelected(false);
+			Toast.makeText(mapContext, "FASLE", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			busStop.setSelected(true);
+			startAndDest.add(busStop);
+			Toast.makeText(mapContext, "True + " + startAndDest.size(), Toast.LENGTH_SHORT).show();
+		}*/
 
-		Toast.makeText(mapContext, "TESTING---TESTING---TESTING", Toast.LENGTH_LONG).show();
 		return true;
 	}
 }

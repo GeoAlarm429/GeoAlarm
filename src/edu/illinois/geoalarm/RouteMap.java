@@ -1,7 +1,17 @@
 package edu.illinois.geoalarm;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
@@ -10,6 +20,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,8 +56,6 @@ public class RouteMap extends MapActivity {
 	private ArrayList<StopInfo> nearStops;
 	private Location mapCenter;
 	private GeoAlarmDB dbController;
-	
-	private static String[] stoplist;
 
 	/** Called when the activity is first created. 
 	 * @author Hyung Joo Kim and Seung Mok Lee
@@ -66,26 +75,36 @@ public class RouteMap extends MapActivity {
         mainMap = (MapView)findViewById(R.id.mainMap);
         backBtn = (Button)findViewById(R.id.backBtn);
         satellite = (CheckBox)findViewById(R.id.satellite);
-        
-        // Get current location and show it on the map
+
         showCurrentLocation();
         
-        // Setup Google Map
-        mapControl = mainMap.getController();
-        mainMap.setBuiltInZoomControls(true);
-
-        mapControl.animateTo(centerPoint);
-        mapControl.setZoom(INITIAL_ZOOM);
+        setupGoogleMap();
         
         showNearBusStopsOnMap(currentLocation);
         
-        //stoplist = dbController.getColumn("stationID");
+      /*  String pairs[] = getDirectionData("Union", "ARC"); 
+        String[] lngLat = pairs[0].split(","); 
+       
+        // STARTING POINT 
+        GeoPoint startGP = new GeoPoint((int) (Double.parseDouble(lngLat[1]) * 1E6), (int) (Double.parseDouble(lngLat[0]) * 1E6));
+        mainMap.getOverlays().add(new DirectionPathOverlay(startGP, startGP));
         
-        /*if(stoplist.length == 0){
-        	Toast.makeText(RouteMap.this, "NO DATA", Toast.LENGTH_LONG).show();
-        }
-        */
-        // Event Listeners
+        GeoPoint gp1; 
+        GeoPoint gp2 = startGP; 
+
+        for (int i = 1; i < pairs.length; i++) { 
+        	lngLat = pairs[i].split(","); 
+        	gp1 = gp2; 
+        	// watch out! For GeoPoint, first:latitude, second:longitude 
+
+        	gp2 = new GeoPoint((int) (Double.parseDouble(lngLat[1]) * 1E6), (int) (Double.parseDouble(lngLat[0]) * 1E6)); 
+        	mainMap.getOverlays().add(new DirectionPathOverlay(gp1, gp2)); 
+        	Log.d("xxx", "pair:" + pairs[i]); 
+        } 
+
+        // END POINT 
+        mainMap.getOverlays().add(new DirectionPathOverlay(gp2, gp2)); */
+        
         backBtn.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
@@ -106,28 +125,40 @@ public class RouteMap extends MapActivity {
 		});
     }
 
+	private void setupGoogleMap() {
+		mapControl = mainMap.getController();
+        mainMap.setBuiltInZoomControls(true);
+
+        mapControl.animateTo(centerPoint);
+        mapControl.setZoom(INITIAL_ZOOM);
+	}
+
 	/**
 	 * Method to show current location on the map
 	 * @author Hyung Joo Kim and Seung Mok Lee
 	 */
 	private void showCurrentLocation() {
+		setCurrentPoint();
+		
+		showMarkerOnMap();
+	}
+	
+	private void setCurrentPoint() {
 		LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-	       
-		// Get the lastest location
+		
 		currentLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
 
-		// Update location with new location information
 		double latitude = currentLocation.getLatitude();   
 		double longitude = currentLocation.getLongitude();
 	  
-		// Point for the current location
 		centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
-		
-		// Show a marker on the map
+	}
+
+	private void showMarkerOnMap() {
 		currentMarkerOverlays = mainMap.getOverlays(); 
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
 	    
@@ -137,7 +168,7 @@ public class RouteMap extends MapActivity {
         itemizedOverlay.addOverlay(overlayitem);  
         currentMarkerOverlays.add(itemizedOverlay);
 	}
-	
+
     /**
      * Helper function to show the bus stops near the current location on the map
      * @param currentLocation 
@@ -153,7 +184,6 @@ public class RouteMap extends MapActivity {
 		if(!nearStops.isEmpty()){
 			for(StopInfo stopToShow : nearStops){
 				
-				// A point to show on the map
 				NearStopOverlayItem item = new NearStopOverlayItem(stopToShow);
 				itemizedOverlay.addOverlay(item);
 			}
@@ -161,7 +191,7 @@ public class RouteMap extends MapActivity {
 			nearStopsOverlays.add(itemizedOverlay);
 		}
 		else {
-			//Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_LONG).show();
+			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_SHORT).show();
 			onResume();
 		}
 	}
@@ -178,8 +208,7 @@ public class RouteMap extends MapActivity {
 			mapCenter = new Location("");
 			mapCenter.setLatitude((double)center.getLatitudeE6()/(double)1E6);
 			mapCenter.setLongitude((double)center.getLongitudeE6()/(double)1E6);
-			
-			// Clear previous view
+
 			nearStopsOverlays.clear();
 			
 			showCurrentLocation();
@@ -188,6 +217,46 @@ public class RouteMap extends MapActivity {
 
 		return result;
 	}
+
+	private String[] getDirectionData(String srcPlace, String destPlace) { 
+
+		String urlString = "http://maps.google.com/maps?f=d&hl=en&saddr=" 
+				+ srcPlace + "&daddr=" + destPlace 
+				+ "&ie=UTF8&0&om=0&output=kml"; 
+
+		Log.d("URL", urlString); 
+		Document doc = null; 
+		HttpURLConnection urlConnection = null; 
+		URL url = null; 
+		String pathConent = ""; 
+
+		try { 
+			url = new URL(urlString.toString()); 
+			urlConnection = (HttpURLConnection) url.openConnection(); 
+			urlConnection.setRequestMethod("GET"); 
+			urlConnection.setDoOutput(true); 
+			urlConnection.setDoInput(true); 
+			urlConnection.connect(); 
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
+			DocumentBuilder db = dbf.newDocumentBuilder(); 
+			doc = db.parse(urlConnection.getInputStream()); 
+
+		} catch (Exception e) {} 
+
+		NodeList nl = doc.getElementsByTagName("LineString");
+		
+		for (int s = 0; s < nl.getLength(); s++) { 
+			Node rootNode = nl.item(s); 
+			NodeList configItems = rootNode.getChildNodes(); 
+			for (int x = 0; x < configItems.getLength(); x++) { 
+				Node lineStringNode = configItems.item(x); 
+				NodeList path = lineStringNode.getChildNodes(); 
+				pathConent = path.item(0).getNodeValue(); 
+			} 
+		} 
+		String[] tempContent = pathConent.split(" "); 
+		return tempContent; 
+	} 
 
 	/**
 	 * This method returns whether routes are currently being displayed on the
