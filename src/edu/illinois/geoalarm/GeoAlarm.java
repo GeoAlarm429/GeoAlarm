@@ -53,7 +53,7 @@ public class GeoAlarm extends Activity {
 			throw new Error("Unable to execute sql in: " + sql.toString());
 		}
 		
-		database.geoAlarmDB.close();
+		database.close();
 		
     }
 

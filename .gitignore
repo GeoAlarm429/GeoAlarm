@@ -54,3 +54,4 @@ local.properties
 project.properties
 
 !robotium-solo-3.1.jar
+!sqlitejdbc-v056.jar
