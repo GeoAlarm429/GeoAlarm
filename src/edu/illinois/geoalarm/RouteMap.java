@@ -82,28 +82,8 @@ public class RouteMap extends MapActivity {
         
         showNearBusStopsOnMap(currentLocation);
         
-      /*  String pairs[] = getDirectionData("Union", "ARC"); 
-        String[] lngLat = pairs[0].split(","); 
-       
-        // STARTING POINT 
-        GeoPoint startGP = new GeoPoint((int) (Double.parseDouble(lngLat[1]) * 1E6), (int) (Double.parseDouble(lngLat[0]) * 1E6));
-        mainMap.getOverlays().add(new DirectionPathOverlay(startGP, startGP));
-        
-        GeoPoint gp1; 
-        GeoPoint gp2 = startGP; 
-
-        for (int i = 1; i < pairs.length; i++) { 
-        	lngLat = pairs[i].split(","); 
-        	gp1 = gp2; 
-        	// watch out! For GeoPoint, first:latitude, second:longitude 
-
-        	gp2 = new GeoPoint((int) (Double.parseDouble(lngLat[1]) * 1E6), (int) (Double.parseDouble(lngLat[0]) * 1E6)); 
-        	mainMap.getOverlays().add(new DirectionPathOverlay(gp1, gp2)); 
-        	Log.d("xxx", "pair:" + pairs[i]); 
-        } 
-
-        // END POINT 
-        mainMap.getOverlays().add(new DirectionPathOverlay(gp2, gp2)); */
+        drawPath(new GeoPoint((int)(40.11024833*1E6), (int)(-88.22789764*1E6)), 
+        		new GeoPoint((int)(40.10148621*1E6), (int)(-88.236055*1E6)));
         
         backBtn.setOnClickListener(new OnClickListener() {
 			
@@ -218,46 +198,71 @@ public class RouteMap extends MapActivity {
 		return result;
 	}
 
-	private String[] getDirectionData(String srcPlace, String destPlace) { 
-
-		String urlString = "http://maps.google.com/maps?f=d&hl=en&saddr=" 
-				+ srcPlace + "&daddr=" + destPlace 
-				+ "&ie=UTF8&0&om=0&output=kml"; 
-
-		Log.d("URL", urlString); 
+	private void drawPath(GeoPoint src, GeoPoint dest) 
+	{ 
+		// connect to map web service 
+		StringBuilder urlString = new StringBuilder(); 
+		urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
+		urlString.append("&saddr=");//from 
+		urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6 )); 
+		urlString.append(","); 
+		urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6 )); 
+		urlString.append("&daddr=");//to 
+		urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6 )); 
+		urlString.append(","); 
+		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 )); 
+		urlString.append("&ie=UTF8&0&om=0&output=kml"); 
+		Log.d("xxx","URL="+urlString.toString()); 
+		
+		// get the kml (XML) doc. And parse it to get the coordinates(direction route). 
 		Document doc = null; 
-		HttpURLConnection urlConnection = null; 
+		HttpURLConnection urlConnection= null; 
 		URL url = null; 
-		String pathConent = ""; 
-
-		try { 
+		try 
+		{ 
 			url = new URL(urlString.toString()); 
-			urlConnection = (HttpURLConnection) url.openConnection(); 
+			urlConnection=(HttpURLConnection)url.openConnection(); 
 			urlConnection.setRequestMethod("GET"); 
 			urlConnection.setDoOutput(true); 
 			urlConnection.setDoInput(true); 
 			urlConnection.connect(); 
+
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
 			DocumentBuilder db = dbf.newDocumentBuilder(); 
 			doc = db.parse(urlConnection.getInputStream()); 
 
-		} catch (Exception e) {} 
-
-		NodeList nl = doc.getElementsByTagName("LineString");
-		
-		for (int s = 0; s < nl.getLength(); s++) { 
-			Node rootNode = nl.item(s); 
-			NodeList configItems = rootNode.getChildNodes(); 
-			for (int x = 0; x < configItems.getLength(); x++) { 
-				Node lineStringNode = configItems.item(x); 
-				NodeList path = lineStringNode.getChildNodes(); 
-				pathConent = path.item(0).getNodeValue(); 
+			if(doc.getElementsByTagName("GeometryCollection").getLength()>0) 
+			{ 
+				String path = doc.getElementsByTagName("GeometryCollection").item(0).getFirstChild().getFirstChild().getFirstChild().getNodeValue() ; 
+				Log.d("xxx","path="+ path); 
+				String [] pairs = path.split(" "); 
+				String[] lngLat = pairs[0].split(","); // lngLat[0]=longitude lngLat[1]=latitude lngLat[2]=height 
+				
+				// src 
+				GeoPoint startGP = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
+				mainMap.getOverlays().add(new DirectionPathOverlay(startGP,startGP)); 
+				
+				GeoPoint gp1; 
+				GeoPoint gp2 = startGP; 
+				for(int i=1;i<pairs.length;i++) // the last one would be crash 
+				{ 
+					lngLat = pairs[i].split(","); 
+					gp1 = gp2; 
+					// watch out! For GeoPoint, first:latitude, second:longitude 
+					gp2 = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
+					mainMap.getOverlays().add(new DirectionPathOverlay(gp1,gp2)); 
+					Log.d("xxx","pair:" + pairs[i]); 
+				}
+				
+				mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest)); // use the default color 
 			} 
-		} 
-		String[] tempContent = pathConent.split(" "); 
-		return tempContent; 
-	} 
-
+		} catch (Exception e) {
+			// TODO: handle exception
+			
+			
+		}
+	}
+		
 	/**
 	 * This method returns whether routes are currently being displayed on the
 	 * map. Right now, they're not.
