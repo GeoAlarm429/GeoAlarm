@@ -51,7 +51,5 @@ local.properties
 .classpath
 .project
 *.orig
-project.properties
-
 !robotium-solo-3.1.jar
 !sqlitejdbc-v056.jar
