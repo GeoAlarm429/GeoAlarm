@@ -229,7 +229,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		
 		if(result.moveToFirst())
 		{
-			while(result.isAfterLast() != false)
+			while(result.isAfterLast() == false)
 			{
 				int nameColumn = result.getColumnIndex("name");
 			
@@ -257,7 +257,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		ArrayList<String> stopList = new ArrayList<String>();
 		
 		/* Get corresponding routeID from Routes table */
-		Cursor result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = " + selectedLine, null, null, null, null);
+		Cursor result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = '" + selectedLine + "'", null, null, null, null);
 		int routeID = 0;		
 		if(result.moveToFirst())
 		{
@@ -266,7 +266,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}
 		
 		/* Get list of stationIDs from Route_Station table */
-		result = geoAlarmDB.query("Route_Station", new String[] {"stationID"}, "routeID =" + routeID, null, null, null, null);		
+		result = geoAlarmDB.query("Route_Station", new String[] {"stationID"}, "routeID = " + routeID, null, null, null, null);		
 		ArrayList<Integer> stationIDList = new ArrayList<Integer>();		
 		if(result.moveToFirst())
 		{
@@ -281,7 +281,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		/* Get stationID names from Station table */		
 		for(int stationIDIndex = 0; stationIDIndex < stationIDList.size(); stationIDIndex++)
 		{
-			result = geoAlarmDB.query("Station", new String[]{"name"}, "stationID =" + stationIDList.get(stationIDIndex), null, null, null, null);
+			result = geoAlarmDB.query("Station", new String[]{"name"}, "stationID = " + stationIDList.get(stationIDIndex), null, null, null, null);
 			if(result.moveToFirst())
 			{
 				while(result.isAfterLast() == false)

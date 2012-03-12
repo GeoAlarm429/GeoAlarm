@@ -77,6 +77,8 @@ public class TripPlannerBus extends Activity
     {   	
     	/* Call superclass constructor.  Required */
     	super.onStart();	
+    	setStationSpinnerEventListeners();
+    	setLineSpinnerEventListeners();
     }
     
     /**
