@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
-
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
@@ -43,6 +42,7 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 	@Override
 	protected boolean onTap(int index) {
 		NearStopOverlayItem item = (NearStopOverlayItem) overlays.get(index);
+		Toast.makeText(mapContext, "BUS STOP", Toast.LENGTH_SHORT).show();
 		
 /*		StopInfo busStop = item.getBusStop();
 		if(busStop.getIsSelected()){
@@ -56,5 +56,9 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 		}*/
 
 		return true;
+	}
+
+	public ArrayList<OverlayItem> getOverlays() {
+		return overlays;
 	}
 }

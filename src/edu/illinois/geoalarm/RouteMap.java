@@ -4,14 +4,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import android.content.Context;
 import android.content.Intent;
 import android.database.SQLException;
@@ -20,6 +15,8 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.os.StrictMode.ThreadPolicy;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,9 +33,6 @@ import com.google.android.maps.OverlayItem;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
- * 
- * @author deflume1
- * 
  */
 
 public class RouteMap extends MapActivity {
@@ -51,19 +45,24 @@ public class RouteMap extends MapActivity {
 	private CheckBox satellite;
 	private Location currentLocation;
 	private GeoPoint centerPoint;
-	private List<Overlay> currentMarkerOverlays;
-	private List<Overlay> nearStopsOverlays;
+	private List<Overlay> mapOverlays;
+	private NearStopOverlay nearOverlay;
 	private ArrayList<StopInfo> nearStops;
 	private Location mapCenter;
 	private GeoAlarmDB dbController;
+	private GeoPoint src;
+	private GeoPoint dest;
 
-	/** Called when the activity is first created. 
-	 * @author Hyung Joo Kim and Seung Mok Lee
+	/** 
+	 * Called when the activity is first created.
 	 */
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
         setContentView(R.layout.map);
+        
+        ThreadPolicy tp = ThreadPolicy.LAX; 
+        StrictMode.setThreadPolicy(tp);
         
         dbController = new GeoAlarmDB(this);
         try {
@@ -82,8 +81,10 @@ public class RouteMap extends MapActivity {
         
         showNearBusStopsOnMap(currentLocation);
         
-        drawPath(new GeoPoint((int)(40.11024833*1E6), (int)(-88.22789764*1E6)), 
-        		new GeoPoint((int)(40.10148621*1E6), (int)(-88.236055*1E6)));
+        src = new GeoPoint((int)(40.11024833*1E6), (int)(-88.22789764*1E6));
+        dest = new GeoPoint((int)(40.10148621*1E6), (int)(-88.236055*1E6));
+        
+        drawPath(src, dest);
         
         backBtn.setOnClickListener(new OnClickListener() {
 			
@@ -105,6 +106,9 @@ public class RouteMap extends MapActivity {
 		});
     }
 
+	/**
+	 * Setup Google Map's options
+	 */
 	private void setupGoogleMap() {
 		mapControl = mainMap.getController();
         mainMap.setBuiltInZoomControls(true);
@@ -123,6 +127,9 @@ public class RouteMap extends MapActivity {
 		showMarkerOnMap();
 	}
 	
+	/**
+	 * Get current location GPS values from built-in location manager
+	 */
 	private void setCurrentPoint() {
 		LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
@@ -138,15 +145,18 @@ public class RouteMap extends MapActivity {
 		centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
 	}
 
+	/**
+	 * Show current location on the map with a marker
+	 */
 	private void showMarkerOnMap() {
-		currentMarkerOverlays = mainMap.getOverlays(); 
+		mapOverlays = mainMap.getOverlays(); 
 	    Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
 	    
 	    CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
         OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
         
         itemizedOverlay.addOverlay(overlayitem);  
-        currentMarkerOverlays.add(itemizedOverlay);
+        mapOverlays.add(itemizedOverlay);
 	}
 
     /**
@@ -155,20 +165,20 @@ public class RouteMap extends MapActivity {
      * @author Hyung Joo Kim and Seung Mok Lee
      */
 	private void showNearBusStopsOnMap(Location currentLocation) {
-		nearStopsOverlays = mainMap.getOverlays();
+		mapOverlays = mainMap.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(R.drawable.near);
 		
 		nearStops = dbController.getAroundMe(currentLocation);
-		NearStopOverlay itemizedOverlay = new NearStopOverlay(drawable, this);
+		nearOverlay = new NearStopOverlay(drawable, this);
 		
 		if(!nearStops.isEmpty()){
 			for(StopInfo stopToShow : nearStops){
 				
 				NearStopOverlayItem item = new NearStopOverlayItem(stopToShow);
-				itemizedOverlay.addOverlay(item);
+				nearOverlay.addOverlay(item);
 			}
 			
-			nearStopsOverlays.add(itemizedOverlay);
+			mapOverlays.add(nearOverlay);
 		}
 		else {
 			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_SHORT).show();
@@ -189,32 +199,21 @@ public class RouteMap extends MapActivity {
 			mapCenter.setLatitude((double)center.getLatitudeE6()/(double)1E6);
 			mapCenter.setLongitude((double)center.getLongitudeE6()/(double)1E6);
 
-			nearStopsOverlays.clear();
-			
-			showCurrentLocation();
+			nearOverlay.getOverlays().clear();
 			showNearBusStopsOnMap(mapCenter);
 		}
 
 		return result;
 	}
 
+	/**
+	 * Draw a path on the map
+	 * @param src, dest
+	 */
 	private void drawPath(GeoPoint src, GeoPoint dest) 
 	{ 
-		// connect to map web service 
-		StringBuilder urlString = new StringBuilder(); 
-		urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
-		urlString.append("&saddr=");//from 
-		urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6 )); 
-		urlString.append(","); 
-		urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6 )); 
-		urlString.append("&daddr=");//to 
-		urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6 )); 
-		urlString.append(","); 
-		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 )); 
-		urlString.append("&ie=UTF8&0&om=0&output=kml"); 
-		Log.d("xxx","URL="+urlString.toString()); 
+		StringBuilder urlString = getURL(src, dest); 
 		
-		// get the kml (XML) doc. And parse it to get the coordinates(direction route). 
 		Document doc = null; 
 		HttpURLConnection urlConnection= null; 
 		URL url = null; 
@@ -236,31 +235,51 @@ public class RouteMap extends MapActivity {
 				String path = doc.getElementsByTagName("GeometryCollection").item(0).getFirstChild().getFirstChild().getFirstChild().getNodeValue() ; 
 				Log.d("xxx","path="+ path); 
 				String [] pairs = path.split(" "); 
-				String[] lngLat = pairs[0].split(","); // lngLat[0]=longitude lngLat[1]=latitude lngLat[2]=height 
+				String [] lngLat = pairs[0].split(",");
 				
-				// src 
-				GeoPoint startGP = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
+				GeoPoint startGP = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6));
 				mainMap.getOverlays().add(new DirectionPathOverlay(startGP,startGP)); 
 				
 				GeoPoint gp1; 
 				GeoPoint gp2 = startGP; 
-				for(int i=1;i<pairs.length;i++) // the last one would be crash 
+				for(int i = 1; i < pairs.length; i++)
 				{ 
 					lngLat = pairs[i].split(","); 
 					gp1 = gp2; 
-					// watch out! For GeoPoint, first:latitude, second:longitude 
+
 					gp2 = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
 					mainMap.getOverlays().add(new DirectionPathOverlay(gp1,gp2)); 
 					Log.d("xxx","pair:" + pairs[i]); 
 				}
 				
-				mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest)); // use the default color 
+				mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest));
+				
+				mainMap.invalidate();
 			} 
 		} catch (Exception e) {
-			// TODO: handle exception
-			
-			
+			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Helper to build URL 
+	 * @param src, dest
+	 * @return URL string
+	 */
+	private StringBuilder getURL(GeoPoint src, GeoPoint dest) {
+		StringBuilder urlString = new StringBuilder(); 
+		urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
+		urlString.append("&saddr="); 
+		urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6 )); 
+		urlString.append(","); 
+		urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6 )); 
+		urlString.append("&daddr=");
+		urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6 )); 
+		urlString.append(","); 
+		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 )); 
+		urlString.append("&ie=UTF8&0&om=0&output=kml");
+		
+		return urlString;
 	}
 		
 	/**
