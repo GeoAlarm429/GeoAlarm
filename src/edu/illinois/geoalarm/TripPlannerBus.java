@@ -349,7 +349,14 @@ public class TripPlannerBus extends Activity
 		
 	}
 	
-	
+	/**
+	 * Returns a handle to the active GeoAlarmDB
+	 * @return A handle to the active GeoAlarmDB
+	 */
+	public GeoAlarmDB getDatabase()
+	{
+		return database;
+	}
 	
 	
 	

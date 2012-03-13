@@ -4,7 +4,8 @@ import edu.illinois.geoalarm.GeoAlarm;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Button;
 import android.widget.DigitalClock;
-import android.widget.LinearLayout;
+import com.jayway.android.robotium.solo.Solo;
+import android.test.suitebuilder.annotation.Smoke;
 
 public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm> 
 {
@@ -13,6 +14,7 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	 private Button mapButton;
 	 private Button tripButton;
 	 private Button optionsButton;
+	 private Solo solo;
 	 
 	public GeoAlarmTest() 
 	{
@@ -28,6 +30,7 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		mapButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.mapButton);
 		tripButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.tripButton);
 		optionsButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.optionsButton);
+		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	 
 	 public void testPreconditions() 
@@ -62,4 +65,33 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		 assertEquals("Options", optionsButtonDisplayString);
 	 }
 	 
+	 @Smoke
+	 public void testMapsTransition()
+	 {
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
+		 solo.clickOnButton("Map");
+		 solo.assertCurrentActivity("Expected RouteMap activity", "RouteMap"); 
+		 solo.goBack();
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
+	 }
+	 
+	 @Smoke
+	 public void testPlanTripTransition()
+	 {
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
+		 solo.clickOnButton("Plan Trip");
+		 solo.assertCurrentActivity("Expected TripPlannerBus activity", "TripPlannerBus"); 
+		 solo.goBack();
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");		 
+	 }
+	 
+	 @Smoke
+	 public void testOptionsTransition()
+	 {
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
+		 solo.clickOnButton("Options");
+		 solo.assertCurrentActivity("Expected Options activity", "Options"); 
+		 solo.goBack();
+		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
+	 }
 }
