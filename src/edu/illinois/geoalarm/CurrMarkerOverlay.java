@@ -3,8 +3,10 @@ package edu.illinois.geoalarm;
 import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.widget.Toast;
+import android.view.MotionEvent;
+
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
 /**
