@@ -253,20 +253,45 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	 * @return A list of the stations associated with a particular line
 	 */
 	public ArrayList<String> getLineStops(String selectedLine) 
-	{
-		ArrayList<String> stopList = new ArrayList<String>();
-		
+	{		
 		/* Get corresponding routeID from Routes table */
-		Cursor result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = '" + selectedLine + "'", null, null, null, null);
+		int routeID = getRouteIDfromRouteName(selectedLine);
+		
+		/* Get list of stationIDs from Route_Station table */
+		ArrayList<Integer> stationIDList = getStationIDsfromRouteID(routeID);
+		
+		/* Get stationID names from Station table */		
+		ArrayList<String> stopList = getStationNamesFromStationIDs(stationIDList);
+		
+		return stopList;
+	}
+	
+	/**
+	 * This method queries the Routes table, and returns the routeID corresponding to the given route name
+	 * @param name A string representing the name of a Route
+	 * @return The routeID corresponding to the route
+	 */
+	public int getRouteIDfromRouteName(String name)
+	{
+		Cursor result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = '" + name + "'", null, null, null, null);
 		int routeID = 0;		
 		if(result.moveToFirst())
 		{
 			int columnIndex = result.getColumnIndex("routeID");
 			routeID = result.getInt(columnIndex);
 		}
-		
-		/* Get list of stationIDs from Route_Station table */
-		result = geoAlarmDB.query("Route_Station", new String[] {"stationID"}, "routeID = " + routeID, null, null, null, null);		
+		result.close();
+		return routeID;	 
+	}
+	
+	/**
+	 * This method queries the Route_Station table, and returns the list of stations on a route
+	 * @param routeID An integer routeID
+	 * @return An ArrayList of the stationIDs on the route
+	 */
+	public ArrayList<Integer> getStationIDsfromRouteID(int routeID)
+	{
+		Cursor result = geoAlarmDB.query("Route_Station", new String[] {"stationID"}, "routeID = " + routeID, null, null, null, null);		
 		ArrayList<Integer> stationIDList = new ArrayList<Integer>();		
 		if(result.moveToFirst())
 		{
@@ -277,11 +302,21 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 				result.moveToNext();
 			}
 		}
-		
-		/* Get stationID names from Station table */		
+		return stationIDList;		
+	}
+	
+	/**
+	 * This method queries the Station table, and returns the a list of station names corresponding to the
+	 * stationIDs in the stationID list
+	 * @param stationIDList A list of stationIDs
+	 * @return A list of station names
+	 */
+	public ArrayList<String> getStationNamesFromStationIDs(ArrayList<Integer> stationIDList)
+	{
+		ArrayList<String> stopList = new ArrayList<String>();
 		for(int stationIDIndex = 0; stationIDIndex < stationIDList.size(); stationIDIndex++)
 		{
-			result = geoAlarmDB.query("Station", new String[]{"name"}, "stationID = " + stationIDList.get(stationIDIndex), null, null, null, null);
+			Cursor result = geoAlarmDB.query("Station", new String[]{"name"}, "stationID = " + stationIDList.get(stationIDIndex), null, null, null, null);
 			if(result.moveToFirst())
 			{
 				while(result.isAfterLast() == false)
@@ -291,8 +326,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 					result.moveToNext();
 				}
 			}
+			result.close();
 		}
-		
 		return stopList;
 	}
 
