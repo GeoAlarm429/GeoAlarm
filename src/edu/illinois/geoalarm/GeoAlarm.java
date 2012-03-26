@@ -64,6 +64,7 @@ public class GeoAlarm extends Activity {
 	public void showMapScreen(View view)
 	{
 		Intent intent = new Intent(view.getContext(), RouteMap.class);
+		intent.putExtra("edu.illinois.geoalarm.isPlannedTrip", false);
 		startActivityForResult(intent, 0);		
 	}
 	

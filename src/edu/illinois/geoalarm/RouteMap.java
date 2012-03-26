@@ -52,12 +52,23 @@ public class RouteMap extends MapActivity {
 	private GeoAlarmDB dbController;
 	private GeoPoint src;
 	private GeoPoint dest;
+	
+	/* Route data from TripPlannerBus or Map selection */
+	private String selectedLine;
+	private String selectedStartingStation;
+	private String selectedDestinationStation;
+	private String selectedNotification;
+	private String selectedNotificationTime ;
+	private int hourSet;
+	private int minuteSet;
+	private boolean isAM;
 
 	/** 
 	 * Called when the activity is first created.
 	 */
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+	{
         super.onCreate(savedInstanceState);        
         setContentView(R.layout.map);
         
@@ -86,6 +97,7 @@ public class RouteMap extends MapActivity {
         
         drawPath(src, dest);
         
+        /* TODO: PROBABLY DON'T WANT TO DO THIS */
         backBtn.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
@@ -104,6 +116,21 @@ public class RouteMap extends MapActivity {
 					mainMap.setSatellite(false);
 			}
 		});
+        
+        /* Grab data from TripPlannerBus activity, if launched form that activity */
+        boolean fromTripPlanner = getIntent().getBooleanExtra("edu.illinois.geoalarm.isPlannedTrip", false);
+        if(fromTripPlanner)
+        {
+        	selectedLine = getIntent().getStringExtra("edu.illinois.geoalarm.line");
+        	selectedStartingStation = getIntent().getStringExtra("edu.illinois.geoalarm.startingStation");
+        	selectedDestinationStation = getIntent().getStringExtra("edu.illinois.geoalarm.destinationStation");
+        	selectedNotification = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotification");
+        	selectedNotificationTime = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotificationTime") ;
+        	hourSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
+        	minuteSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0);
+        	isAM = getIntent().getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);        	
+        }
+        
     }
 
 	/**
@@ -137,7 +164,7 @@ public class RouteMap extends MapActivity {
 		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
 		
 		currentLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-
+	
 		double latitude = currentLocation.getLatitude();   
 		double longitude = currentLocation.getLongitude();
 	  

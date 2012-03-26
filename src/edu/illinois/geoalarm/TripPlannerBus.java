@@ -3,7 +3,6 @@ package edu.illinois.geoalarm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -12,7 +11,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.database.Cursor;
+import android.content.Intent;
 import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
@@ -21,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
@@ -35,22 +33,28 @@ public class TripPlannerBus extends Activity
 	private Spinner lineSpinner;
 	private Spinner startingLocationSpinner;
 	private Spinner destinationLocationSpinner;
-	private Button alarmOptionsButton;
 	private Button setAlarmButton;
 	private GeoAlarmDB database;
 	private String selectedLine;
 	private String selectedStartingStation;
-	private String selectionDestinationStation;
-	private String selectedNotification;
-	private String selectedNotificationTime;
-	private boolean setTimeManual;
-	private int hourSet;
-	private int minuteSet;
-	private boolean isAM;
+	private String selectedDestinationStation;
+	private String selectedNotification = POP_UP_NOTIFICATION;
+	private String selectedNotificationTime = AT_STOP_CHOICE;
+	private int hourSet = -1;
+	private int minuteSet = -1;
+	private boolean isAM = false;
 	
-	private final int ALARM_OPTIONS_ID = 0;
-	private final int TIME_OPTIONS_ID = 1;
-	private final int INPUT_TIME_ID = 2;
+	public static final String AT_STOP_CHOICE = "At Stop";
+	public static final String STATION_BEFORE_STOP_CHOICE = "Station Before Stop";
+	public static final String AT_TIME_CHOICE = "At Time";
+	
+	public static final String RING_NOTIFICATION = "Ring";
+	public static final String VIBRATE_NOTIFICATION = "Vibrate";
+	public static final String POP_UP_NOTIFICATION = "PopUp Message";
+	
+	private static final int ALARM_OPTIONS_ID = 0;
+	private static  final int TIME_OPTIONS_ID = 1;
+	private static final int INPUT_TIME_ID = 2;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) 
@@ -62,7 +66,6 @@ public class TripPlannerBus extends Activity
 		startingLocationSpinner.setEnabled(false);
 		destinationLocationSpinner.setEnabled(false);
 		setAlarmButton.setEnabled(false);
-		setTimeManual = false;
         
         loadDatabase();        
 		populateLineSpinner();		 
@@ -89,7 +92,6 @@ public class TripPlannerBus extends Activity
     	startingLocationSpinner = (Spinner) findViewById(R.id.startingLocationSpinner);  
 		destinationLocationSpinner = (Spinner) findViewById(R.id.destinationSpinner);
 		lineSpinner = (Spinner) findViewById(R.id.lineSpinner);		
-		alarmOptionsButton = (Button) findViewById(R.id.alarmOptionsButton);
 		setAlarmButton = (Button) findViewById(R.id.setAlarmButton);
     }
 	
@@ -221,7 +223,7 @@ public class TripPlannerBus extends Activity
     	    {    	    	
     	    	if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
     	    	{
-    	    		selectionDestinationStation = destinationLocationSpinner.getSelectedItem().toString(); 	
+    	    		selectedDestinationStation = destinationLocationSpinner.getSelectedItem().toString(); 	
     	    		
     	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
     	    		{
@@ -280,7 +282,7 @@ public class TripPlannerBus extends Activity
 	 */
 	private AlertDialog createAlarmOptionsDialog()
 	{
-		final CharSequence[] items = {"Ring", "Vibrate", "PopUp Message"};
+		final CharSequence[] items = {RING_NOTIFICATION, VIBRATE_NOTIFICATION, POP_UP_NOTIFICATION};
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Pick a notification");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -300,16 +302,16 @@ public class TripPlannerBus extends Activity
 	 */
 	private AlertDialog createTimeOptionsDialog()
 	{
-		final CharSequence[] items = {"At Stop", "Station Before Stop", "At Time"};
+		final CharSequence[] items = {AT_STOP_CHOICE, STATION_BEFORE_STOP_CHOICE, AT_TIME_CHOICE};
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("When do you want to be notified?");
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 			
 			public void onClick(DialogInterface dialog, int item) 
 			{
-				if(items[item].equals("At Time"))
+				if(items[item].equals(AT_TIME_CHOICE))
 				{
-					selectedNotificationTime = "Manual";
+					selectedNotificationTime = AT_TIME_CHOICE;
 					showDialog(INPUT_TIME_ID);
 				}
 				else
@@ -346,7 +348,17 @@ public class TripPlannerBus extends Activity
 	 */
 	public void setAlarm(View view)
 	{		
-		
+		Intent intent = new Intent(view.getContext(), RouteMap.class);
+		intent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
+		intent.putExtra("edu.illinois.geoalarm.line", selectedLine);
+		intent.putExtra("edu.illinois.geoalarm.startingStation", selectedStartingStation);
+		intent.putExtra("edu.illinois.geoalarm.destinationStation", selectedDestinationStation);
+		intent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
+		intent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
+		intent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
+		intent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
+		intent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);
+		startActivityForResult(intent, 0);		
 	}
 	
 	/**
