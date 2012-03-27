@@ -200,9 +200,14 @@ public class TripPlannerBus extends Activity
     	    	{
     	    		selectedStartingStation = startingLocationSpinner.getSelectedItem().toString(); 	
     	    		
-    	    		if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
+    	    		if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION &&
+    	    				destinationLocationSpinner.getSelectedItemPosition() != startingLocationSpinner.getSelectedItemPosition())
     	    		{
     	    			setAlarmButton.setEnabled(true);
+    	    		}
+    	    		else
+    	    		{
+    	    			setAlarmButton.setEnabled(false);
     	    		}
     	    	}
     	    	
@@ -225,10 +230,16 @@ public class TripPlannerBus extends Activity
     	    	{
     	    		selectedDestinationStation = destinationLocationSpinner.getSelectedItem().toString(); 	
     	    		
-    	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
+    	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION &&
+    	    				destinationLocationSpinner.getSelectedItemPosition() != startingLocationSpinner.getSelectedItemPosition())
     	    		{
     	    			setAlarmButton.setEnabled(true);
     	    		}
+    	    		else
+    	    		{
+    	    			setAlarmButton.setEnabled(false);
+    	    		}
+		
     	    	}    	    	
     	    }
 
@@ -348,6 +359,7 @@ public class TripPlannerBus extends Activity
 	 */
 	public void setAlarm(View view)
 	{		
+		database.close();
 		Intent intent = new Intent(view.getContext(), RouteMap.class);
 		intent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
 		intent.putExtra("edu.illinois.geoalarm.line", selectedLine);

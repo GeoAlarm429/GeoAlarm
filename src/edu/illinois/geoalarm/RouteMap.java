@@ -131,6 +131,19 @@ public class RouteMap extends MapActivity {
         	isAM = getIntent().getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);        	
         }
         
+        /* Start alarm service */   
+        Intent serviceIntent = new Intent(RouteMap.this, AlarmService.class);
+        serviceIntent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
+        serviceIntent.putExtra("edu.illinois.geoalarm.line", selectedLine);
+        serviceIntent.putExtra("edu.illinois.geoalarm.startingStation", selectedStartingStation);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStation", selectedDestinationStation);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);
+        startService(serviceIntent);
+        
     }
 
 	/**

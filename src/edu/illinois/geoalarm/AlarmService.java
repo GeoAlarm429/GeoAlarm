@@ -27,7 +27,33 @@ public class AlarmService extends Service
     private boolean gpsEnabled;
     private boolean networkEnabled;
     private final IBinder serviceBinder = new AlarmServiceBinder();
+    
+    private String selectedLine;
+	private String selectedStartingStation;
+	private String selectedDestinationStation;
+	private String selectedNotification;
+	private String selectedNotificationTime ;
+	private int hourSet;
+	private int minuteSet;
+	private boolean isAM;
+	
+	private Intent mIntent;
+	private static Service mInstance;
         
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) 
+    {  
+    	selectedLine = intent.getStringExtra("edu.illinois.geoalarm.line");
+    	selectedStartingStation = intent.getStringExtra("edu.illinois.geoalarm.startingStation");
+    	selectedDestinationStation = intent.getStringExtra("edu.illinois.geoalarm.destinationStation");
+    	selectedNotification = intent.getStringExtra("edu.illinois.geoalarm.selectedNotification");
+    	selectedNotificationTime = intent.getStringExtra("edu.illinois.geoalarm.selectedNotificationTime") ;
+    	hourSet = intent.getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
+    	minuteSet = intent.getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0);
+    	isAM = intent.getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);       
+        return START_STICKY;
+    }
+    
     @Override
     public void onCreate()
     {
@@ -58,6 +84,16 @@ public class AlarmService extends Service
         locationManager.removeUpdates(locationListener);
         checkForProviders();
         registerListeners();
+        mInstance = this;
+    }
+    
+    /**
+     * This method returns the static instance of this service
+     * @return
+     */
+    public static Service getInstance()
+    {
+    	return mInstance;
     }
     
     /**
