@@ -330,6 +330,38 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}
 		return stopList;
 	}
+	
+	/**
+	 * This method returns the latitude for a given station name
+	 * @param stationName The name of a station (from the name column in the database)
+	 * @return A double representing the latitude
+	 */
+	public double getLatitude(String stationName)
+	{		
+		Cursor result = geoAlarmDB.query("Station", new String[]{"lat"}, "name = \"" + stationName + "\"", null, null, null, null, null);
+		double latitude = 0.0;
+		if(result.moveToFirst())
+		{
+			latitude = result.getDouble(result.getColumnIndex("lat"));
+		}
+		return latitude;
+	}
+	
+	/**
+	 * This method returns the longitude for a given station name	
+	 * @param stationName The name of a station (from the name column in the database)
+	 * @return A double representing the longitude
+	 */
+	public double getLongitude(String stationName)
+	{
+		Cursor result = geoAlarmDB.query("Station", new String[]{"lng"}, "name = \"" + stationName + "\"", null, null, null, null, null);
+		double longitude = 0.0;
+		if(result.moveToFirst())
+		{
+			longitude = result.getDouble(result.getColumnIndex("lng"));
+		}
+		return longitude;
+	}
 
 	public Context getMyContext()
 	{

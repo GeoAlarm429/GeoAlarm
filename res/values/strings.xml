@@ -26,5 +26,6 @@
     </string-array>
     <string name="serviceBusTextFieldString">Bus</string>
     <string name="busLineTextFieldString">Line:</string>
+    <string name="satellite_label">Satellite</string>
 
 </resources>

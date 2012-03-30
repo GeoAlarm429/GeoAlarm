@@ -42,7 +42,6 @@ public class TripPlannerBus extends Activity
 	private String selectedNotificationTime = AT_STOP_CHOICE;
 	private int hourSet = -1;
 	private int minuteSet = -1;
-	private boolean isAM = false;
 	
 	public static final String AT_STOP_CHOICE = "At Stop";
 	public static final String STATION_BEFORE_STOP_CHOICE = "Station Before Stop";
@@ -345,7 +344,7 @@ public class TripPlannerBus extends Activity
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) 
 			{
 				hourSet = hourOfDay;
-				minuteSet = minute;						
+				minuteSet = minute;	
 			}
 		};
 		
@@ -369,7 +368,6 @@ public class TripPlannerBus extends Activity
 		intent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
 		intent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
 		intent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
-		intent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);
 		startActivityForResult(intent, 0);		
 	}
 	

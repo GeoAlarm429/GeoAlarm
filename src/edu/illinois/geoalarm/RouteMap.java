@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
@@ -35,13 +34,13 @@ import com.google.android.maps.OverlayItem;
  * A MapActivity class that will be responsible for displaying the transit map.
  */
 
-public class RouteMap extends MapActivity {
+public class RouteMap extends MapActivity 
+{
 	private static final int INITIAL_ZOOM = 15;
 	protected static final int LAUNCH_ACTIVITY = 1;
 
 	private MapView mainMap;
 	private MapController mapControl;
-	private Button backBtn;
 	private CheckBox satellite;
 	private Location currentLocation;
 	private GeoPoint centerPoint;
@@ -52,6 +51,10 @@ public class RouteMap extends MapActivity {
 	private GeoAlarmDB dbController;
 	private GeoPoint src;
 	private GeoPoint dest;
+	private int startingLatitude;
+	private int startingLongitude;
+	private int destinationLatitude;
+	private int destinationLongitude;
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -76,37 +79,94 @@ public class RouteMap extends MapActivity {
         StrictMode.setThreadPolicy(tp);
         
         dbController = new GeoAlarmDB(this);
-        try {
+        try 
+        {
         	dbController.openDataBase();
-        } catch (SQLException e) {
-        			throw e;
+        } 
+        catch (SQLException e) 
+        {
+        	e.printStackTrace();
+        	throw e;
         }
         		
         mainMap = (MapView)findViewById(R.id.mainMap);
-        backBtn = (Button)findViewById(R.id.backBtn);
         satellite = (CheckBox)findViewById(R.id.satellite);
-
-        showCurrentLocation();
         
-        setupGoogleMap();
+        showCurrentLocation();        
+        setupGoogleMap();        
+        showNearBusStopsOnMap(currentLocation);  
         
-        showNearBusStopsOnMap(currentLocation);
-        
-        src = new GeoPoint((int)(40.11024833*1E6), (int)(-88.22789764*1E6));
-        dest = new GeoPoint((int)(40.10148621*1E6), (int)(-88.236055*1E6));
-        
-        drawPath(src, dest);
-        
-        /* TODO: PROBABLY DON'T WANT TO DO THIS */
-        backBtn.setOnClickListener(new OnClickListener() {
-			
-			public void onClick(View v) {
-				Intent intent = new Intent(RouteMap.this, GeoAlarm.class);
-				startActivityForResult(intent, LAUNCH_ACTIVITY);
-			}
-		});
-        
-        satellite.setOnClickListener(new OnClickListener() {
+        /* Grab data from TripPlannerBus activity, if launched from that activity */
+        boolean fromTripPlanner = getIntent().getBooleanExtra("edu.illinois.geoalarm.isPlannedTrip", false);
+        if(fromTripPlanner)
+        {
+        	initializeTripVariables();
+        	updateCoordinates();        
+            drawPath(src, dest);
+            startAlarmService();
+        }                          
+              
+    }
+	
+	@Override
+    public void onDestroy()
+	{
+		dbController.close();
+	}
+	
+	@Override
+	public void onNewIntent(Intent newIntent)
+	{
+		this.setIntent(newIntent);
+		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
+	    if(alarmTime)
+	    {
+	        	Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
+	    }     
+	}
+	
+	/**
+	 * This method starts the AlarmService service that monitors the trip
+	 */
+	private void startAlarmService()
+	{
+		/* Start alarm service */   
+        Intent serviceIntent = new Intent(RouteMap.this, AlarmService.class);
+        serviceIntent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
+        serviceIntent.putExtra("edu.illinois.geoalarm.line", selectedLine);
+        serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLatitude", startingLatitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLongitude", startingLongitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLatitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLongitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);        
+        startService(serviceIntent);        
+	}
+	
+	/**
+	 * This method initializes the trip instance variables from the intent that started this activity
+	 */
+	private void initializeTripVariables()
+	{
+		selectedLine = getIntent().getStringExtra("edu.illinois.geoalarm.line");
+    	selectedStartingStation = getIntent().getStringExtra("edu.illinois.geoalarm.startingStation");
+    	selectedDestinationStation = getIntent().getStringExtra("edu.illinois.geoalarm.destinationStation");
+    	selectedNotification = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotification");
+    	selectedNotificationTime = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotificationTime");
+    	hourSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
+    	minuteSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0);
+    	isAM = getIntent().getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);        	
+	}
+	
+	/**
+	 * This method sets up the event listener for the Satellite button
+	 */
+	private void setSatelliteOnClickListener()
+	{
+			satellite.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
 				if(satellite.isChecked()){
@@ -115,45 +175,39 @@ public class RouteMap extends MapActivity {
 				else
 					mainMap.setSatellite(false);
 			}
-		});
-        
-        /* Grab data from TripPlannerBus activity, if launched form that activity */
-        boolean fromTripPlanner = getIntent().getBooleanExtra("edu.illinois.geoalarm.isPlannedTrip", false);
-        if(fromTripPlanner)
-        {
-        	selectedLine = getIntent().getStringExtra("edu.illinois.geoalarm.line");
-        	selectedStartingStation = getIntent().getStringExtra("edu.illinois.geoalarm.startingStation");
-        	selectedDestinationStation = getIntent().getStringExtra("edu.illinois.geoalarm.destinationStation");
-        	selectedNotification = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotification");
-        	selectedNotificationTime = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotificationTime") ;
-        	hourSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
-        	minuteSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0);
-        	isAM = getIntent().getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);        	
-        }
-        
-        /* Start alarm service */   
-        Intent serviceIntent = new Intent(RouteMap.this, AlarmService.class);
-        serviceIntent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
-        serviceIntent.putExtra("edu.illinois.geoalarm.line", selectedLine);
-        serviceIntent.putExtra("edu.illinois.geoalarm.startingStation", selectedStartingStation);
-        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStation", selectedDestinationStation);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);
-        startService(serviceIntent);
-        
-    }
+		});                   
+	}
+	
+	/**
+	 * This method update the coordinates of the start and destination
+	 */
+	private void updateCoordinates()
+	{
+		startingLatitude = (int) (dbController.getLatitude(selectedStartingStation) * 1E6) ;
+		startingLongitude = (int) (dbController.getLongitude(selectedStartingStation)* 1E6);
+		destinationLatitude = (int) (dbController.getLatitude(selectedDestinationStation)* 1E6);
+		destinationLongitude = (int) (dbController.getLongitude(selectedDestinationStation)* 1E6);
+		src = new GeoPoint(startingLatitude, startingLongitude);
+		dest = new GeoPoint(destinationLatitude, destinationLongitude);
+	}
 
 	/**
 	 * Setup Google Map's options
 	 */
-	private void setupGoogleMap() {
+	private void setupGoogleMap() 
+	{
+		if(mainMap == null)
+		{
+			Log.d("RouteMap", "Center point not set");
+			return;
+		}
 		mapControl = mainMap.getController();
         mainMap.setBuiltInZoomControls(true);
 
-        mapControl.animateTo(centerPoint);
+        if(centerPoint != null)
+        {
+        	mapControl.animateTo(centerPoint);
+        }
         mapControl.setZoom(INITIAL_ZOOM);
 	}
 
@@ -161,8 +215,7 @@ public class RouteMap extends MapActivity {
 	 * Method to show current location on the map
 	 */
 	private void showCurrentLocation() {
-		setCurrentPoint();
-		
+		setCurrentPoint();		
 		showMarkerOnMap();
 	}
 	
@@ -178,24 +231,30 @@ public class RouteMap extends MapActivity {
 		
 		currentLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
 	
-		double latitude = currentLocation.getLatitude();   
-		double longitude = currentLocation.getLongitude();
-	  
-		centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+		if(currentLocation != null)
+		{
+			double latitude = currentLocation.getLatitude();   
+			double longitude = currentLocation.getLongitude();	  
+			centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+		}
 	}
 
 	/**
 	 * Show current location on the map with a marker
 	 */
-	private void showMarkerOnMap() {
-		mapOverlays = mainMap.getOverlays(); 
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
+	private void showMarkerOnMap() 
+	{
+		if(centerPoint != null)
+		{
+			mapOverlays = mainMap.getOverlays(); 
+			Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
 	    
-	    CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
-        OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
+			CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
+			OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
         
-        itemizedOverlay.addOverlay(overlayitem);  
-        mapOverlays.add(itemizedOverlay);
+			itemizedOverlay.addOverlay(overlayitem);  
+			mapOverlays.add(itemizedOverlay);
+		}
 	}
 
     /**
@@ -228,7 +287,8 @@ public class RouteMap extends MapActivity {
      * Called when the user move the center of the map
      */
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent event) {
+	public boolean dispatchTouchEvent(MotionEvent event) 
+	{
 		boolean result = super.dispatchTouchEvent(event);
 		if (event.getAction() == MotionEvent.ACTION_UP){
 			GeoPoint center = mainMap.getMapCenter();
@@ -249,6 +309,11 @@ public class RouteMap extends MapActivity {
 	 */
 	private void drawPath(GeoPoint src, GeoPoint dest) 
 	{ 
+		if(src == null || dest == null)
+		{
+			Log.d("RouteMap", "Source or Destination not set");
+			return;
+		}
 		StringBuilder urlString = getURL(src, dest); 
 		
 		Document doc = null; 
@@ -324,7 +389,8 @@ public class RouteMap extends MapActivity {
 	 * map. Right now, they're not.
 	 */
 	@Override
-	protected boolean isRouteDisplayed() {
+	protected boolean isRouteDisplayed() 
+	{
 		return false;
 	}
 }
