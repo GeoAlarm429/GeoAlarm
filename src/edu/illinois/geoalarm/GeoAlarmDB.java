@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.maps.GeoPoint;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -44,7 +46,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     private static final String DB_CREATE_SQL = "CREATE TABLE " + DB_TABLE_NAME +  
 												" (" + DB_ID + " INTEGER PRIMARY KEY, " + DB_LONGITUDE + 
 												" DOUBLE, " + DB_LATITUDE + " DOUBLE, " +
-												DB_BUSSTOPS_NAME + " VARCHAR);)";
+												DB_BUSSTOPS_NAME + " VARCHAR);)";    
     
     private ArrayList<StopInfo> nearStops;
     /*----- We (Seung Mok Lee and Hyung Joo Kim added this part) -----*/
@@ -329,6 +331,37 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 			result.close();
 		}
 		return stopList;
+	}
+	
+	/**
+	 * This method queries the Routes table, and returns geopoint corresponding to the given route name
+	 * @param name
+	 * @return geopoint of station
+	 */
+	public GeoPoint getGeopointFromDB (String name)
+	{
+		System.out.println("HAHSDAHSDHASHDAHWDHAWHDAWHDHAWDHAHDW");
+		Cursor result = geoAlarmDB.query("Station", new String[] {"name"}, "name = '" + name + "'", null, null, null, null);
+		
+    	if (result != null){
+    		result.moveToFirst();
+    	}
+
+    	double latitude = 0.0;
+    	double longitude = 0.0;
+    	GeoPoint rtnVal = null;
+    	
+    	while(!result.isAfterLast()){
+    		longitude = result.getDouble(1);
+    		latitude = result.getDouble(2);
+    		
+    		rtnVal = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+    		
+    		result.moveToNext();
+    	}
+ 
+    	result.close();
+    	return rtnVal;
 	}
 
 	public Context getMyContext()
