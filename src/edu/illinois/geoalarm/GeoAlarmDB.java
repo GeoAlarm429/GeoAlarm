@@ -340,7 +340,6 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	 */
 	public GeoPoint getGeopointFromDB (String name)
 	{
-		System.out.println("HAHSDAHSDHASHDAHWDHAWHDAWHDHAWDHAHDW");
 		Cursor result = geoAlarmDB.query("Station", new String[] {"name"}, "name = '" + name + "'", null, null, null, null);
 		
     	if (result != null){

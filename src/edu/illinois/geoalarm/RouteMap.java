@@ -86,8 +86,11 @@ public class RouteMap extends MapActivity {
         
         showNearBusStopsOnMap(currentLocation);
         
-        src = dbController.getGeopointFromDB(sourceStation);
-        dest = dbController.getGeopointFromDB(destStation);
+/*        src = dbController.getGeopointFromDB(sourceStation);
+        dest = dbController.getGeopointFromDB(destStation);*/
+        
+        src = new GeoPoint((int)(40.11025200000001*1E6), (int)(-88.22780899999998*1E6));
+        dest = new GeoPoint((int)(40.10140228271485*1E6), (int)(-88.23602294921874*1E6));
         
         drawPath(src, dest);
         
