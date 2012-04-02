@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
@@ -29,6 +30,7 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import android.os.Process;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
@@ -55,6 +57,8 @@ public class RouteMap extends MapActivity
 	private int startingLongitude;
 	private int destinationLatitude;
 	private int destinationLongitude;
+	private Intent alarmService;
+	private LocationManager locationManager;
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -104,13 +108,46 @@ public class RouteMap extends MapActivity
         	updateCoordinates();        
             drawPath(src, dest);
             startAlarmService();
-        }                          
+        }                       
               
     }
 	
 	@Override
+	public void onPause()
+	{
+		super.onPause();
+		updateUsageData();
+	}
+	
+	/**
+	 * Updates the stored usage data with the most up-to-date numbers
+	 */
+	public void updateUsageData()
+	{
+		if(dbController != null)
+		{		
+			long numBytesLastReceivedSession =  dbController.getBytes(GeoAlarmDB.DB_RX_SESSION);
+			long numBytesLastTransmittedSession =  dbController.getBytes(GeoAlarmDB.DB_TX_SESSION);
+			long numBytesReceived = dbController.getBytes(GeoAlarmDB.DB_RX);
+			long numBytesTransmitted = dbController.getBytes(GeoAlarmDB.DB_TX);
+			long numBytesReceivedDelta = TrafficStats.getUidRxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION) - numBytesLastReceivedSession;
+			long numBytesTransmittedDelta = TrafficStats.getUidTxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION) - numBytesLastTransmittedSession;
+		
+			dbController.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + numBytesReceivedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_TX_SESSION, numBytesLastTransmittedSession + numBytesTransmittedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + numBytesReceivedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted + numBytesTransmittedDelta);			
+		}
+	}
+	
+	/**
+	 * Called when the os destroys this process.
+	 */
+	@Override
     public void onDestroy()
 	{
+		super.onDestroy();
+		updateUsageData();
 		dbController.close();
 	}
 	
@@ -121,8 +158,12 @@ public class RouteMap extends MapActivity
 		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
 	    if(alarmTime)
 	    {
-	        	Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
+	        	Toast.makeText(this, "YOU HAVE ARRIVED ON TIME", Toast.LENGTH_LONG).show();
 	    }     
+	    else
+	    {
+	    	Toast.makeText(this, "YOU HAVE ARRIVED AT STOP", Toast.LENGTH_LONG).show();
+	    }
 	}
 	
 	/**
@@ -143,6 +184,7 @@ public class RouteMap extends MapActivity
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);        
+        alarmService = serviceIntent;
         startService(serviceIntent);        
 	}
 	
@@ -222,8 +264,12 @@ public class RouteMap extends MapActivity
 	/**
 	 * Get current location GPS values from built-in location manager
 	 */
-	private void setCurrentPoint() {
-		LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	private void setCurrentPoint() 
+	{
+		if(locationManager == null)
+		{
+			locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		}
 
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
@@ -382,7 +428,7 @@ public class RouteMap extends MapActivity
 		urlString.append("&ie=UTF8&0&om=0&output=kml");
 		
 		return urlString;
-	}
+	}	
 		
 	/**
 	 * This method returns whether routes are currently being displayed on the

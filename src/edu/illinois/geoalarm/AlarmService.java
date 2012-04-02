@@ -138,7 +138,7 @@ public class AlarmService extends Service
     	Intent intent = new Intent(this.getApplicationContext(), RouteMap.class);
     	intent.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);
     	intent.putExtra("edu.illinois.geoalarm.isPlannedTrip", false);
-    	PendingIntent pendingIntent = PendingIntent.getActivity(this.getApplicationContext(), 111, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    	PendingIntent pendingIntent = PendingIntent.getActivity(getBaseContext(), 111, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     	Calendar c = Calendar.getInstance();
     	c.set(Calendar.HOUR_OF_DAY, hourSet);
     	c.set(Calendar.MINUTE, minuteSet);  
@@ -153,9 +153,13 @@ public class AlarmService extends Service
      */
     public void checkIfAtDestination()
     {
-    	if(currentLocation.distanceTo(destinationLocation) < 10) // 10 meters from destination
+    	if(currentLocation.distanceTo(destinationLocation) < 50) // 10 meters from destination
     	{
-    		Toast.makeText(this, "ARRIVED", Toast.LENGTH_LONG).show();
+    		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
+    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
+    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.isPlannedTrip", false);
+    		wakeUpRouteMap.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		startActivity(wakeUpRouteMap);
     		stopSelf();
     	}
     }
@@ -202,6 +206,16 @@ public class AlarmService extends Service
 	public IBinder onBind(Intent intent) 
 	{		
 		return serviceBinder;
+	}
+	
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		if(locationManager != null && locationListener != null)
+		{
+			locationManager.removeUpdates(locationListener);	
+		}		
 	}
 	
 	/**

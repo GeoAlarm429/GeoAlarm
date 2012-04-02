@@ -1,8 +1,222 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
 
-</LinearLayout>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+	<LinearLayout
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical" >
+	
+	    <TextView
+	        android:id="@+id/optionsRingtoneText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Select default ringtone:" />
+	
+	    <Spinner
+	        android:id="@+id/optionsRingtone"
+	        android:layout_width="200sp"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="5sp" />
+	
+	    <TextView
+	        android:id="@+id/optionsVibrationText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Select default vibration:" />
+	
+	    <Spinner
+	        android:id="@+id/optionsVibration"
+	        android:layout_width="200sp"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="5sp" />
+	
+	    <TextView
+	        android:id="@+id/optionsColorText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Select app color:" />
+	
+	    <Spinner
+	        android:id="@+id/optionsColor"
+	        android:layout_width="200sp"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="15sp" />
+	
+	    <TableLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" >
+	
+	        <TableRow
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content" >
+	
+	            <TextView
+	                android:id="@+id/optionsSplashScreenText"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="Turn on/off the splash screen:"
+	                android:layout_marginRight="10sp" />
+	
+	            <ToggleButton
+	                android:id="@+id/optionsSplashScreen"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="ToggleButton" />
+	
+	        </TableRow>
+	
+	    </TableLayout>
+
+	    <TableLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content" >
+	        
+	        <TableRow >
+
+	    	<TextView
+	    	    android:id="@+id/sessionDataTxLabel"
+	    	    android:layout_width="wrap_content"
+	    	    android:layout_height="wrap_content"
+	    	    android:text="@string/session_data_tx"
+	    	    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    	<TextView
+	      		android:id="@+id/sessionDataTxShow"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	        	android:text=""
+	        	android:textAppearance="?android:attr/textAppearanceMedium" />
+
+			</TableRow>
+
+	        <TableRow >
+
+	    		<TextView
+	    		    android:id="@+id/sessionDataRxLabel"
+	    		    android:layout_width="wrap_content"
+	    		    android:layout_height="wrap_content"
+	    		    android:text="@string/session_data_rx"
+	    		    android:textAppearance="?android:attr/textAppearanceMedium" />
+	    
+	    		<TextView
+	      			android:id="@+id/sessionDataRxShow"
+	        		android:layout_width="wrap_content"
+	        		android:layout_height="wrap_content"
+	        		android:text=""
+	        		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    	</TableRow>
+	    	
+	        <TableRow >
+
+	    		<TextView
+	    		    android:id="@+id/TotalDataTxLabel"
+	    		    android:layout_width="wrap_content"
+	    		    android:layout_height="wrap_content"
+	    		    android:text="@string/total_data_tx"
+	    		    android:textAppearance="?android:attr/textAppearanceMedium" />
+	    
+	    		<TextView
+	      			android:id="@+id/totalDataTxShow"
+	        		android:layout_width="wrap_content"
+	        		android:layout_height="wrap_content"
+	        		android:text=""
+	        		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    	</TableRow>
+	    	
+	        <TableRow >
+
+	    		<TextView
+	    		    android:id="@+id/TotalDataRxLabel"
+	    		    android:layout_width="wrap_content"
+	    		    android:layout_height="wrap_content"
+	    		    android:text="@string/total_data_rx"
+	    		    android:textAppearance="?android:attr/textAppearanceMedium" />
+	    
+	    		<TextView
+	      			android:id="@+id/totalDataRxShow"
+	        		android:layout_width="wrap_content"
+	        		android:layout_height="wrap_content"
+	        		android:text=""
+	        		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    	</TableRow>
+	    </TableLayout>
+	    	
+	    <TableLayout
+			android:layout_marginTop="80sp"
+			android:layout_marginLeft="5sp"
+			android:layout_marginRight="5sp"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:orientation="vertical">
+	        
+	       <TextView
+				android:text="Check us:"
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="5sp">
+			</TextView>
+	
+			<LinearLayout
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content">
+	
+				<TableLayout
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					android:orientation="vertical"
+					android:layout_weight="2">
+	
+					<ImageView
+						android:layout_width="64px"
+						android:layout_height="64px"
+						android:id="@+id/contact_facebook"
+						android:src="@drawable/contact_facebook">
+					</ImageView>
+	
+				</TableLayout>
+	
+				<TableLayout
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					android:orientation="vertical"
+					android:layout_weight="3">
+	
+					<ImageView
+						android:layout_width="64px"
+						android:layout_height="64px"
+						android:id="@+id/contact_twitter"
+						android:src="@drawable/contact_twitter">
+					</ImageView>
+	
+				</TableLayout>
+	
+				<TableLayout
+					android:layout_width="fill_parent"
+					android:layout_height="fill_parent"
+					android:orientation="vertical"
+					android:layout_weight="2">
+	
+					<ImageView
+						android:layout_width="64px"
+						android:layout_height="64px"
+						android:id="@+id/contact_youtube"
+						android:src="@drawable/contact_youtube">
+					</ImageView>
+	
+				</TableLayout>
+	
+			</LinearLayout>
+	
+		</TableLayout>
+	
+	</LinearLayout>
+
+</ScrollView>

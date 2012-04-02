@@ -27,5 +27,10 @@
     <string name="serviceBusTextFieldString">Bus</string>
     <string name="busLineTextFieldString">Line:</string>
     <string name="satellite_label">Satellite</string>
+    <string name="data_button_string">Data</string>
+    <string name="session_data_tx">Session TX:</string>
+    <string name="total_data_tx">Total TX:</string>
+    <string name="session_data_rx">Session RX:</string>
+    <string name="total_data_rx">Total RX:</string>
 
 </resources>

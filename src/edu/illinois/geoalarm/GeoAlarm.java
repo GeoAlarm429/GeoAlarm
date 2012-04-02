@@ -5,8 +5,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.net.TrafficStats;
 import android.os.Bundle;
+import android.os.Process;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * The main Activity for the GeoAlarm app
@@ -22,8 +25,7 @@ public class GeoAlarm extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        
+        setContentView(R.layout.main);       
         
 /*        if (Splash.flag == true){
             Intent intent = new Intent (this, Splash.class);
@@ -52,9 +54,19 @@ public class GeoAlarm extends Activity {
 		{
 			throw new Error("Unable to execute sql in: " + sql.toString());
 		}
-		
-		database.close();
-		
+			
+		/* Get tare data values for this session and store them */        
+        long numBytesReceivedAtStart = 0;
+        numBytesReceivedAtStart = TrafficStats.getUidRxBytes(Process.myUid());	
+        long numBytesTransmittedAtStart = 0;
+        numBytesTransmittedAtStart = TrafficStats.getUidTxBytes(Process.myUid());   
+        
+        database.setupUsageDataTable();
+        database.setBytes(GeoAlarmDB.DB_RX_TARE_SESSION, numBytesReceivedAtStart);
+        database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedAtStart);
+        
+        database.close();
+                
     }
 
     /** This method is called when the Map button is clicked.
