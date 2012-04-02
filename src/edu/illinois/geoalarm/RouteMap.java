@@ -52,6 +52,9 @@ public class RouteMap extends MapActivity {
 	private GeoAlarmDB dbController;
 	private GeoPoint src;
 	private GeoPoint dest;
+	
+	private String sourceStation;
+	private String destStation;
 
 	/** 
 	 * Called when the activity is first created.
@@ -74,6 +77,8 @@ public class RouteMap extends MapActivity {
         mainMap = (MapView)findViewById(R.id.mainMap);
         backBtn = (Button)findViewById(R.id.backBtn);
         satellite = (CheckBox)findViewById(R.id.satellite);
+        sourceStation = getIntent().getStringExtra("source");
+        destStation = getIntent().getStringExtra("destination");
 
         showCurrentLocation();
         
@@ -81,8 +86,11 @@ public class RouteMap extends MapActivity {
         
         showNearBusStopsOnMap(currentLocation);
         
-        src = new GeoPoint((int)(40.11024833*1E6), (int)(-88.22789764*1E6));
-        dest = new GeoPoint((int)(40.10148621*1E6), (int)(-88.236055*1E6));
+/*        src = dbController.getGeopointFromDB(sourceStation);
+        dest = dbController.getGeopointFromDB(destStation);*/
+        
+        src = new GeoPoint((int)(40.11025200000001*1E6), (int)(-88.22780899999998*1E6));
+        dest = new GeoPoint((int)(40.10140228271485*1E6), (int)(-88.23602294921874*1E6));
         
         drawPath(src, dest);
         
