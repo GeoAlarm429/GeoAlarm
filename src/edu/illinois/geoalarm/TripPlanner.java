@@ -76,7 +76,7 @@ public class TripPlanner extends Activity {
     
     public void showTripPlannerBus(View view)
     {    	
-    	Intent intent = new Intent(view.getContext(), TripPlannerBus.class);    	
+    	Intent intent = new Intent(view.getContext(), TripPlannerBus.class);	
 		startActivityForResult(intent, 0);		
     }
     

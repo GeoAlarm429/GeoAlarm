@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.os.Bundle;
@@ -346,7 +347,10 @@ public class TripPlannerBus extends Activity
 	 */
 	public void setAlarm(View view)
 	{		
-		
+		Intent intent = new Intent(view.getContext(), RouteMap.class);    
+		intent.putExtra("source", selectedStartingStation);
+		intent.putExtra("destination", selectionDestinationStation);
+		startActivityForResult(intent, 0);	
 	}
 	
 	/**
