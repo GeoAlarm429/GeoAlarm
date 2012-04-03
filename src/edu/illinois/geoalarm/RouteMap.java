@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -66,8 +64,6 @@ public class RouteMap extends MapActivity
 	private GeoAlarmDB dbController;
 	private GeoPoint src;
 	private GeoPoint dest;
-	private String sourceStation;
-	private String destStation;
 	private int startingLatitude;
 	private int startingLongitude;
 	private int destinationLatitude;
@@ -87,6 +83,7 @@ public class RouteMap extends MapActivity
 	private int hourSet;
 	private int minuteSet;
 	private boolean isAM;
+	
 	public static final String RING_NOTIFICATION = "Ring";
 	public static final String VIBRATE_NOTIFICATION = "Vibrate";
 	public static final String POP_UP_NOTIFICATION = "PopUp Message";
@@ -125,27 +122,10 @@ public class RouteMap extends MapActivity
         		
         mainMap = (MapView)findViewById(R.id.mainMap);
         satellite = (CheckBox)findViewById(R.id.satellite);
-
-        sourceStation = getIntent().getStringExtra("source");
-        destStation = getIntent().getStringExtra("destination");
-
-        showCurrentLocation();
-        
-        setupGoogleMap();
-        
-        showNearBusStopsOnMap(currentLocation);
-        
-        src = dbController.getGeopointFromDB(sourceStation);
-//        dest = dbController.getGeopointFromDB(destStation);
-        
-//        src = new GeoPoint((int)(40.11025200000001*1E6), (int)(-88.22780899999998*1E6));
-        dest = new GeoPoint((int)(40.10140228271485*1E6), (int)(-88.23602294921874*1E6));
-=======
         
         showCurrentLocation();        
         setupGoogleMap();        
         showNearBusStopsOnMap(currentLocation);  
->>>>>>> origin/master
         
         /* Grab data from TripPlannerBus activity, if launched from that activity */
         boolean fromTripPlanner = getIntent().getBooleanExtra("edu.illinois.geoalarm.isPlannedTrip", false);
