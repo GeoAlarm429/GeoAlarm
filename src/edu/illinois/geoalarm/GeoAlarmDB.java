@@ -29,7 +29,6 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	// The name of the database
 	private static String DB_NAME = "geoAlarmDB.sqlite";
 	
-	/*----- We (Seung Mok Lee and Hyung Joo Kim added this part) -----*/
     // Table name
     private static String DB_TABLE_NAME = "Station";
     
@@ -55,11 +54,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 												" DOUBLE, " + DB_LATITUDE + " DOUBLE, " +
 												DB_BUSSTOPS_NAME + " VARCHAR);)";
     
-    private ArrayList<StopInfo> nearStops;
-    /*----- We (Seung Mok Lee and Hyung Joo Kim added this part) -----*/
-	
+    private ArrayList<StopInfo> nearStops;	
 	public SQLiteDatabase geoAlarmDB;
-
 	private final Context myContext;
 
 	/**
