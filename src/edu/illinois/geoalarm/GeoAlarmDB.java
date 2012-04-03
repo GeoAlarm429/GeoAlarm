@@ -6,13 +6,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-<<<<<<< HEAD
 import com.google.android.maps.GeoPoint;
-
-=======
 import android.content.ContentValues;
->>>>>>> origin/master
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;

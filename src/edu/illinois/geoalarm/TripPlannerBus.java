@@ -12,11 +12,8 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-<<<<<<< HEAD
 import android.database.Cursor;
-=======
 import android.content.SharedPreferences;
->>>>>>> origin/master
 import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -370,24 +367,21 @@ public class TripPlannerBus extends Activity
 	 */
 	public void setAlarm(View view)
 	{		
-<<<<<<< HEAD
 		Intent intent = new Intent(view.getContext(), RouteMap.class);    
 		intent.putExtra("source", selectedStartingStation);
-		intent.putExtra("destination", selectionDestinationStation);
+		intent.putExtra("destination", selectedDestinationStation);
 		startActivityForResult(intent, 0);	
-=======
 		database.close();
-		Intent intent = new Intent(view.getContext(), RouteMap.class);
-		intent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
-		intent.putExtra("edu.illinois.geoalarm.line", selectedLine);
-		intent.putExtra("edu.illinois.geoalarm.startingStation", selectedStartingStation);
-		intent.putExtra("edu.illinois.geoalarm.destinationStation", selectedDestinationStation);
-		intent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
-		intent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
-		intent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
-		intent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
-		startActivityForResult(intent, 0);		
->>>>>>> origin/master
+		Intent intent1 = new Intent(view.getContext(), RouteMap.class);
+		intent1.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
+		intent1.putExtra("edu.illinois.geoalarm.line", selectedLine);
+		intent1.putExtra("edu.illinois.geoalarm.startingStation", selectedStartingStation);
+		intent1.putExtra("edu.illinois.geoalarm.destinationStation", selectedDestinationStation);
+		intent1.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
+		intent1.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
+		intent1.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
+		intent1.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
+		startActivityForResult(intent1, 0);		
 	}
 	
 	/**
