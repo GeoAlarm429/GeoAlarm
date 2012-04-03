@@ -1,6 +1,5 @@
 import java.util.Vector;
 
-
 // TODO: add transportationID, when we
 // are working with CTA
 public class Route {
