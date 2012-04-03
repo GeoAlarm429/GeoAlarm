@@ -48,5 +48,6 @@
         <string name="save_preferences">Save</string>
         <string name="splash_screen_label">Turn on/off the splash screen:</string>
         <string name="splash_screen_toggle_button">ToggleButton</string>
+        <string name="view_timetable">View Timetable</string>
 
 </resources>

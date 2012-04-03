@@ -488,6 +488,16 @@ public class RouteMap extends MapActivity
 		
 		return urlString;
 	}	
+	
+	/**
+	 * This method starts the Timetable activity
+	 * @param view
+	 */
+	public void showTimetable(View view)
+	{
+		Intent intent1 = new Intent(view.getContext(), Timetable.class);
+		startActivityForResult(intent1, 0);		
+	}
 		
 	/**
 	 * This method returns whether routes are currently being displayed on the

@@ -64,6 +64,12 @@
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         
+         <activity
+            android:label="@string/app_name"
+            android:name="Timetable"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        
         <service
             android:label="@string/app_name"
             android:name="AlarmService" >           

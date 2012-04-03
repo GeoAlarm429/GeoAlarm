@@ -366,11 +366,7 @@ public class TripPlannerBus extends Activity
 	 * onClick XML attribute.
 	 */
 	public void setAlarm(View view)
-	{		
-		Intent intent = new Intent(view.getContext(), RouteMap.class);    
-		intent.putExtra("source", selectedStartingStation);
-		intent.putExtra("destination", selectedDestinationStation);
-		startActivityForResult(intent, 0);	
+	{			
 		database.close();
 		Intent intent1 = new Intent(view.getContext(), RouteMap.class);
 		intent1.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
