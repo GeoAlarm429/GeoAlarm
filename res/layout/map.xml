@@ -15,7 +15,7 @@
             android:id="@+id/mainMap"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
-			android:apiKey="0u9J4SaW7HiWVqOXqpqpVPAaXG2mFuckEgkP_NQ"
+			android:apiKey="0c3JtNivMphhLewaAtzebijmMAaqJqH8ses0aHQ"
 			android:enabled="true"
 			android:clickable="true" /> 
 
@@ -55,12 +55,12 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_weight=".5" >
-
+
             <CheckBox
                 android:id="@+id/satellite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Satellite" />
+                android:text="@string/satellite_label" />
 
             <TextView
                 android:id="@+id/TextView1"
@@ -68,13 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight=".25"
                 android:gravity="center|center_vertical"
-                android:text="@string/empty" />
-            <Button
-                android:id="@+id/backBtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".25"
-                android:text="@string/back_label" />
+                android:text="@string/empty" />
         </TableRow>
     </TableLayout>
 

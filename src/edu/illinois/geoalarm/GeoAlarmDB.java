@@ -7,14 +7,19 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+<<<<<<< HEAD
 import com.google.android.maps.GeoPoint;
 
+=======
+import android.content.ContentValues;
+>>>>>>> origin/master
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.location.Location;
 import android.util.Log;
 
@@ -41,6 +46,16 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     private final static String DB_BUSSTOPS_NAME = "name";
     private final static String DB_LONGITUDE = "lng";
     private final static String DB_LATITUDE = "lat";
+    
+    public final static String DB_TX = "tx";
+    public final static String DB_RX = "rx";
+    public final static String DB_TX_SESSION = "tx_session";
+    public final static String DB_RX_SESSION = "rx_session";
+    public final static String DB_TX_TARE_SESSION = "tx_tare";
+    public final static String DB_RX_TARE_SESSION = "rx_tare";
+    public final static String DB_RING_LENGTH = "ring_length";
+    public final static String DB_VIBRATE_LENGTH = "vibrate_length";
+    public final static String DB_BACKGROUND_COLOR = "background_color";
 
     // SQL command to create a table
     private static final String DB_CREATE_SQL = "CREATE TABLE " + DB_TABLE_NAME +  
@@ -158,18 +173,26 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	{
 		// Open the database
 		String myPath = DB_PATH + DB_NAME;
-		geoAlarmDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+		geoAlarmDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
 	}
 
 	@Override
 	public synchronized void close()
 	{
-		if(geoAlarmDB != null)
+		try
 		{
-			geoAlarmDB.close();
-		}
+			
+			if(geoAlarmDB != null)
+			{
+				geoAlarmDB.close();
+			}
 
-		super.close();
+			super.close();
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 	
 	/**
@@ -334,6 +357,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * This method queries the Routes table, and returns geopoint corresponding to the given route name
 	 * @param name
 	 * @return geopoint of station
@@ -362,6 +386,143 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     	result.close();
     	return rtnVal;
 	}
+=======
+	 * This method returns the latitude for a given station name
+	 * @param stationName The name of a station (from the name column in the database)
+	 * @return A double representing the latitude
+	 */
+	public double getLatitude(String stationName)
+	{		
+		Cursor result = geoAlarmDB.query("Station", new String[]{"lat"}, "name = \"" + stationName + "\"", null, null, null, null, null);
+		double latitude = 0.0;
+		if(result.moveToFirst())
+		{
+			latitude = result.getDouble(result.getColumnIndex("lat"));
+		}
+		return latitude;
+	}
+	
+	/**
+	 * This method returns the longitude for a given station name	
+	 * @param stationName The name of a station (from the name column in the database)
+	 * @return A double representing the longitude
+	 */
+	public double getLongitude(String stationName)
+	{
+		Cursor result = geoAlarmDB.query("Station", new String[]{"lng"}, "name = \"" + stationName + "\"", null, null, null, null, null);
+		double longitude = 0.0;
+		if(result.moveToFirst())
+		{
+			longitude = result.getDouble(result.getColumnIndex("lng"));
+		}
+		return longitude;
+	}
+	
+	/**
+	 * This method makes sure the table for data usage storage is setup.  Specifically, it creates the
+	 * table rows if they don't exist, and resets the temp rows to zero.
+	 */
+	public void setupUsageDataTable()
+	{
+		Cursor result = geoAlarmDB.query("UsageData", new String[]{"name"}, null, null, null, null, null);
+		
+		if(result.getCount() < 4)
+		{
+			result.close();			
+			ContentValues values = new ContentValues();
+			
+			values.put("name", DB_TX);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();
+			
+			values.put("name", DB_RX);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();
+			
+			values.put("name", DB_TX_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();
+			
+			values.put("name", DB_RX_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();
+			
+			values.put("name", DB_TX_TARE_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();			
+			
+			values.put("name", DB_RX_TARE_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.insert("UsageData", null, values);
+			values.clear();			
+			
+		}
+		else
+		{
+			result.close();
+			ContentValues values = new ContentValues();
+			values.put("name", DB_TX_SESSION);
+			values.put("bytes", 0);			
+			geoAlarmDB.update("UsageData", values, "name = \"" + DB_TX_SESSION + "\"", null);
+			values.clear();
+			
+			values.put("name", DB_RX_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.update("UsageData", values, "name = \"" + DB_RX_SESSION + "\"", null);
+			values.clear();
+			
+			values.put("name", DB_TX_TARE_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.update("UsageData", values, "name = \"" + DB_TX_TARE_SESSION + "\"", null);
+			
+			values.put("name", DB_RX_TARE_SESSION);
+			values.put("bytes", 0);
+			geoAlarmDB.update("UsageData", values, "name = \"" + DB_RX_TARE_SESSION + "\"", null);
+		}
+		
+	}
+	
+	/**
+	 * This function sets row (name, bytes) of UsageData 
+	 * @param name The name of the row
+	 * @param bytes The number of bytes to set
+	 */
+	public void setBytes(String name, long bytes)
+	{
+		if(geoAlarmDB != null)
+		{		
+			ContentValues values = new ContentValues();
+			values.put("name", name);
+			values.put("bytes", bytes);
+			geoAlarmDB.update("UsageData", values, "name = \"" + name + "\"", null);			
+		}
+	}	
+	
+	/**
+	 * Returns the number of bytes in row name of the table UsageData
+	 * @param name The name of the row
+	 * @return The number of bytes associated with name
+	 */
+	public long getBytes(String name)
+	{
+		long numBytes = 0;
+		if(geoAlarmDB != null)
+		{
+			Cursor result = geoAlarmDB.query("UsageData", new String[] {"bytes"}, "name = \"" + name + "\"", null, null, null, null);
+			if(result.moveToFirst())
+			{
+				numBytes = result.getLong(result.getColumnIndex("bytes"));
+			}
+			result.close();
+		}
+		return numBytes;
+	}	
+>>>>>>> origin/master
 
 	public Context getMyContext()
 	{

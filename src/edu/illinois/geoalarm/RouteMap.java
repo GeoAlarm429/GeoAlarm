@@ -4,24 +4,37 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AsyncPlayer;
+import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.TrafficStats;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
@@ -30,18 +43,19 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import android.os.Process;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
  */
 
-public class RouteMap extends MapActivity {
+public class RouteMap extends MapActivity 
+{
 	private static final int INITIAL_ZOOM = 15;
 	protected static final int LAUNCH_ACTIVITY = 1;
 
 	private MapView mainMap;
 	private MapController mapControl;
-	private Button backBtn;
 	private CheckBox satellite;
 	private Location currentLocation;
 	private GeoPoint centerPoint;
@@ -52,31 +66,66 @@ public class RouteMap extends MapActivity {
 	private GeoAlarmDB dbController;
 	private GeoPoint src;
 	private GeoPoint dest;
-	
 	private String sourceStation;
 	private String destStation;
+	private int startingLatitude;
+	private int startingLongitude;
+	private int destinationLatitude;
+	private int destinationLongitude;
+	private Intent alarmService;
+	private LocationManager locationManager;
+	private Uri notification;
+	private AsyncPlayer player;
+	private Vibrator vibrator;
+	
+	/* Route data from TripPlannerBus or Map selection */
+	private String selectedLine;
+	private String selectedStartingStation;
+	private String selectedDestinationStation;
+	private String selectedNotification;
+	private String selectedNotificationTime ;
+	private int hourSet;
+	private int minuteSet;
+	private boolean isAM;
+	public static final String RING_NOTIFICATION = "Ring";
+	public static final String VIBRATE_NOTIFICATION = "Vibrate";
+	public static final String POP_UP_NOTIFICATION = "PopUp Message";
+	private int ringLength;
+	private int vibrateLength;
 
 	/** 
 	 * Called when the activity is first created.
 	 */
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+	{
         super.onCreate(savedInstanceState);        
         setContentView(R.layout.map);
+        
+        SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+        View v = findViewById(R.id.mainMap);
+        View root = v.getRootView();
+        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        ringLength = settings.getInt("ring_length", 3);
+        vibrateLength = settings.getInt("vibrate_length", 3);
         
         ThreadPolicy tp = ThreadPolicy.LAX; 
         StrictMode.setThreadPolicy(tp);
         
         dbController = new GeoAlarmDB(this);
-        try {
+        try 
+        {
         	dbController.openDataBase();
-        } catch (SQLException e) {
-        			throw e;
+        } 
+        catch (SQLException e) 
+        {
+        	e.printStackTrace();
+        	throw e;
         }
         		
         mainMap = (MapView)findViewById(R.id.mainMap);
-        backBtn = (Button)findViewById(R.id.backBtn);
         satellite = (CheckBox)findViewById(R.id.satellite);
+
         sourceStation = getIntent().getStringExtra("source");
         destStation = getIntent().getStringExtra("destination");
 
@@ -91,18 +140,154 @@ public class RouteMap extends MapActivity {
         
 //        src = new GeoPoint((int)(40.11025200000001*1E6), (int)(-88.22780899999998*1E6));
         dest = new GeoPoint((int)(40.10140228271485*1E6), (int)(-88.23602294921874*1E6));
+=======
         
-        drawPath(src, dest);
+        showCurrentLocation();        
+        setupGoogleMap();        
+        showNearBusStopsOnMap(currentLocation);  
+>>>>>>> origin/master
         
-        backBtn.setOnClickListener(new OnClickListener() {
-			
-			public void onClick(View v) {
-				Intent intent = new Intent(RouteMap.this, GeoAlarm.class);
-				startActivityForResult(intent, LAUNCH_ACTIVITY);
-			}
-		});
-        
-        satellite.setOnClickListener(new OnClickListener() {
+        /* Grab data from TripPlannerBus activity, if launched from that activity */
+        boolean fromTripPlanner = getIntent().getBooleanExtra("edu.illinois.geoalarm.isPlannedTrip", false);
+        if(fromTripPlanner)
+        {
+        	initializeTripVariables();
+        	updateCoordinates();        
+            drawPath(src, dest);
+            startAlarmService();
+        }                       
+              
+    }
+	
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		updateUsageData();
+	}
+	
+	/**
+	 * Updates the stored usage data with the most up-to-date numbers
+	 */
+	public void updateUsageData()
+	{
+		if(dbController != null)
+		{		
+			long numBytesLastReceivedSession =  dbController.getBytes(GeoAlarmDB.DB_RX_SESSION);
+			long numBytesLastTransmittedSession =  dbController.getBytes(GeoAlarmDB.DB_TX_SESSION);
+			long numBytesReceived = dbController.getBytes(GeoAlarmDB.DB_RX);
+			long numBytesTransmitted = dbController.getBytes(GeoAlarmDB.DB_TX);
+			long numBytesReceivedDelta = TrafficStats.getUidRxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION) - numBytesLastReceivedSession;
+			long numBytesTransmittedDelta = TrafficStats.getUidTxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION) - numBytesLastTransmittedSession;
+		
+			dbController.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + numBytesReceivedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_TX_SESSION, numBytesLastTransmittedSession + numBytesTransmittedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + numBytesReceivedDelta);
+			dbController.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted + numBytesTransmittedDelta);			
+		}
+	}
+	
+	/**
+	 * Called when the os destroys this process.
+	 */
+	@Override
+    public void onDestroy()
+	{
+		super.onDestroy();
+		updateUsageData();
+		dbController.close();
+	}
+	
+	@Override
+	public void onNewIntent(Intent newIntent)
+	{
+		Log.d("RouteMap", "Alarm Received");
+		this.setIntent(newIntent);
+		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
+	    if(alarmTime)
+	    {
+	    		if(selectedNotification.equals(RING_NOTIFICATION))
+	    		{
+	    			notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+	    			player = new AsyncPlayer("RingAlarm");
+	    			player.play(getApplicationContext(), notification, false, AudioManager.STREAM_RING);
+	    			TimerTask task = new TimerTask() 
+	    			{
+	    			    @Override
+	    			    public void run() 
+	    			    {
+	    			    	player.stop();
+	    			    }
+	    			};
+	    			Timer timer = new Timer();
+	    			timer.schedule(task, ringLength * 1000);
+
+	    		}
+	    		else if(selectedNotification.equals(VIBRATE_NOTIFICATION))
+	    		{
+	    			vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	    			vibrator.vibrate(500);
+	    			TimerTask task = new TimerTask() 
+	    			{
+	    			    @Override
+	    			    public void run() 
+	    			    {
+	    			    	vibrator.cancel();
+	    			    }
+	    			};
+	    			Timer timer = new Timer();
+	    			timer.schedule(task, vibrateLength * 1000);
+	    		}
+	    		else
+	    		{
+	    			Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
+	    		}
+	    } 
+	}
+	
+	/**
+	 * This method starts the AlarmService service that monitors the trip
+	 */
+	private void startAlarmService()
+	{
+		/* Start alarm service */   
+        Intent serviceIntent = new Intent(RouteMap.this, AlarmService.class);
+        serviceIntent.putExtra("edu.illinois.geoalarm.isPlannedTrip", true);
+        serviceIntent.putExtra("edu.illinois.geoalarm.line", selectedLine);
+        serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLatitude", startingLatitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLongitude", startingLongitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLatitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLongitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);        
+        alarmService = serviceIntent;
+        startService(serviceIntent);        
+	}
+	
+	/**
+	 * This method initializes the trip instance variables from the intent that started this activity
+	 */
+	private void initializeTripVariables()
+	{
+		selectedLine = getIntent().getStringExtra("edu.illinois.geoalarm.line");
+    	selectedStartingStation = getIntent().getStringExtra("edu.illinois.geoalarm.startingStation");
+    	selectedDestinationStation = getIntent().getStringExtra("edu.illinois.geoalarm.destinationStation");
+    	selectedNotification = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotification");
+    	selectedNotificationTime = getIntent().getStringExtra("edu.illinois.geoalarm.selectedNotificationTime");
+    	hourSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
+    	minuteSet = getIntent().getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0);
+    	isAM = getIntent().getBooleanExtra("edu.illinois.geoalarm.selectedNotificationIsAM", false);        	
+	}
+	
+	/**
+	 * This method sets up the event listener for the Satellite button
+	 */
+	private void setSatelliteOnClickListener()
+	{
+			satellite.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
 				if(satellite.isChecked()){
@@ -111,17 +296,39 @@ public class RouteMap extends MapActivity {
 				else
 					mainMap.setSatellite(false);
 			}
-		});
-    }
+		});                   
+	}
+	
+	/**
+	 * This method update the coordinates of the start and destination
+	 */
+	private void updateCoordinates()
+	{
+		startingLatitude = (int) (dbController.getLatitude(selectedStartingStation) * 1E6) ;
+		startingLongitude = (int) (dbController.getLongitude(selectedStartingStation)* 1E6);
+		destinationLatitude = (int) (dbController.getLatitude(selectedDestinationStation)* 1E6);
+		destinationLongitude = (int) (dbController.getLongitude(selectedDestinationStation)* 1E6);
+		src = new GeoPoint(startingLatitude, startingLongitude);
+		dest = new GeoPoint(destinationLatitude, destinationLongitude);
+	}
 
 	/**
 	 * Setup Google Map's options
 	 */
-	private void setupGoogleMap() {
+	private void setupGoogleMap() 
+	{
+		if(mainMap == null)
+		{
+			Log.d("RouteMap", "Center point not set");
+			return;
+		}
 		mapControl = mainMap.getController();
         mainMap.setBuiltInZoomControls(true);
 
-        mapControl.animateTo(centerPoint);
+        if(centerPoint != null)
+        {
+        	mapControl.animateTo(centerPoint);
+        }
         mapControl.setZoom(INITIAL_ZOOM);
 	}
 
@@ -129,41 +336,50 @@ public class RouteMap extends MapActivity {
 	 * Method to show current location on the map
 	 */
 	private void showCurrentLocation() {
-		setCurrentPoint();
-		
+		setCurrentPoint();		
 		showMarkerOnMap();
 	}
 	
 	/**
 	 * Get current location GPS values from built-in location manager
 	 */
-	private void setCurrentPoint() {
-		LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+	private void setCurrentPoint() 
+	{
+		if(locationManager == null)
+		{
+			locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		}
 
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
 		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
 		
 		currentLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-
-		double latitude = currentLocation.getLatitude();   
-		double longitude = currentLocation.getLongitude();
-	  
-		centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+	
+		if(currentLocation != null)
+		{
+			double latitude = currentLocation.getLatitude();   
+			double longitude = currentLocation.getLongitude();	  
+			centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+		}
 	}
 
 	/**
 	 * Show current location on the map with a marker
 	 */
-	private void showMarkerOnMap() {
-		mapOverlays = mainMap.getOverlays(); 
-	    Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
+	private void showMarkerOnMap() 
+	{
+		if(centerPoint != null)
+		{
+			mapOverlays = mainMap.getOverlays(); 
+			Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
 	    
-	    CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
-        OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
+			CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
+			OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
         
-        itemizedOverlay.addOverlay(overlayitem);  
-        mapOverlays.add(itemizedOverlay);
+			itemizedOverlay.addOverlay(overlayitem);  
+			mapOverlays.add(itemizedOverlay);
+		}
 	}
 
     /**
@@ -196,7 +412,8 @@ public class RouteMap extends MapActivity {
      * Called when the user move the center of the map
      */
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent event) {
+	public boolean dispatchTouchEvent(MotionEvent event) 
+	{
 		boolean result = super.dispatchTouchEvent(event);
 		if (event.getAction() == MotionEvent.ACTION_UP){
 			GeoPoint center = mainMap.getMapCenter();
@@ -217,6 +434,11 @@ public class RouteMap extends MapActivity {
 	 */
 	private void drawPath(GeoPoint src, GeoPoint dest) 
 	{ 
+		if(src == null || dest == null)
+		{
+			Log.d("RouteMap", "Source or Destination not set");
+			return;
+		}
 		StringBuilder urlString = getURL(src, dest); 
 		
 		Document doc = null; 
@@ -285,14 +507,15 @@ public class RouteMap extends MapActivity {
 		urlString.append("&ie=UTF8&0&om=0&output=kml");
 		
 		return urlString;
-	}
+	}	
 		
 	/**
 	 * This method returns whether routes are currently being displayed on the
 	 * map. Right now, they're not.
 	 */
 	@Override
-	protected boolean isRouteDisplayed() {
+	protected boolean isRouteDisplayed() 
+	{
 		return false;
 	}
 }

@@ -78,5 +78,33 @@ public class DatabaseTest extends ActivityInstrumentationTestCase2<TripPlannerBu
 		assertNotNull(routeName);
 	}
 	
+	/**
+	 * Test getting latitude from the database
+	 */
+	public void testGetLatitude()
+	{
+		double latitude = 0.0;
+		Cursor aCursor = database.geoAlarmDB.query("Station", new String[]{"lat"}, null, null, null, null, null, null);
+		assertNotNull(aCursor);
+		assertTrue(aCursor.moveToFirst());
+		assertFalse(aCursor.isAfterLast());
+		latitude = aCursor.getDouble(0);
+		assertTrue(latitude != 0.0);		
+	}
+	
+	/**
+	 * Test getting longitude from the database
+	 */
+	public void testGetLongitude()
+	{
+		double longitude = 0.0;
+		Cursor aCursor = database.geoAlarmDB.query("Station", new String[]{"lng"}, null, null, null, null, null, null);
+		assertNotNull(aCursor);
+		assertTrue(aCursor.moveToFirst());
+		assertFalse(aCursor.isAfterLast());
+		longitude = aCursor.getDouble(0);
+		assertTrue(longitude != 0.0);		
+	}
+	
 	
 }
