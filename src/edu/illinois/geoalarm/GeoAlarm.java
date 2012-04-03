@@ -3,8 +3,10 @@ package edu.illinois.geoalarm;
 import java.io.IOException;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Process;
@@ -18,19 +20,26 @@ import android.widget.Toast;
  * @author deflume1
  *
  */
-public class GeoAlarm extends Activity {
+public class GeoAlarm extends Activity 
+{
 	GeoAlarmDB database;
 	
     /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);       
         
-/*        if (Splash.flag == true){
+        SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+        View v = findViewById(R.id.mapButton);
+        View root = v.getRootView();
+        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        if (settings.getBoolean("splash_screen", false))
+        {
             Intent intent = new Intent (this, Splash.class);
             startActivity(intent);            	
-        }*/
+        }
 
         // Instantiate the database
 		database = new GeoAlarmDB(this.getApplicationContext());
@@ -54,8 +63,18 @@ public class GeoAlarm extends Activity {
 		{
 			throw new Error("Unable to execute sql in: " + sql.toString());
 		}
-			
-		/* Get tare data values for this session and store them */        
+		      
+		tareSessionDataValues();
+		
+        database.close();                
+    }
+    
+    /**
+     * This method gets the tare data values for the session, and stores them in the DB
+     */
+    public void tareSessionDataValues()
+    {
+    	/* Get tare data values for this session and store them */        
         long numBytesReceivedAtStart = 0;
         numBytesReceivedAtStart = TrafficStats.getUidRxBytes(Process.myUid());	
         long numBytesTransmittedAtStart = 0;
@@ -63,10 +82,7 @@ public class GeoAlarm extends Activity {
         
         database.setupUsageDataTable();
         database.setBytes(GeoAlarmDB.DB_RX_TARE_SESSION, numBytesReceivedAtStart);
-        database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedAtStart);
-        
-        database.close();
-                
+        database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedAtStart);    	
     }
 
     /** This method is called when the Map button is clicked.

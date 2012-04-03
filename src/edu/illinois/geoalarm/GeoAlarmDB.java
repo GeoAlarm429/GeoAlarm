@@ -14,6 +14,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.location.Location;
 import android.util.Log;
 
@@ -47,6 +48,9 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     public final static String DB_RX_SESSION = "rx_session";
     public final static String DB_TX_TARE_SESSION = "tx_tare";
     public final static String DB_RX_TARE_SESSION = "rx_tare";
+    public final static String DB_RING_LENGTH = "ring_length";
+    public final static String DB_VIBRATE_LENGTH = "vibrate_length";
+    public final static String DB_BACKGROUND_COLOR = "background_color";
 
     // SQL command to create a table
     private static final String DB_CREATE_SQL = "CREATE TABLE " + DB_TABLE_NAME +  
@@ -482,12 +486,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 			result.close();
 		}
 		return numBytes;
-	}
-	
-	public void writeTempLongitudeData(int bytes)
-	{
-		Cursor result = geoAlarmDB.query("UsageData", new String[]{"name"}, null, null, null, null, null);
-	}
+	}	
 
 	public Context getMyContext()
 	{

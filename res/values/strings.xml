@@ -32,5 +32,21 @@
     <string name="total_data_tx">Total TX:</string>
     <string name="session_data_rx">Session RX:</string>
     <string name="total_data_rx">Total RX:</string>
+    <string name="ringtone_length">Ringtone Length:</string>
+    <string name="vibration_length">Vibration Length:</string>
+    
+    <string-array name="color_array">
+        <item>Black</item>
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Red</item>
+        <item>Yellow</item>
+        <item>White</item>
+        <item>Gray</item>
+    </string-array>
+        <string name="select_app_color">Select App Color:</string>
+        <string name="save_preferences">Save</string>
+        <string name="splash_screen_label">Turn on/off the splash screen:</string>
+        <string name="splash_screen_toggle_button">ToggleButton</string>
 
 </resources>

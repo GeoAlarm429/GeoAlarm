@@ -12,7 +12,9 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -59,7 +61,13 @@ public class TripPlannerBus extends Activity
     public void onCreate(Bundle savedInstanceState) 
 	{
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.trip_cta_bus);         
+        setContentView(R.layout.trip_cta_bus);   
+        
+        SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+        View v = findViewById(R.id.startingLocationSpinner);
+        View root = v.getRootView();
+        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        
 		initializeHandles();
 		
 		startingLocationSpinner.setEnabled(false);

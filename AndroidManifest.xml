@@ -6,6 +6,7 @@
 
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     
     <!-- Permit current location infomation provider -->
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

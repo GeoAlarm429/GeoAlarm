@@ -4,20 +4,33 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AsyncPlayer;
+import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.TrafficStats;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,6 +72,9 @@ public class RouteMap extends MapActivity
 	private int destinationLongitude;
 	private Intent alarmService;
 	private LocationManager locationManager;
+	private Uri notification;
+	private AsyncPlayer player;
+	private Vibrator vibrator;
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -69,6 +85,12 @@ public class RouteMap extends MapActivity
 	private int hourSet;
 	private int minuteSet;
 	private boolean isAM;
+	
+	public static final String RING_NOTIFICATION = "Ring";
+	public static final String VIBRATE_NOTIFICATION = "Vibrate";
+	public static final String POP_UP_NOTIFICATION = "PopUp Message";
+	private int ringLength;
+	private int vibrateLength;
 
 	/** 
 	 * Called when the activity is first created.
@@ -78,6 +100,13 @@ public class RouteMap extends MapActivity
 	{
         super.onCreate(savedInstanceState);        
         setContentView(R.layout.map);
+        
+        SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+        View v = findViewById(R.id.mainMap);
+        View root = v.getRootView();
+        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        ringLength = settings.getInt("ring_length", 3);
+        vibrateLength = settings.getInt("vibrate_length", 3);
         
         ThreadPolicy tp = ThreadPolicy.LAX; 
         StrictMode.setThreadPolicy(tp);
@@ -154,16 +183,48 @@ public class RouteMap extends MapActivity
 	@Override
 	public void onNewIntent(Intent newIntent)
 	{
+		Log.d("RouteMap", "Alarm Received");
 		this.setIntent(newIntent);
 		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
 	    if(alarmTime)
 	    {
-	        	Toast.makeText(this, "YOU HAVE ARRIVED ON TIME", Toast.LENGTH_LONG).show();
-	    }     
-	    else
-	    {
-	    	Toast.makeText(this, "YOU HAVE ARRIVED AT STOP", Toast.LENGTH_LONG).show();
-	    }
+	    		if(selectedNotification.equals(RING_NOTIFICATION))
+	    		{
+	    			notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+	    			player = new AsyncPlayer("RingAlarm");
+	    			player.play(getApplicationContext(), notification, false, AudioManager.STREAM_RING);
+	    			TimerTask task = new TimerTask() 
+	    			{
+	    			    @Override
+	    			    public void run() 
+	    			    {
+	    			    	player.stop();
+	    			    }
+	    			};
+	    			Timer timer = new Timer();
+	    			timer.schedule(task, ringLength * 1000);
+
+	    		}
+	    		else if(selectedNotification.equals(VIBRATE_NOTIFICATION))
+	    		{
+	    			vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+	    			vibrator.vibrate(500);
+	    			TimerTask task = new TimerTask() 
+	    			{
+	    			    @Override
+	    			    public void run() 
+	    			    {
+	    			    	vibrator.cancel();
+	    			    }
+	    			};
+	    			Timer timer = new Timer();
+	    			timer.schedule(task, vibrateLength * 1000);
+	    		}
+	    		else
+	    		{
+	    			Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
+	    		}
+	    } 
 	}
 	
 	/**

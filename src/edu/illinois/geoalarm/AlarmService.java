@@ -143,7 +143,7 @@ public class AlarmService extends Service
     	c.set(Calendar.HOUR_OF_DAY, hourSet);
     	c.set(Calendar.MINUTE, minuteSet);  
     	
-    	alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+    	alarmManager.set(AlarmManager.RTC_WAKEUP, c.getTimeInMillis() - 30000, pendingIntent);
     	stopSelf();
     }
     
