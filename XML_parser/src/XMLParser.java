@@ -47,9 +47,9 @@ public class XMLParser {
 	
 	private static String PLAN_TRIP_URL = "http://developer.cumtd.com/api/" + VERSION +
 			"/xml/GetPlannedTripsByLatLon?key=" + API_KEY;
-	private static final String PATH_STATION = "/Users/solanki/Documents/workspace/CS429/src/GetStops.xml";
-	private static final String PATH_ROUTE = "/Users/solanki/Documents/workspace/CS429/src/GetRoutes.xml";
-	private static final String PATH_TRIP = "/Users/solanki/Documents/workspace/CS429/src/oneLeg.xml";
+	private static final String PATH_STATION = "src//GetStops.xml";
+	private static final String PATH_ROUTE = "src//GetRoutes.xml";
+	private static final String PATH_TRIP = "src//oneLeg.xml";
 	
 	private static Document stationDoc;
 	private static Document routeDoc;

@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -25,6 +26,7 @@ public class Populate
 	private static HashSet<StopTimeData> stopTimeData;
 	private static HashSet<StopData> stopData;
 	private static HashSet<AttributePair<Integer, Integer>> routesAndStops;
+	private static HashSet<TimetableEntry> timetable;
 	
 	public static void main (String [] args)
 	{				
@@ -33,6 +35,7 @@ public class Populate
 		stopTimeData = new HashSet<StopTimeData>();
 		stopData = new HashSet<StopData>();
 		routesAndStops = new HashSet<AttributePair<Integer, Integer>>();
+		timetable = new HashSet<TimetableEntry>();
 		
 		parseTrips();
 		parseRoutes();
@@ -40,10 +43,12 @@ public class Populate
 		parseStopTimes();
 		
 		mapStopsToRoutes();
-		//outputRoutesAndStops();
+		constructTimetable();
+		
 		writeRoutesToDB();
 		writeStopsToDB();
 		writeRoutesAndStops();
+		writeTimetable();
 		
 	}
 	
@@ -112,11 +117,15 @@ public class Populate
 				Scanner lineScanner = new Scanner(line).useDelimiter(",");
 				
 				String routeID = lineScanner.next();
-				lineScanner.next();
+				String serviceID = lineScanner.next();
 				String tripID = lineScanner.next();
 				String headsign = lineScanner.next();
+				String directionIDStr = lineScanner.next();
+				int directionID = Integer.parseInt(directionIDStr);
+				String blockID = lineScanner.next();
+				String shapeID = lineScanner.next();
 				
-				tripData.add(new TripData(routeID, tripID, headsign));
+				tripData.add(new TripData(routeID, serviceID, tripID, headsign, directionID, blockID, shapeID));
 			}			
 			
 			reader.close();
@@ -158,8 +167,10 @@ public class Populate
 				String arrivalTime = lineScanner.next();
 				String departureTime = lineScanner.next();
 				String stopID = lineScanner.next();
+				String stopSequenceStr = lineScanner.next();
+				Integer stopSequence = Integer.parseInt(stopSequenceStr);				
 				
-				stopTimeData.add(new StopTimeData(tripID, arrivalTime, departureTime, stopID));
+				stopTimeData.add(new StopTimeData(tripID, arrivalTime, departureTime, stopID, stopSequence));
 			}			
 			
 			reader.close();
@@ -236,6 +247,20 @@ public class Populate
 			
 		}
 		
+	}
+	
+	public static void constructTimetable()
+	{
+		for(StopTimeData entryOne : stopTimeData)
+		{
+			for(TripData entryTwo : tripData)
+			{				
+				if(entryOne.getTripIDHash() == entryTwo.getTripIDHash())
+				{
+					timetable.add(new TimetableEntry(entryOne.getStopIDHash(), entryTwo.getRouteIDHash(), entryOne.getArrivalTime(), entryOne.getDepartureTime()));
+				}
+			}
+		}
 	}
 	
 	/**
@@ -350,6 +375,40 @@ public class Populate
 			{
 				prep.setInt(1, entry.getFirstElement());
 				prep.setInt(2, entry.getSecondElement());
+				prep.addBatch();
+			}
+			
+			conn.setAutoCommit(false);
+			prep.executeBatch();
+			conn.setAutoCommit(true);
+			
+			conn.close();
+		} 
+		catch (ClassNotFoundException e) 
+		{			
+			e.printStackTrace();
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		}			
+	}
+	
+	public static void writeTimetable()
+	{
+		try 
+		{
+			Class.forName("org.sqlite.JDBC");
+			Connection conn = DriverManager.getConnection("jdbc:sqlite:assets\\geoAlarmDB.sqlite");
+			
+			PreparedStatement prep = conn.prepareStatement("insert into timetable values (?, ?, ?, ?);");
+			DateFormat d = DateFormat.getInstance();
+			for(TimetableEntry entry : timetable)
+			{
+				prep.setInt(1, entry.getRouteID());
+				prep.setInt(2, entry.getStopID());
+				prep.setTime(3, Time.valueOf(entry.getArrivalTime()));
+				prep.setTime(4, Time.valueOf(entry.getDepartureTime()));
 				prep.addBatch();
 			}
 			
