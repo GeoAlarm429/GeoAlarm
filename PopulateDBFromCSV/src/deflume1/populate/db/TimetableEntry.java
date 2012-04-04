@@ -2,35 +2,43 @@ package deflume1.populate.db;
 
 public class TimetableEntry 
 {
-	private int stopID;
-	private int routeID;
+	private String stopID;
+	private String routeID;
 	private String arrivalTime;
-	private String departureTime;
 	
-	public TimetableEntry(int stopID, int routeID, String arrivalTime, String departureTime) 
+	public TimetableEntry(String stopID, String routeID, String arrivalTime) 
 	{
 		this.stopID = stopID;
 		this.routeID = routeID;
 		this.arrivalTime = arrivalTime;
-		this.departureTime = departureTime;
+	}
+	
+	public int getStopIDHash()
+	{
+		return stopID.hashCode();
+	}
+	
+	public int getRouteIDHash()
+	{
+		return routeID.hashCode();
 	}
 
-	public int getStopID() 
+	public String getStopID() 
 	{
 		return stopID;
 	}
 
-	public void setStopID(int stopID) 
+	public void setStopID(String stopID) 
 	{
 		this.stopID = stopID;
 	}
 
-	public int getRouteID() 
+	public String getRouteID() 
 	{
 		return routeID;
 	}
 
-	public void setRouteID(int routeID) 
+	public void setRouteID(String routeID) 
 	{
 		this.routeID = routeID;
 	}
@@ -45,32 +53,19 @@ public class TimetableEntry
 		this.arrivalTime = arrivalTime;
 	}
 
-	public String getDepartureTime() 
-	{
-		return departureTime;
-	}
-
-	public void setDepartureTime(String departureTime) {
-		this.departureTime = departureTime;
-	}
-
 	@Override
-	public int hashCode() 
-	{
+	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ ((arrivalTime == null) ? 0 : arrivalTime.hashCode());
-		result = prime * result
-				+ ((departureTime == null) ? 0 : departureTime.hashCode());
-		result = prime * result + routeID;
-		result = prime * result + stopID;
+		result = prime * result + ((routeID == null) ? 0 : routeID.hashCode());
+		result = prime * result + ((stopID == null) ? 0 : stopID.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) 
-	{
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -83,14 +78,15 @@ public class TimetableEntry
 				return false;
 		} else if (!arrivalTime.equals(other.arrivalTime))
 			return false;
-		if (departureTime == null) {
-			if (other.departureTime != null)
+		if (routeID == null) {
+			if (other.routeID != null)
 				return false;
-		} else if (!departureTime.equals(other.departureTime))
+		} else if (!routeID.equals(other.routeID))
 			return false;
-		if (routeID != other.routeID)
-			return false;
-		if (stopID != other.stopID)
+		if (stopID == null) {
+			if (other.stopID != null)
+				return false;
+		} else if (!stopID.equals(other.stopID))
 			return false;
 		return true;
 	}

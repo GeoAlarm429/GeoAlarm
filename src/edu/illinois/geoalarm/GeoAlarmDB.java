@@ -4,7 +4,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Time;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -480,6 +484,47 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}
 		return numBytes;
 	}	
+	
+	public ArrayList<String> getStoptimes(String stationName, String routeName)
+	{
+		ArrayList<String> stopTimes = new ArrayList<String>();
+		Cursor result = geoAlarmDB.query("Station", new String[] {"stationID"}, "name = \"" + stationName + "\"", null, null, null, null);
+		int stationID = 0;
+		if(result.moveToFirst())
+		{
+			stationID = result.getInt(0);
+		}
+		result.close();
+		
+		result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = \"" + routeName + "\"", null, null, null, null);
+		int routeID = 0;
+		if(result.moveToFirst())
+		{
+			routeID = result.getInt(0);
+		}
+		result.close();
+		
+		if(geoAlarmDB != null)
+		{
+			result = geoAlarmDB.query("Timetable", new String[] {"arrivalTime"}, "stationID = " + stationID + " and routeID = " + routeID , null, null, null, "arrivalTime asc");			
+		}
+		
+		if(result.moveToFirst())
+		{
+			DateFormat d = DateFormat.getTimeInstance(DateFormat.SHORT);
+			
+			while(!result.isAfterLast())
+			{
+				Time arr = Time.valueOf(result.getString(0));				
+				arr.setSeconds(0);					
+				stopTimes.add(d.format(arr));				
+				result.moveToNext();
+			}
+			
+		}
+		return stopTimes;
+		
+	}
 
 	public Context getMyContext()
 	{

@@ -257,7 +257,7 @@ public class Populate
 			{				
 				if(entryOne.getTripIDHash() == entryTwo.getTripIDHash())
 				{
-					timetable.add(new TimetableEntry(entryOne.getStopIDHash(), entryTwo.getRouteIDHash(), entryOne.getArrivalTime(), entryOne.getDepartureTime()));
+					timetable.add(new TimetableEntry(entryOne.getStopID(), entryTwo.getRouteID(), entryOne.getArrivalTime()));
 				}
 			}
 		}
@@ -401,14 +401,13 @@ public class Populate
 			Class.forName("org.sqlite.JDBC");
 			Connection conn = DriverManager.getConnection("jdbc:sqlite:assets\\geoAlarmDB.sqlite");
 			
-			PreparedStatement prep = conn.prepareStatement("insert into timetable values (?, ?, ?, ?);");
+			PreparedStatement prep = conn.prepareStatement("insert into timetable values (?, ?, ?);");
 			DateFormat d = DateFormat.getInstance();
 			for(TimetableEntry entry : timetable)
 			{
-				prep.setInt(1, entry.getRouteID());
-				prep.setInt(2, entry.getStopID());
-				prep.setTime(3, Time.valueOf(entry.getArrivalTime()));
-				prep.setTime(4, Time.valueOf(entry.getDepartureTime()));
+				prep.setInt(1, entry.getStopIDHash());
+				prep.setInt(2, entry.getRouteIDHash());
+				prep.setString(3, entry.getArrivalTime());
 				prep.addBatch();
 			}
 			

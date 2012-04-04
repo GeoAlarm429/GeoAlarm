@@ -7,18 +7,22 @@ import java.util.List;
 import android.app.Activity;
 import android.database.SQLException;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.TextView;
 
 public class Timetable extends Activity
 {
 	private Spinner timetableLineSpinner;
 	private Spinner timetableStopSpinner;
 	private ScrollView timetableScrollView;
+	private LinearLayout timetableLinearLayout;
 	private GeoAlarmDB database;
 	private String selectedLine;
 	private String selectedStop;
@@ -32,7 +36,8 @@ public class Timetable extends Activity
         
         timetableLineSpinner = (Spinner)findViewById(R.id.timetableLineSpinner);
     	timetableStopSpinner = (Spinner)findViewById(R.id.timetableStopSpinner);
-    	timetableScrollView = (ScrollView)findViewById(R.id.timetableScrollView);    	
+    	timetableScrollView = (ScrollView)findViewById(R.id.timetableScrollView);  
+    	timetableLinearLayout = (LinearLayout)findViewById(R.id.timetableLinearLayout);
     	
     	setLineSpinnerEventListeners();
     	setStopSpinnerEventListeners(); 	
@@ -155,7 +160,8 @@ public class Timetable extends Activity
     	    {    	    	
     	    	if(timetableStopSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
     	    	{
-    	    		selectedStop = timetableStopSpinner.getSelectedItem().toString(); 	   	
+    	    		selectedStop = timetableStopSpinner.getSelectedItem().toString(); 	
+    	    		populateScrollView();
     	    	}    	    	
     	    }
 
@@ -166,6 +172,23 @@ public class Timetable extends Activity
     	    }
 
 		});
+	}
+	
+	public void populateScrollView()
+	{
+		ArrayList<String> stopTimes = database.getStoptimes(selectedStop, selectedLine);
+		timetableLinearLayout.removeAllViews();
+		
+		for(String stopTime : stopTimes)
+		{
+			TextView newView = new TextView(this);
+			newView.setText(stopTime);
+			newView.setTextSize(30);
+			timetableLinearLayout.addView(newView);
+		}
+		Log.d("Timetable", "Got the stop times");
+		
+		
 	}
 
 }
