@@ -174,6 +174,10 @@ public class Timetable extends Activity
 		});
 	}
 	
+	/**
+	 * This method populates the LinearLayout contained in the ScrollView
+	 * with the stop times corresponding to the selected line and stops
+	 */
 	public void populateScrollView()
 	{
 		ArrayList<String> stopTimes = database.getStoptimes(selectedStop, selectedLine);
@@ -185,10 +189,6 @@ public class Timetable extends Activity
 			newView.setText(stopTime);
 			newView.setTextSize(30);
 			timetableLinearLayout.addView(newView);
-		}
-		Log.d("Timetable", "Got the stop times");
-		
-		
+		}		
 	}
-
 }

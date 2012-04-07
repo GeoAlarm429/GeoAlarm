@@ -59,7 +59,7 @@ public class AlarmService extends Service
     	startingLatitude = intent.getIntExtra("edu.illinois.geoalarm.startingStationLatitude", 0);
     	startingLongitude = intent.getIntExtra("edu.illinois.geoalarm.startingStationLongitude", 0);
     	destinationLatitude = intent.getIntExtra("edu.illinois.geoalarm.destinationStationLatitude", 0);
-    	destinationLongitude = intent.getIntExtra("edu.illinois.geoalarm.destinationStationLatitude", 0);
+    	destinationLongitude = intent.getIntExtra("edu.illinois.geoalarm.destinationStationLongitude", 0);
     	selectedNotification = intent.getStringExtra("edu.illinois.geoalarm.selectedNotification");
     	selectedNotificationTime = intent.getStringExtra("edu.illinois.geoalarm.selectedNotificationTime") ;
     	hourSet = intent.getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
@@ -156,7 +156,7 @@ public class AlarmService extends Service
     	if(currentLocation.distanceTo(destinationLocation) < 50) // 10 meters from destination
     	{
     		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
-    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
+    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);
     		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.isPlannedTrip", false);
     		wakeUpRouteMap.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     		startActivity(wakeUpRouteMap);
@@ -194,7 +194,8 @@ public class AlarmService extends Service
         if(networkEnabled==true)
         {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, locationListener);
-        }
+        }        
+       
     }   
 
     /**

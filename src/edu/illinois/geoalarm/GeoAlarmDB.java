@@ -485,29 +485,38 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		return numBytes;
 	}	
 	
-	public ArrayList<String> getStoptimes(String stationName, String routeName)
+	/**
+	 * Returns the stationID corresponding to the given station name
+	 * @param stationName A station name
+	 * @return The stationID
+	 */
+	public int getStationIDFromStationName(String stationName)
 	{
-		ArrayList<String> stopTimes = new ArrayList<String>();
 		Cursor result = geoAlarmDB.query("Station", new String[] {"stationID"}, "name = \"" + stationName + "\"", null, null, null, null);
 		int stationID = 0;
 		if(result.moveToFirst())
 		{
-			stationID = result.getInt(0);
+			stationID = result.getInt(result.getColumnIndex("stationID"));
 		}
 		result.close();
+		return stationID;
+	}
+	
+	/**
+	 * Returns the list of stop times corresponding to the given station name and
+	 * route name
+	 * @param stationName The name of a station
+	 * @param routeName The name of a route
+	 * @return An ArrayList<<String>> containing the stop times sorted in ascending order
+	 */
+	public ArrayList<String> getStoptimes(String stationName, String routeName)
+	{		
+		ArrayList<String> stopTimes = new ArrayList<String>();
 		
-		result = geoAlarmDB.query("Routes", new String[] {"routeID"}, "name = \"" + routeName + "\"", null, null, null, null);
-		int routeID = 0;
-		if(result.moveToFirst())
-		{
-			routeID = result.getInt(0);
-		}
-		result.close();
+		int stationID = getStationIDFromStationName(stationName);
+		int routeID = getRouteIDfromRouteName(routeName);		
 		
-		if(geoAlarmDB != null)
-		{
-			result = geoAlarmDB.query("Timetable", new String[] {"arrivalTime"}, "stationID = " + stationID + " and routeID = " + routeID , null, null, null, "arrivalTime asc");			
-		}
+		Cursor result = geoAlarmDB.query("Timetable", new String[] {"arrivalTime"}, "stationID = " + stationID + " and routeID = " + routeID , null, null, null, "arrivalTime asc");			
 		
 		if(result.moveToFirst())
 		{
@@ -521,9 +530,9 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 				result.moveToNext();
 			}
 			
-		}
-		return stopTimes;
-		
+		}		
+		result.close();
+		return stopTimes;		
 	}
 
 	public Context getMyContext()

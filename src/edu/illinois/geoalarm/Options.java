@@ -147,7 +147,7 @@ public class Options extends Activity
    				SharedPreferences.Editor editor = settings.edit();
    				editor.putInt("color_value", color);
    				editor.putString("color_name", selectedColor);   		
-   				editor.apply();		   	
+   				editor.commit();		   	
    				
    				View v = findViewById(R.id.optionsLinearLayout);
    				View root = v.getRootView();

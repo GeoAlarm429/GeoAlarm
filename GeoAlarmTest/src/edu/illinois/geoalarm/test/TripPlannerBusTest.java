@@ -88,5 +88,5 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 		
 		solo.clickOnButton("Set");		
 		solo.clickOnText("PopUp Message");
-	}
+	}	
 }

@@ -136,7 +136,8 @@ public class RouteMap extends MapActivity
             drawPath(src, dest);
             startAlarmService();
         }                       
-              
+        
+        setSatelliteOnClickListener();              
     }
 	
 	@Override
@@ -186,6 +187,7 @@ public class RouteMap extends MapActivity
 		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
 	    if(alarmTime)
 	    {
+				Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
 	    		if(selectedNotification.equals(RING_NOTIFICATION))
 	    		{
 	    			notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
@@ -216,12 +218,8 @@ public class RouteMap extends MapActivity
 	    			    }
 	    			};
 	    			Timer timer = new Timer();
-	    			timer.schedule(task, vibrateLength * 1000);
-	    		}
-	    		else
-	    		{
-	    			Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
-	    		}
+	    			timer.schedule(task, vibrateLength * 1000);	    			
+	    		}	    		
 	    } 
 	}
 	
@@ -237,7 +235,7 @@ public class RouteMap extends MapActivity
         serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLatitude", startingLatitude);
         serviceIntent.putExtra("edu.illinois.geoalarm.startingStationLongitude", startingLongitude);
         serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLatitude);
-        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLatitude", destinationLongitude);
+        serviceIntent.putExtra("edu.illinois.geoalarm.destinationStationLongitude", destinationLongitude);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotification", selectedNotification);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
@@ -498,6 +496,32 @@ public class RouteMap extends MapActivity
 		Intent intent1 = new Intent(view.getContext(), Timetable.class);
 		startActivityForResult(intent1, 0);		
 	}
+	
+	/**
+	 * This function returns the list of stops around the current location
+	 * @return The list of stops
+	 */
+	public ArrayList<StopInfo> getNearStops()
+	{
+		return nearStops;
+	}
+	
+	/**
+	 * This function animates the map to the given latitude and longitude,
+	 * then draws the bus stops near that location
+	 * @param latitude
+	 * @param longitude
+	 */
+	public void setMapCenter(int latitude, int longitude)
+	{
+		GeoPoint scrollPoint = new GeoPoint(latitude, longitude);
+		mapControl.setCenter(scrollPoint);		
+		Location location = new Location(LocationManager.GPS_PROVIDER);
+		location.setLatitude(((double)latitude) / 1E6);
+		location.setLongitude(((double)longitude) / 1E6);
+		showNearBusStopsOnMap(location);		
+		mainMap.postInvalidate();
+	}	
 		
 	/**
 	 * This method returns whether routes are currently being displayed on the

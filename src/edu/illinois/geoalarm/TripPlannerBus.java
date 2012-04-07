@@ -92,6 +92,20 @@ public class TripPlannerBus extends Activity
     	setLineSpinnerEventListeners();
     }
     
+    @Override
+    public void onStop()
+    {
+    	super.onStop();
+    	database.close();
+    }
+    
+    @Override
+    public void onResume()
+    {
+    	super.onResume();
+    	loadDatabase();
+    }
+    
     /**
      * This method uses findViewById to initialized the object handles from the View elements
      */
