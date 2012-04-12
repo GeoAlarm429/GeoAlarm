@@ -3,6 +3,7 @@ package edu.illinois.geoalarm;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,7 @@ import android.media.RingtoneManager;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.Vibrator;
@@ -34,6 +36,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -73,6 +76,13 @@ public class RouteMap extends MapActivity
 	private Uri notification;
 	private AsyncPlayer player;
 	private Vibrator vibrator;
+	private TextView remainingTime;
+	private TextView remainingDistance;
+	private final Handler handler = new Handler();
+	private TimerTask second;
+	private Date currentDt; 
+    private int currentHours; 
+    private int currentMinutes;
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -134,12 +144,14 @@ public class RouteMap extends MapActivity
         	initializeTripVariables();
         	updateCoordinates();        
             drawPath(src, dest);
+            calcRemainingTimeAndDistance();
+            
             startAlarmService();
         }                       
         
         setSatelliteOnClickListener();              
     }
-	
+
 	@Override
 	public void onPause()
 	{
@@ -521,7 +533,50 @@ public class RouteMap extends MapActivity
 		location.setLongitude(((double)longitude) / 1E6);
 		showNearBusStopsOnMap(location);		
 		mainMap.postInvalidate();
-	}	
+	}
+	
+	private void calcRemainingTimeAndDistance() {
+		remainingTime = (TextView)findViewById(R.id.remainingTime);
+		remainingDistance = (TextView)findViewById(R.id.remainingDistance);
+		
+		setRemainingTime(remainingTime);
+		setRemainingDistance(remainingDistance);
+	}
+
+	private void setRemainingTime(TextView remainingTime) {
+
+
+		second = new TimerTask() {
+			public void run() {
+
+				Log.i("Test", "Timer start");
+
+				Update();
+
+				currentDt = new Date(); 
+				currentHours = currentDt.getHours(); 
+				currentMinutes = currentDt.getMinutes();
+			}
+		};
+
+		Timer timer = new Timer();
+		timer.schedule(second, 0, 1000);
+	}
+
+	protected void Update() {
+		Runnable updater = new Runnable() {
+			public void run() {
+			       remainingTime.setText((hourSet-currentHours) + " hours " + (minuteSet-currentMinutes) + " minutes");
+			}
+		};
+
+		handler.post(updater);
+	}
+
+	private void setRemainingDistance(TextView remainingDistance) {
+		
+		remainingDistance.setText("DISTANCE DISTANCE DISTACNE");
+	}
 		
 	/**
 	 * This method returns whether routes are currently being displayed on the

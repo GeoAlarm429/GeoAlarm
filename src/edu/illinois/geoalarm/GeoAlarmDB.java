@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
