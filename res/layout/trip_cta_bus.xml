@@ -45,9 +45,16 @@
             <Spinner
                 android:id="@+id/lineSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="wrap_content" 
                 android:layout_weight="1" />
 
+			<ImageButton
+			    android:id="@+id/voice1"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:onClick="speakButtonClicked1"
+			    android:src="@drawable/ic_voice_search_api_holo_light" />
+ 
         </TableRow>
 
         <TableRow
@@ -67,6 +74,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
 
+			<ImageButton
+			    android:id="@+id/voice2"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:onClick="speakButtonClicked2"
+			    android:src="@drawable/ic_voice_search_api_holo_light" />
+
         </TableRow>
         <TableRow>
 
@@ -81,7 +95,14 @@
         	    android:layout_width="0dp"
         	    android:layout_height="wrap_content"
         	    android:layout_weight="1" />
-            
+
+			<ImageButton
+			    android:id="@+id/voice3"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:onClick="speakButtonClicked3"
+			    android:src="@drawable/ic_voice_search_api_holo_light" />
+
         </TableRow>
     </TableLayout>
     

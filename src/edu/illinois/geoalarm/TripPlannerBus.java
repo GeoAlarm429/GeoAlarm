@@ -10,20 +10,25 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Toast;
 
 /**
  * The TripPlannerBus activity handles planning a bus trip.
@@ -55,9 +60,13 @@ public class TripPlannerBus extends Activity
 	public static final String POP_UP_NOTIFICATION = "PopUp Message";
 	
 	private static final int ALARM_OPTIONS_ID = 0;
-	private static  final int TIME_OPTIONS_ID = 1;
+	private static final int TIME_OPTIONS_ID = 1;
 	private static final int INPUT_TIME_ID = 2;
-	
+
+	private int buttonVoice = 0;
+
+	ArrayList<String> matches;
+		
 	@Override
     public void onCreate(Bundle savedInstanceState) 
 	{
@@ -76,7 +85,22 @@ public class TripPlannerBus extends Activity
 		setAlarmButton.setEnabled(false);
         
         loadDatabase();        
-		populateLineSpinner();		 
+		populateLineSpinner();
+
+		ImageButton speakButton1 = (ImageButton) findViewById(R.id.voice1);
+		ImageButton speakButton2 = (ImageButton) findViewById(R.id.voice2);
+		ImageButton speakButton3 = (ImageButton) findViewById(R.id.voice3);
+
+		PackageManager pm = getPackageManager();
+        List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+ 
+        if (activities.size() == 0)
+        {
+            speakButton1.setEnabled(false);
+            speakButton2.setEnabled(false);
+            speakButton3.setEnabled(false);
+
+        }
     }	
 	
 	/**
@@ -87,23 +111,23 @@ public class TripPlannerBus extends Activity
     public void onStart()
     {   	
     	/* Call superclass constructor.  Required */
-    	super.onStart();	
-    	setStationSpinnerEventListeners();
+     	setStationSpinnerEventListeners();
     	setLineSpinnerEventListeners();
+    	super.onStart();	   
     }
     
     @Override
-    public void onStop()
+    public void onPause()
     {
-    	super.onStop();
     	database.close();
+    	super.onPause();    	
     }
     
     @Override
     public void onResume()
     {
-    	super.onResume();
     	loadDatabase();
+    	super.onResume();
     }
     
     /**
@@ -150,6 +174,7 @@ public class TripPlannerBus extends Activity
 	 */
 	public void populateStartingAndDestination()
 	{		
+		if(!database.geoAlarmDB.isOpen()) loadDatabase();
 		List<String> locationList = database.getLineStops(selectedLine);														   
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, locationList);		
@@ -168,6 +193,7 @@ public class TripPlannerBus extends Activity
 	 */
 	public void populateLineSpinner()
 	{
+		if(!database.geoAlarmDB.isOpen()) loadDatabase();
 		lineSpinner = (Spinner)findViewById(R.id.lineSpinner);		
 		ArrayList<String> linesList = database.getBusLines();
 		
@@ -403,6 +429,119 @@ public class TripPlannerBus extends Activity
 		return database;
 	}
 	
+    public void speakButtonClicked1(View v)
+    {
+        buttonVoice = 1;
+        startVoiceRecognitionActivity();
+    }
+
+    public void speakButtonClicked2(View v)
+    {
+        buttonVoice = 2;
+        startVoiceRecognitionActivity();
+    }
+    
+    public void speakButtonClicked3(View v)
+    {
+        buttonVoice = 3;
+        startVoiceRecognitionActivity();
+    }
 	
+    private void startVoiceRecognitionActivity()
+    {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "GeoAlarm");      
+        database.close();
+        startActivityForResult(intent, 1234);
+    }
+ 
 	
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {    	
+    	loadDatabase();
+        if (requestCode == 1234 && resultCode == RESULT_OK)
+        {
+            // Populate the wordsList with the String values the recognition engine thought it heard
+            matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        }
+
+        if(matches == null) 
+        {
+        	database.close();
+        	return;
+        }
+        
+        if(matches.size() == 0) 
+        {
+        	database.close();
+        	return;
+        }
+        
+        if(buttonVoice == 1)
+        {
+			ArrayList<String> linesList = database.getBusLines();
+	
+			for(int i = linesList.size() - 1 ; i >= 0; i--)
+			{
+				for(int j = matches.size() - 1; j >= 0; j--)
+				{
+					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
+					{
+						selectedLine = linesList.get(i);
+						lineSpinner.setSelection(i);
+					}
+				}
+			}
+        }
+        
+        if(buttonVoice == 2)
+        {
+			ArrayList<String> linesList = database.getLineStops(selectedLine);
+	
+			for(int i = linesList.size() - 1 ; i >= 0; i--)
+			{
+				for(int j = matches.size() - 1; j >= 0; j--)
+				{
+					if(matches.get(j).contains("and"))
+					{
+						matches.add(j, matches.get(j).replace("and", "&"));
+					}
+					if(linesList.get(i).toLowerCase().contains(matches.get(j).toLowerCase()))
+					{
+						selectedStartingStation = linesList.get(i);
+						startingLocationSpinner.setSelection(i);
+					}
+				}
+			}
+	
+
+        }
+		
+        if(buttonVoice == 3)
+        {
+			ArrayList<String> linesList = database.getLineStops(selectedLine);
+	
+			for(int i = linesList.size() - 1 ; i >= 0; i--)
+			{
+				for(int j = matches.size() - 1; j >= 0; j--)
+				{
+					if(matches.get(j).contains("and"))
+					{
+						matches.add(j, matches.get(j).replace("and", "&"));
+					}
+					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
+					{
+						selectedDestinationStation = linesList.get(i);
+						destinationLocationSpinner.setSelection(i);
+					}
+				}
+			}
+
+        }
+        database.close();
+        
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
