@@ -461,9 +461,14 @@ public class TripPlannerBus extends Activity implements TextWatcher
 		
 	}
 
-    public void speakButtonClicked2(View v)
+    
+	public void onTextChanged(CharSequence s, int start, int before, int count) 	
+	{
+		
+	}
+	
+	public void speakButtonClicked2(View v)
     {
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		// TODO Auto-generated method stub
         buttonVoice = 2;
         startVoiceRecognitionActivity();
