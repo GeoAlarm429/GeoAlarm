@@ -39,5 +39,4 @@ public class StopInfo {
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
 	}
-
 }

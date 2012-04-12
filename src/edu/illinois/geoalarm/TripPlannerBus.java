@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,9 +19,12 @@ import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
@@ -36,7 +38,7 @@ import android.widget.Toast;
  *
  */
 
-public class TripPlannerBus extends Activity 
+public class TripPlannerBus extends Activity implements TextWatcher
 {
 	private Spinner lineSpinner;
 	private Spinner startingLocationSpinner;
@@ -184,6 +186,20 @@ public class TripPlannerBus extends Activity
 		
 		startingLocationSpinner.setEnabled(true);
 		destinationLocationSpinner.setEnabled(true);
+		
+		//TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST
+		AutoCompleteTextView searchBar = (AutoCompleteTextView)findViewById(R.id.searchBar);
+	    
+		List<String> stoplist = database.getLineStops(selectedLine);
+	    
+	    // Set up array adapter for AutoCompleteTextView and connect them together
+	    ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_dropdown_item_1line, locationList);
+	    searchBar.setAdapter(adapter1);
+	    searchBar.addTextChangedListener(this);
+
+	    // Set background messege for the search bar
+	    searchBar.setHint("Type street name you want");
+	    //TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST
 	}	
 	
 	/**
@@ -199,7 +215,7 @@ public class TripPlannerBus extends Activity
 		
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, linesList);		
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		lineSpinner.setAdapter(adapter);	
+		lineSpinner.setAdapter(adapter);
 	}
 	
 	/**
@@ -428,15 +444,27 @@ public class TripPlannerBus extends Activity
 	{
 		return database;
 	}
-	
+
     public void speakButtonClicked1(View v)
     {
         buttonVoice = 1;
         startVoiceRecognitionActivity();
     }
+	public void afterTextChanged(Editable s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+		// TODO Auto-generated method stub
+		
+	}
 
     public void speakButtonClicked2(View v)
     {
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+		// TODO Auto-generated method stub
         buttonVoice = 2;
         startVoiceRecognitionActivity();
     }
