@@ -1,19 +1,20 @@
 package edu.illinois.geoalarm.test;
 
 import edu.illinois.geoalarm.GeoAlarm;
+import android.graphics.drawable.Drawable;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Button;
 import android.widget.DigitalClock;
+import android.widget.ImageView;
+
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
 public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm> 
 {
 	 private GeoAlarm mActivity;
-	 private DigitalClock mClock;
-	 private Button mapButton;
-	 private Button tripButton;
-	 private Button optionsButton;
+	 private ImageView mapButton;
+	 private ImageView tripButton;
 	 private Solo solo;
 	 
 	public GeoAlarmTest() 
@@ -22,54 +23,43 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	}
 	
 	@Override
+	protected void tearDown() throws Exception
+	{
+		mActivity.finish();
+		super.tearDown();
+	}
+	
+	@Override
 	protected void setUp() throws Exception 
 	{
 		super.setUp();
 		mActivity = this.getActivity();
-		mClock = (DigitalClock) mActivity.findViewById(edu.illinois.geoalarm.R.id.digitalClock1);
-		mapButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.mapButton);
-		tripButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.tripButton);
-		optionsButton = (Button) mActivity.findViewById(edu.illinois.geoalarm.R.id.optionsButton);
+		mapButton = (ImageView) mActivity.findViewById(edu.illinois.geoalarm.R.id.mapButton);
+		tripButton = (ImageView) mActivity.findViewById(edu.illinois.geoalarm.R.id.tripButton);
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	 
 	 public void testPreconditions() 
 	 {
-	      assertNotNull(mClock);
 	      assertNotNull(mapButton);
 	      assertNotNull(tripButton);
-	      assertNotNull(optionsButton);
-	 }
-
-	 public void testClock() 
-	 {
-		 String currentTime = mClock.getText().toString();
-	     assertNotNull(currentTime);
 	 }
 	 
 	 public void testMapsButton()
 	 {
-		 String mapButtonDisplayString = mapButton.getText().toString();
-		 assertEquals("Map", mapButtonDisplayString);
+		 assertTrue(solo.searchText("Map"));
 	 }
 	 
 	 public void testTripButton()
 	 {
-		 String tripButtonDisplayString = tripButton.getText().toString();
-		 assertEquals("Plan Trip", tripButtonDisplayString);
-	 }
-	 
-	 public void testOptionsButton()
-	 {
-		 String optionsButtonDisplayString = optionsButton.getText().toString();
-		 assertEquals("Options", optionsButtonDisplayString);
+		 assertTrue(solo.searchText("Plan Trip"));
 	 }
 	 
 	 @Smoke
 	 public void testMapsTransition()
 	 {
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
-		 solo.clickOnButton("Map");
+		 solo.clickOnImage(1); // Corresponds to map button
 		 solo.assertCurrentActivity("Expected RouteMap activity", "RouteMap"); 
 		 solo.goBack();
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
@@ -79,7 +69,7 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	 public void testPlanTripTransition()
 	 {
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
-		 solo.clickOnButton("Plan Trip");
+		 solo.clickOnImage(0); // Corresponds to plan trip button
 		 solo.assertCurrentActivity("Expected TripPlannerBus activity", "TripPlannerBus"); 
 		 solo.goBack();
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");		 
@@ -89,7 +79,8 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	 public void testOptionsTransition()
 	 {
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
-		 solo.clickOnButton("Options");
+		 solo.sendKey(Solo.MENU);
+		 solo.clickOnText("Options");
 		 solo.assertCurrentActivity("Expected Options activity", "Options"); 
 		 solo.goBack();
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");

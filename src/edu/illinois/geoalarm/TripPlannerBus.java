@@ -453,7 +453,7 @@ public class TripPlannerBus extends Activity
         {
             // Populate the wordsList with the String values the recognition engine thought it heard
             matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);        
-
+        
             if(matches == null) 
             {
             	database.close();

@@ -44,7 +44,7 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	public void testPlanTrip()
 	{
 		mActivity = this.getActivity();
-		solo.clickOnButton("Plan Trip");
+		solo.clickOnImage(0); // Corresponds to plan trip button
 		solo.assertCurrentActivity("Expected TripPlannerBus Activity", TripPlannerBus.class);		
 		mCurrentActivity = solo.getCurrentActivity();
 		selectGoldLine();

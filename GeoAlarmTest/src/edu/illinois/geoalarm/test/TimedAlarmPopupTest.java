@@ -38,7 +38,7 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 	@Smoke
 	public void testPlanTrip()
 	{		
-		solo.clickOnButton("Plan Trip");
+		solo.clickOnImage(0); // Corresponds to plan trip button
 		solo.assertCurrentActivity("Expected TripPlannerBus Activity", TripPlannerBus.class);		
 		mCurrentActivity = solo.getCurrentActivity();
 		selectGoldLine();
