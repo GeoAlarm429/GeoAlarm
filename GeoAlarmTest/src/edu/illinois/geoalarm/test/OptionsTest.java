@@ -72,11 +72,21 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 	
 	@Smoke
 	public void testToggleSplashScreen()
-	{
-		solo.clickOnToggleButton("OFF");
-		SharedPreferences settings = mActivity.getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);	
-		boolean isOn = settings.getBoolean("splash_screen", false);
-		assertEquals(isOn, true);
+	{		
+		if(solo.searchText("OFF"))
+		{
+			solo.clickOnToggleButton("OFF");
+			SharedPreferences settings = mActivity.getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);	
+			boolean isOn = settings.getBoolean("splash_screen", false);
+			assertEquals(isOn, true);
+		}
+		else
+		{
+			solo.clickOnToggleButton("ON");
+			SharedPreferences settings = mActivity.getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);	
+			boolean isOn = settings.getBoolean("splash_screen", false);
+			assertEquals(isOn, false);
+		}
 	}
 	
 	

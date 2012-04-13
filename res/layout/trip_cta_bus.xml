@@ -8,11 +8,11 @@
     <TableLayout
         android:id="@+id/tableLayout1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:stretchColumns="2" >
 
         <TableRow
             android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
             <TextView
@@ -20,8 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="@string/service_label" />
-
+                android:text="@string/service_label" />
             <TextView
                 android:id="@+id/busServiceTextField"
                 android:layout_width="wrap_content"
@@ -33,7 +32,6 @@
 
         <TableRow
             android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
             <TextView
@@ -41,67 +39,76 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/busLineTextFieldString" />
-
-            <Spinner
-                android:id="@+id/lineSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" 
-                android:layout_weight="1" />
 
-			<ImageButton
-			    android:id="@+id/voice1"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:onClick="speakButtonClicked1"
-			    android:src="@drawable/ic_voice_search_api_holo_light" />
+            <ImageButton
+                android:id="@+id/voice1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:onClick="speakButtonClicked1"
+                android:src="@drawable/ic_voice_search_api_holo_light" />
+
+            <AutoCompleteTextView
+                android:id="@+id/lineSearchBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionThreshold="1"
+                android:singleLine="true"
+                android:layout_weight="1" >
+
+            </AutoCompleteTextView>
  
         </TableRow>
 
         <TableRow
             android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
+            android:layout_height="wrap_content" >
             <TextView
                 android:id="@+id/startingLocationTextView"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/star_loc_label" />
-
-            <Spinner
-                android:id="@+id/startingLocationSpinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
 
-			<ImageButton
-			    android:id="@+id/voice2"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:onClick="speakButtonClicked2"
-			    android:src="@drawable/ic_voice_search_api_holo_light" />
+            <ImageButton
+                android:id="@+id/voice2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:onClick="speakButtonClicked2"
+                android:src="@drawable/ic_voice_search_api_holo_light" />
+
+            <AutoCompleteTextView
+                android:id="@+id/startingLocationSearchBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:completionThreshold="1"
+                android:singleLine="true" 
+                android:layout_weight="1"/>
 
         </TableRow>
         <TableRow>
-
+            
             <TextView
                 android:id="@+id/destinationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/destination" />
-        
-        	<Spinner
-        	    android:id="@+id/destinationSpinner"
-        	    android:layout_width="0dp"
-        	    android:layout_height="wrap_content"
-        	    android:layout_weight="1" />
 
-			<ImageButton
-			    android:id="@+id/voice3"
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:onClick="speakButtonClicked3"
-			    android:src="@drawable/ic_voice_search_api_holo_light" />
+            <ImageButton
+                android:id="@+id/voice3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:onClick="speakButtonClicked3"
+                android:src="@drawable/ic_voice_search_api_holo_light" />
+
+            <AutoCompleteTextView
+                android:id="@+id/destinationLocationSearchBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:completionThreshold="1"
+                android:singleLine="true"
+                android:layout_weight="1" />
 
         </TableRow>
     </TableLayout>
@@ -121,10 +128,11 @@
             android:layout_gravity="center"
             android:text="@string/set_alarm_label"
             android:onClick="setAlarm" />
-        
-        <AutoCompleteTextView android:id="@+id/searchBar"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:completionThreshold="1"/>
+
+        <Spinner
+            android:id="@+id/startingLocationSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
 </LinearLayout>

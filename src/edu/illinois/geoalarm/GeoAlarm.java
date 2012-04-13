@@ -37,8 +37,8 @@ public class GeoAlarm extends Activity
         root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
         if (settings.getBoolean("splash_screen", false))
         {
-            Intent intent = new Intent (this, Splash.class);
-            startActivity(intent);            	
+           // Intent intent = new Intent (this, Splash.class);
+            //startActivity(intent);            	
         }
 
         // Instantiate the database

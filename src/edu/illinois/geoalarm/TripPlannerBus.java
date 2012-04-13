@@ -9,7 +9,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,18 +18,17 @@ import android.database.SQLException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.TimePicker;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.Toast;
 
 /**
  * The TripPlannerBus activity handles planning a bus trip.
@@ -38,11 +36,11 @@ import android.widget.Toast;
  *
  */
 
-public class TripPlannerBus extends Activity implements TextWatcher
+public class TripPlannerBus extends Activity
 {
-	private Spinner lineSpinner;
-	private Spinner startingLocationSpinner;
-	private Spinner destinationLocationSpinner;
+	private AutoCompleteTextView lineSearchBar;
+	private AutoCompleteTextView startingLocationSearchBar;
+	private AutoCompleteTextView destinationLocationSearchBar;
 	private Button setAlarmButton;
 	private GeoAlarmDB database;
 	private String selectedLine;
@@ -76,15 +74,11 @@ public class TripPlannerBus extends Activity implements TextWatcher
         setContentView(R.layout.trip_cta_bus);   
         
         SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
-        View v = findViewById(R.id.startingLocationSpinner);
+        View v = findViewById(R.id.serviceTextView);
         View root = v.getRootView();
         root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
         
-		initializeHandles();
-		
-		startingLocationSpinner.setEnabled(false);
-		destinationLocationSpinner.setEnabled(false);
-		setAlarmButton.setEnabled(false);
+		initializeHandles();		
         
         loadDatabase();        
 		populateLineSpinner();
@@ -101,7 +95,6 @@ public class TripPlannerBus extends Activity implements TextWatcher
             speakButton1.setEnabled(false);
             speakButton2.setEnabled(false);
             speakButton3.setEnabled(false);
-
         }
     }	
 	
@@ -113,8 +106,6 @@ public class TripPlannerBus extends Activity implements TextWatcher
     public void onStart()
     {   	
     	/* Call superclass constructor.  Required */
-     	setStationSpinnerEventListeners();
-    	setLineSpinnerEventListeners();
     	super.onStart();	   
     }
     
@@ -137,10 +128,13 @@ public class TripPlannerBus extends Activity implements TextWatcher
      */
     public void initializeHandles()
     {
-    	startingLocationSpinner = (Spinner) findViewById(R.id.startingLocationSpinner);  
-		destinationLocationSpinner = (Spinner) findViewById(R.id.destinationSpinner);
-		lineSpinner = (Spinner) findViewById(R.id.lineSpinner);		
 		setAlarmButton = (Button) findViewById(R.id.setAlarmButton);
+		setAlarmButton.setEnabled(false);
+		lineSearchBar = (AutoCompleteTextView)findViewById(R.id.lineSearchBar);		
+		startingLocationSearchBar = (AutoCompleteTextView)findViewById(R.id.startingLocationSearchBar);	
+		startingLocationSearchBar.setEnabled(false);
+		destinationLocationSearchBar = (AutoCompleteTextView)findViewById(R.id.destinationLocationSearchBar);
+		destinationLocationSearchBar.setEnabled(false);
     }
 	
 	/**
@@ -172,34 +166,79 @@ public class TripPlannerBus extends Activity implements TextWatcher
 	}
 	
 	/**
-	 * This method populates the startingLocationSpinner and destinationSpinner with data from the database
+	 * This method populates the startingLocationSearchBar and destinationLocationSearchBar with data from the database
 	 */
 	public void populateStartingAndDestination()
 	{		
 		if(!database.geoAlarmDB.isOpen()) loadDatabase();
-		List<String> locationList = database.getLineStops(selectedLine);														   
+		List<String> locationList = database.getLineStops(selectedLine);							
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, locationList);		
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		startingLocationSpinner.setAdapter(adapter);
-		destinationLocationSpinner.setAdapter(adapter);
-		
-		startingLocationSpinner.setEnabled(true);
-		destinationLocationSpinner.setEnabled(true);
-		
-		//TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST
-		AutoCompleteTextView searchBar = (AutoCompleteTextView)findViewById(R.id.searchBar);
-	    
-		List<String> stoplist = database.getLineStops(selectedLine);
-	    
-	    // Set up array adapter for AutoCompleteTextView and connect them together
-	    ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_dropdown_item_1line, locationList);
-	    searchBar.setAdapter(adapter1);
-	    searchBar.addTextChangedListener(this);
+		ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_dropdown_item_1line, locationList);
+		startingLocationSearchBar.setAdapter(locationAdapter);
+		startingLocationSearchBar.setOnEditorActionListener(new OnEditorActionListener() 
+		{
+			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) 
+			{
+				List<String> locationList = database.getLineStops(selectedLine);
+				String text = arg0.getText().toString();
+				if(locationList.contains(text))
+				{
+					selectedStartingStation = text;
+				}
+				else
+				{					
+					selectedStartingStation = locationList.get(0);
+					arg0.setText(locationList.get(0));
+				}			
+				
+				if(!selectedStartingStation.equals(selectedDestinationStation))
+				{
+					setAlarmButton.setEnabled(true);
+				}
+				else
+				{
+					setAlarmButton.setEnabled(false);
+				}
+				
+				return false;
+			}			
 
-	    // Set background messege for the search bar
-	    searchBar.setHint("Type street name you want");
-	    //TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST---TEST
+		});	
+		startingLocationSearchBar.setHint("Type start stop");
+		
+		destinationLocationSearchBar.setAdapter(locationAdapter);
+		destinationLocationSearchBar.setOnEditorActionListener(new OnEditorActionListener() 
+		{
+			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) 
+			{
+				List<String> locationList = database.getLineStops(selectedLine);
+				String text = arg0.getText().toString();
+				if(locationList.contains(text))
+				{
+					selectedDestinationStation = text;					
+				}
+				else
+				{
+					selectedDestinationStation = locationList.get(0);
+					arg0.setText(locationList.get(0));
+				}			
+				
+				if(!selectedDestinationStation.equals(selectedStartingStation))
+				{
+					setAlarmButton.setEnabled(true);
+				}
+				else
+				{
+					setAlarmButton.setEnabled(false);
+				}
+
+				return false;
+			}			
+
+		});	
+		
+		destinationLocationSearchBar.setHint("Type destination stop");
+		
 	}	
 	
 	/**
@@ -209,112 +248,41 @@ public class TripPlannerBus extends Activity implements TextWatcher
 	 */
 	public void populateLineSpinner()
 	{
-		if(!database.geoAlarmDB.isOpen()) loadDatabase();
-		lineSpinner = (Spinner)findViewById(R.id.lineSpinner);		
-		ArrayList<String> linesList = database.getBusLines();
-		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, linesList);		
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		lineSpinner.setAdapter(adapter);
-	}
-	
-	/**
-	 * This method sets the click event listener for the lineSpinner selection action.
-	 * When a line is selected, we retrieve the selected line, then we populate the starting
-	 * and destination Spinners with the appropriate stops.
-	 */
-	public void setLineSpinnerEventListeners()
-	{
-		/* Set a new event listener for the Spinner item selection */
-    	lineSpinner.setOnItemSelectedListener(new OnItemSelectedListener() 
-    	{    
-    		/* Implement the onItemSelected method to handle item selections */
-    	    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) 
-    	    {
-    	    	int selectionPosition = lineSpinner.getSelectedItemPosition();
-    	    	if(selectionPosition != Spinner.INVALID_POSITION)
-    	    	{
-    	    		selectedLine = lineSpinner.getSelectedItem().toString();
-    	    		populateStartingAndDestination();
-    	    	}
-    	    }
+		if(!database.geoAlarmDB.isOpen()) loadDatabase();	
+		ArrayList<String> linesList = database.getBusLines();		
+		lineSearchBar = (AutoCompleteTextView)findViewById(R.id.lineSearchBar);		
 
-    	    /* We do nothing here.  May want to change behavior so the last selected item behavior is used */
-    	    public void onNothingSelected(AdapterView<?> parentView) 
-    	    {
-    	        // do nothing
-    	    }
+		ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_dropdown_item_1line, linesList);
+		lineSearchBar.setAdapter(adapter1);
+		lineSearchBar.setOnEditorActionListener(new OnEditorActionListener() {
 
-    	});
-	}
-	
-	/**
-	 * This method set the click event listeners for the startingLocationSpinner and destinationSpinner
-	 * spinners.  When a station/location is selected in one of the spinners, we check to see if the
-	 * other spinner has been selected too.  If so, we enable the setAlarm button.
-	 */
-	public void setStationSpinnerEventListeners()
-	{
-		startingLocationSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		{
-			/* Implement the onItemSelected method to handle item selections */
-    	    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) 
-    	    {    	    	
-    	    	if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
-    	    	{
-    	    		selectedStartingStation = startingLocationSpinner.getSelectedItem().toString(); 	
-    	    		
-    	    		if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION &&
-    	    				destinationLocationSpinner.getSelectedItemPosition() != startingLocationSpinner.getSelectedItemPosition())
-    	    		{
-    	    			setAlarmButton.setEnabled(true);
-    	    		}
-    	    		else
-    	    		{
-    	    			setAlarmButton.setEnabled(false);
-    	    		}
-    	    	}
-    	    	
-    	    }
+			public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) 
+			{
+				ArrayList<String> linesList = database.getBusLines();
+				String text = arg0.getText().toString();
+				if(linesList.contains(text))
+				{
+					selectedLine = text;
+					populateStartingAndDestination();
+				}
+				else
+				{				
+					selectedLine = linesList.get(0);
+					arg0.setText(linesList.get(0));
+					populateStartingAndDestination();
+				}
+				
+				startingLocationSearchBar.setEnabled(true);
+				destinationLocationSearchBar.setEnabled(true);
+								
+				return false;
+			}			
+			
+		});	
 
-    	    /* We do nothing here.  May want to change behavior so the last selected item behavior is used */
-    	    public void onNothingSelected(AdapterView<?> parentView) 
-    	    {
-    	        // do nothing
-    	    }
-
-		});
-		
-		destinationLocationSpinner.setOnItemSelectedListener(new OnItemSelectedListener()
-		{
-			/* Implement the onItemSelected method to handle item selections */
-    	    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) 
-    	    {    	    	
-    	    	if(destinationLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION)
-    	    	{
-    	    		selectedDestinationStation = destinationLocationSpinner.getSelectedItem().toString(); 	
-    	    		
-    	    		if(startingLocationSpinner.getSelectedItemPosition() != Spinner.INVALID_POSITION &&
-    	    				destinationLocationSpinner.getSelectedItemPosition() != startingLocationSpinner.getSelectedItemPosition())
-    	    		{
-    	    			setAlarmButton.setEnabled(true);
-    	    		}
-    	    		else
-    	    		{
-    	    			setAlarmButton.setEnabled(false);
-    	    		}
-		
-    	    	}    	    	
-    	    }
-
-    	    /* We do nothing here.  May want to change behavior so the last selected item behavior is used */
-    	    public void onNothingSelected(AdapterView<?> parentView) 
-    	    {
-    	        // do nothing
-    	    }
-
-		});
-	}
+		// Set background message for the search bar
+		lineSearchBar.setHint("Type line");
+	}	
 	
 	/**
 	 * This method is used to launch the alarm options dialog.  The method is bound to the button using
@@ -449,23 +417,7 @@ public class TripPlannerBus extends Activity implements TextWatcher
     {
         buttonVoice = 1;
         startVoiceRecognitionActivity();
-    }
-	public void afterTextChanged(Editable s) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void beforeTextChanged(CharSequence s, int start, int count,
-			int after) {
-		// TODO Auto-generated method stub
-		
-	}
-
-    
-	public void onTextChanged(CharSequence s, int start, int before, int count) 	
-	{
-		
-	}
+    }    
 	
 	public void speakButtonClicked2(View v)
     {
@@ -523,7 +475,8 @@ public class TripPlannerBus extends Activity implements TextWatcher
 					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
 					{
 						selectedLine = linesList.get(i);
-						lineSpinner.setSelection(i);
+						lineSearchBar.setText(selectedLine);
+						lineSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
 					}
 				}
 			}
@@ -544,7 +497,8 @@ public class TripPlannerBus extends Activity implements TextWatcher
 					if(linesList.get(i).toLowerCase().contains(matches.get(j).toLowerCase()))
 					{
 						selectedStartingStation = linesList.get(i);
-						startingLocationSpinner.setSelection(i);
+						startingLocationSearchBar.setText(selectedStartingStation);
+						startingLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
 					}
 				}
 			}
@@ -567,7 +521,8 @@ public class TripPlannerBus extends Activity implements TextWatcher
 					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
 					{
 						selectedDestinationStation = linesList.get(i);
-						destinationLocationSpinner.setSelection(i);
+						destinationLocationSearchBar.setText(selectedDestinationStation);
+						destinationLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
 					}
 				}
 			}
@@ -577,4 +532,28 @@ public class TripPlannerBus extends Activity implements TextWatcher
         
         super.onActivityResult(requestCode, resultCode, data);
     }
+    
+    /**
+	 * @return the lineSearchBar
+	 */
+	public AutoCompleteTextView getLineSearchBar() 
+	{
+		return lineSearchBar;
+	}
+
+	/**
+	 * @return the startingLocationSearchBar
+	 */
+	public AutoCompleteTextView getStartingLocationSearchBar() 
+	{
+		return startingLocationSearchBar;
+	}
+
+	/**
+	 * @return the destinationLocationSearchBar
+	 */
+	public AutoCompleteTextView getDestinationLocationSearchBar() 
+	{
+		return destinationLocationSearchBar;
+	}
 }

@@ -9,6 +9,7 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 import android.util.Log;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Spinner;
 
@@ -21,6 +22,13 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	public EditTripTest()
 	{
 		super("edu.illinois.geoalarm", GeoAlarm.class);
+	}
+	
+	@Override
+	protected void tearDown() throws Exception
+	{
+		mActivity.finish();
+		super.tearDown();
 	}
 	
 	@Override
@@ -42,22 +50,30 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	}
 	
 	public void selectGoldLine()
-	{		
-		solo.pressSpinnerItem(0, 8); // (0,8) Corresponds to "Gold" in the Line Spinner
+	{	
+		solo.clickOnEditText(0);
+		solo.enterText(0, "Gold");
+		solo.sendKey(Solo.ENTER);
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected
 		selectStart();
 	}
 	
 	public void selectStart()
-	{		
-		solo.pressSpinnerItem(1, 10); // Corresponds to "First & Gregory (NE Corner)
+	{	
+		solo.clickOnEditText(1);
+		solo.enterText(1, "First & Gregory (NE Corner)");
+		solo.sendKey(Solo.ENTER);
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));
 		selectDestination();
 	}	
 	
 	public void selectDestination()
 	{		
-		solo.pressSpinnerItem(2, 18); // Corresponds to "Springfield & Gregory St. (NE Corner)
+		solo.clickOnEditText(2);
+		solo.enterText(2, "Springfield & Gregory St. (NE Corner)");
+		solo.sendKey(Solo.ENTER);		
+		solo.goBack();
+		solo.goBack();
 		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));	
 		setAlarmOptions();
 	}
@@ -90,23 +106,33 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	}
 	
 	public void selectBronzeLine()
-	{
-		solo.pressSpinnerItem(0, -5); // (0,3) Corresponds to "Bronze" in the Line Spinner
+	{		
+		solo.clearEditText(0);
+		solo.clickOnEditText(0);
+		solo.enterText(0, "Bronze");
+		solo.sendKey(Solo.ENTER);
 		assertTrue("Selected Bronze", solo.searchText("Bronze")); // make sure Bronze was selected
 		selectSecondStart();
 	}
 	
 	public void selectSecondStart()
-	{
-		solo.pressSpinnerItem(1, 2); // Corresponds to "Vine & Green (NW Corner)
-		assertTrue("Selected Vine & Green", solo.searchText("Vine & Green"));
+	{		
+		solo.clearEditText(1);
+		solo.clickOnEditText(1);
+		solo.enterText(1, "Vine & Green (NW Corner)");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected Vine & Green", solo.searchText("Vine & Green"));		
 		selectSecondDestination();
 	}
 	
 	public void selectSecondDestination()
-	{
-		solo.pressSpinnerItem(2, 7); // Corresponds to "Chemical & Life Sciences
-		assertTrue("Selected Chemical & Life", solo.searchText("Chemical & Life"));
+	{		
+		solo.clearEditText(2);
+		solo.clickOnEditText(2);
+		solo.enterText(2, "Chemical & Life Sciences");
+		solo.sendKey(Solo.ENTER);
+		solo.goBack();
+		assertTrue("Selected Chemical & Life", solo.searchText("Chemical & Life"));	
 		setSecondAlarmOptions();
 	}
 	
@@ -122,7 +148,7 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	{
 		solo.clickOnText("Set Alarm");
 		solo.assertCurrentActivity("Expected RouteMap Activity", RouteMap.class);
-		mCurrentActivity = solo.getCurrentActivity();		
-		this.getActivity().finish();
+		mCurrentActivity = solo.getCurrentActivity();	
+		solo.goBackToActivity("GeoAlarm");
 	}
 }

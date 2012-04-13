@@ -26,6 +26,13 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	}
 	
 	@Override
+	protected void tearDown() throws Exception
+	{
+		mActivity.finish();
+		super.tearDown();
+	}
+	
+	@Override
 	protected void setUp() throws Exception
 	{
 		super.setUp();
@@ -41,27 +48,37 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.assertCurrentActivity("Expected TripPlannerBus Activity", TripPlannerBus.class);		
 		mCurrentActivity = solo.getCurrentActivity();
 		selectGoldLine();
+		selectStart();
+		selectDestination();
+		setAlarmOptions();
+		setAlarm();
+		numberOfStopsAroundMe();
 	}	
 	
 	public void selectGoldLine()
 	{		
-		solo.pressSpinnerItem(0, 8); // (0,8) Corresponds to "Gold" in the Line Spinner
-		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected
-		selectStart();
+		solo.clickOnEditText(0);
+		solo.enterText(0, "Gold");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected		
 	}	
 	
 	public void selectStart()
 	{		
-		solo.pressSpinnerItem(1, 10); // Corresponds to "First & Gregory (NE Corner)
-		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));
-		selectDestination();
+		solo.clickOnEditText(1);
+		solo.enterText(1, "First & Gregory (NE Corner)");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));			
 	}	
 	
 	public void selectDestination()
 	{		
-		solo.pressSpinnerItem(2, 18); // Corresponds to "Springfield & Gregory St. (NE Corner)
-		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));	
-		setAlarmOptions();
+		solo.clickOnEditText(2);
+		solo.enterText(2, "Springfield & Gregory St. (NE Corner)");
+		solo.sendKey(Solo.ENTER);		
+		solo.goBack();
+		solo.goBack();
+		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));		
 	}
 	
 	public void setAlarmOptions()
@@ -72,15 +89,13 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 2); // Set alarm for two minutes from now
 		solo.clickOnButton("Set");
 		solo.clickOnText("PopUp Message");
-		setAlarm();
 	}
 	
 	public void setAlarm()
 	{
 		solo.clickOnText("Set Alarm");
 		solo.assertCurrentActivity("Expected RouteMap Activity", RouteMap.class);
-		mCurrentActivity = solo.getCurrentActivity();		
-		numberOfStopsAroundMe();
+		mCurrentActivity = solo.getCurrentActivity();			
 	}
 	
 	public void numberOfStopsAroundMe()
@@ -91,7 +106,7 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		((RouteMap)mCurrentActivity).setMapCenter(longitude, latitude);
 		int numStopsAround = ((RouteMap)mCurrentActivity).getNearStops().size();
 		assertEquals(numStopsAround, 29); // Verified by counting
-		this.getActivity().finish();
+		solo.goBackToActivity("GeoAlarm");
 	}
 	
 	

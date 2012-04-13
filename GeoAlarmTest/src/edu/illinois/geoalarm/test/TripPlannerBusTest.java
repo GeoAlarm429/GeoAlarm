@@ -24,39 +24,39 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 	{
 		super.setUp();		
 		mActivity = this.getActivity();
-		startingSpinner = (Spinner) mActivity.findViewById(edu.illinois.geoalarm.R.id.startingLocationSpinner);		
-		lineSpinner = (Spinner) mActivity.findViewById(edu.illinois.geoalarm.R.id.lineSpinner);
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
-	
-	public void testPreconditions() 
-	{
-		assertNotNull(startingSpinner);
-		assertNotNull(lineSpinner);
-	}
-	
-	public void testLoadNames()
-	{
-		String firstStopName = startingSpinner.getItemAtPosition(0).toString();
-		assertNotNull(firstStopName);
-	}
-	
+		
 	@Smoke
 	public void testSelectLine()
 	{
-		solo.pressSpinnerItem(0, 1);
+		solo.clearEditText(0);
+		solo.clickOnEditText(0);
+		solo.enterText(0, "Gold");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected		
 	}
 
 	@Smoke
 	public void testSelectStartingLocation()
 	{
-		solo.pressSpinnerItem(1, 1);
+		testSelectLine();
+		solo.clearEditText(1);
+		solo.clickOnEditText(1);
+		solo.enterText(1, "First & Gregory (NE Corner)");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));	
 	}
 	
 	@Smoke
 	public void testSelectDestinationLocation()
 	{
-		solo.pressSpinnerItem(2, 1);
+		testSelectLine();
+		solo.clearEditText(2);
+		solo.clickOnEditText(2);
+		solo.enterText(2, "Springfield & Gregory St. (NE Corner)");
+		solo.sendKey(Solo.ENTER);		
+		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));		
 	}
 	
 	@Smoke

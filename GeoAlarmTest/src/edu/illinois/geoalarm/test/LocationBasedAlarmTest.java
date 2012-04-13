@@ -57,20 +57,28 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 	
 	public void selectGoldLine()
 	{		
-		solo.pressSpinnerItem(0, 8); // (0,8) Corresponds to "Gold" in the Line Spinner
+		solo.clickOnEditText(0);
+		solo.enterText(0, "Gold");
+		solo.sendKey(Solo.ENTER);
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected
 	}	
 	
 	public void selectStart()
 	{		
-		solo.pressSpinnerItem(1, 10); // Corresponds to "First & Gregory (NE Corner)
-		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));		
+		solo.clickOnEditText(1);
+		solo.enterText(1, "First & Gregory (NE Corner)");
+		solo.sendKey(Solo.ENTER);
+		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));
 	}	
 	
 	public void selectDestination()
 	{		
-		solo.pressSpinnerItem(2, 18); // Corresponds to "Springfield & Gregory St. (NE Corner)
-		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));			
+		solo.clickOnEditText(2);
+		solo.enterText(2, "Springfield & Gregory St. (NE Corner)");
+		solo.sendKey(Solo.ENTER);		
+		solo.goBack();
+		solo.goBack();
+		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));	
 	}
 	
 	public void setAlarmOptionsPopUp()
@@ -116,6 +124,7 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		}
 		
 		assertTrue(found);
+		solo.goBackToActivity("GeoAlarm");
 	}
 
 }
