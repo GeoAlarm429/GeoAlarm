@@ -19,6 +19,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -449,87 +452,86 @@ public class TripPlannerBus extends Activity
         if (requestCode == 1234 && resultCode == RESULT_OK)
         {
             // Populate the wordsList with the String values the recognition engine thought it heard
-            matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-        }
+            matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);        
 
-        if(matches == null) 
-        {
-        	database.close();
-        	return;
-        }
-        
-        if(matches.size() == 0) 
-        {
-        	database.close();
-        	return;
-        }
-        
-        if(buttonVoice == 1)
-        {
-			ArrayList<String> linesList = database.getBusLines();
-	
-			for(int i = linesList.size() - 1 ; i >= 0; i--)
-			{
-				for(int j = matches.size() - 1; j >= 0; j--)
-				{
-					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
-					{
-						selectedLine = linesList.get(i);
-						lineSearchBar.setText(selectedLine);
-						lineSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
-					}
-				}
-			}
-        }
-        
-        if(buttonVoice == 2)
-        {
-			ArrayList<String> linesList = database.getLineStops(selectedLine);
-	
-			for(int i = linesList.size() - 1 ; i >= 0; i--)
-			{
-				for(int j = matches.size() - 1; j >= 0; j--)
-				{
-					if(matches.get(j).contains("and"))
-					{
-						matches.add(j, matches.get(j).replace("and", "&"));
-					}
-					if(linesList.get(i).toLowerCase().contains(matches.get(j).toLowerCase()))
-					{
-						selectedStartingStation = linesList.get(i);
-						startingLocationSearchBar.setText(selectedStartingStation);
-						startingLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
-					}
-				}
-			}
-	
+            if(matches == null) 
+            {
+            	database.close();
+            	return;
+            }
 
-        }
-		
-        if(buttonVoice == 3)
-        {
-			ArrayList<String> linesList = database.getLineStops(selectedLine);
-	
-			for(int i = linesList.size() - 1 ; i >= 0; i--)
-			{
-				for(int j = matches.size() - 1; j >= 0; j--)
-				{
-					if(matches.get(j).contains("and"))
-					{
-						matches.add(j, matches.get(j).replace("and", "&"));
-					}
-					if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
-					{
-						selectedDestinationStation = linesList.get(i);
-						destinationLocationSearchBar.setText(selectedDestinationStation);
-						destinationLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
-					}
-				}
-			}
+            if(matches.size() == 0) 
+            {
+            	database.close();
+            	return;
+            }
 
+            if(buttonVoice == 1)
+            {
+            	ArrayList<String> linesList = database.getBusLines();
+
+            	for(int i = linesList.size() - 1 ; i >= 0; i--)
+            	{
+            		for(int j = matches.size() - 1; j >= 0; j--)
+            		{
+            			if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
+            			{
+            				selectedLine = linesList.get(i);
+            				lineSearchBar.setText(selectedLine);
+            				lineSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
+            			}
+            		}
+            	}
+            }
+
+            if(buttonVoice == 2)
+            {
+            	ArrayList<String> linesList = database.getLineStops(selectedLine);
+
+            	for(int i = linesList.size() - 1 ; i >= 0; i--)
+            	{
+            		for(int j = matches.size() - 1; j >= 0; j--)
+            		{
+            			if(matches.get(j).contains("and"))
+            			{
+            				matches.add(j, matches.get(j).replace("and", "&"));
+            			}
+            			if(linesList.get(i).toLowerCase().contains(matches.get(j).toLowerCase()))
+            			{
+            				selectedStartingStation = linesList.get(i);
+            				startingLocationSearchBar.setText(selectedStartingStation);
+            				startingLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
+            			}
+            		}
+            	}
+
+
+            }
+
+            if(buttonVoice == 3)
+            {
+            	ArrayList<String> linesList = database.getLineStops(selectedLine);
+
+            	for(int i = linesList.size() - 1 ; i >= 0; i--)
+            	{
+            		for(int j = matches.size() - 1; j >= 0; j--)
+            		{
+            			if(matches.get(j).contains("and"))
+            			{
+            				matches.add(j, matches.get(j).replace("and", "&"));
+            			}
+            			if(linesList.get(i).toLowerCase().equals(matches.get(j).toLowerCase()))
+            			{
+            				selectedDestinationStation = linesList.get(i);
+            				destinationLocationSearchBar.setText(selectedDestinationStation);
+            				destinationLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_DONE);
+            			}
+            		}
+            	}
+
+            }
+            database.close();
         }
-        database.close();
-        
         super.onActivityResult(requestCode, resultCode, data);
     }
     
@@ -555,5 +557,23 @@ public class TripPlannerBus extends Activity
 	public AutoCompleteTextView getDestinationLocationSearchBar() 
 	{
 		return destinationLocationSearchBar;
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.options:
+			Intent intent = new Intent(TripPlannerBus.this, Options.class);
+			startActivityForResult(intent, 0);
+		}
+		return true;
 	}
 }

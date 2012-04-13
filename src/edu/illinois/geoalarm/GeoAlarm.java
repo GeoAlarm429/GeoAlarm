@@ -10,6 +10,9 @@ import android.graphics.Color;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Process;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -37,8 +40,8 @@ public class GeoAlarm extends Activity
         root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
         if (settings.getBoolean("splash_screen", false))
         {
-           // Intent intent = new Intent (this, Splash.class);
-            //startActivity(intent);            	
+            Intent intent = new Intent (this, Splash.class);
+            startActivity(intent);            	
         }
 
         // Instantiate the database
@@ -110,10 +113,27 @@ public class GeoAlarm extends Activity
 	 *  It launched the Options activity.
 	 *  We use the onClick XML attribute in main.xml to bind the method to the click event.
 	 */
-	public void showOptionsScreen(View view)
+	public void showOptionsScreen()
 	{
-		Intent intent = new Intent(view.getContext(), Options.class);
+		Intent intent = new Intent(GeoAlarm.this, Options.class);
 		startActivityForResult(intent, 0);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.options:
+			showOptionsScreen();
+		}
+		return true;
 	}
 
 }

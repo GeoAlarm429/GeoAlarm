@@ -44,7 +44,6 @@
                 android:id="@+id/voice1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
                 android:onClick="speakButtonClicked1"
                 android:src="@drawable/ic_voice_search_api_holo_light" />
 
@@ -53,8 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:completionThreshold="1"
-                android:singleLine="true"
-                android:layout_weight="1" >
+                android:singleLine="true" >
 
             </AutoCompleteTextView>
  
@@ -73,7 +71,6 @@
                 android:id="@+id/voice2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
                 android:onClick="speakButtonClicked2"
                 android:src="@drawable/ic_voice_search_api_holo_light" />
 
@@ -82,8 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:completionThreshold="1"
-                android:singleLine="true" 
-                android:layout_weight="1"/>
+                android:singleLine="true" />
 
         </TableRow>
         <TableRow>

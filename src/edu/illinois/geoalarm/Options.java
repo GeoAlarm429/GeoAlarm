@@ -149,7 +149,7 @@ public class Options extends Activity
    				editor.putString("color_name", selectedColor);   		
    				editor.commit();		   	
    				
-   				View v = findViewById(R.id.optionsLinearLayout);
+   				View v = findViewById(R.id.optionsTopLayout);
    				View root = v.getRootView();
    				root.setBackgroundColor(color);
    			}
