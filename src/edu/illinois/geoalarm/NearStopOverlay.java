@@ -41,10 +41,10 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem> {
 	 */
 	@Override
 	protected boolean onTap(int index) {
-		NearStopOverlayItem item = (NearStopOverlayItem) overlays.get(index);
+/*		NearStopOverlayItem item = (NearStopOverlayItem) overlays.get(index);
 		Toast.makeText(mapContext, "BUS STOP", Toast.LENGTH_SHORT).show();
 		
-/*		StopInfo busStop = item.getBusStop();
+	StopInfo busStop = item.getBusStop();
 		if(busStop.getIsSelected()){
 			busStop.setSelected(false);
 			Toast.makeText(mapContext, "FASLE", Toast.LENGTH_SHORT).show();

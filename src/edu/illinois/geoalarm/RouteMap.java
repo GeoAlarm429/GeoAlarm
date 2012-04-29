@@ -1,7 +1,10 @@
 package edu.illinois.geoalarm;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +12,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +36,7 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.Vibrator;
+import android.text.Layout.Directions;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -429,11 +435,22 @@ public class RouteMap extends MapActivity
 			Log.d("RouteMap", "Source or Destination not set");
 			return;
 		}
-		StringBuilder urlString = getURL(src, dest); 
+		StringBuilder urlString = getURL(src, dest, true);
 		
+		//------------------------------------------------------------------------------//
+		StringBuilder test = getURL(src, dest, false);
+		//------------------------------------------------------------------------------//
+
 		Document doc = null; 
-		HttpURLConnection urlConnection= null; 
+		HttpURLConnection urlConnection = null; 
 		URL url = null; 
+		
+		//------------------------------------------------------------------------------//
+		Document doc1 = null; 
+		HttpURLConnection urlConnection1 = null; 
+		URL url1 = null;
+		//------------------------------------------------------------------------------//
+
 		try 
 		{ 
 			url = new URL(urlString.toString()); 
@@ -442,6 +459,20 @@ public class RouteMap extends MapActivity
 			urlConnection.setDoOutput(true); 
 			urlConnection.setDoInput(true); 
 			urlConnection.connect(); 
+			
+			//------------------------------------------------------------------------------//
+			URL inUrl = new URL(test.toString()); 
+		    URLConnection yc = inUrl.openConnection(); 
+			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+			
+			String inputLine; 
+		    String encoded = ""; 
+		    while ((inputLine = in.readLine()) != null) 
+		        encoded = encoded.concat(inputLine); 
+		    in.close(); 
+		    
+			Log.d("TESTTESTTEST", encoded); 
+			//------------------------------------------------------------------------------//
 
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
 			DocumentBuilder db = dbf.newDocumentBuilder(); 
@@ -472,6 +503,11 @@ public class RouteMap extends MapActivity
 				mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest));
 				
 				mainMap.invalidate();
+				
+				JSONObject jsonObject = new JSONObject(); // parse response into json object 
+				JSONObject routeObject = jsonObject.getJSONObject("route"); // pull out the "route" object 
+				JSONObject durationObject = jsonObject.getJSONObject("duration"); // pull out the "duration" object 
+				String duration = durationObject.getString("text"); //this should be the duration text value 
 			} 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -483,7 +519,7 @@ public class RouteMap extends MapActivity
 	 * @param src, dest
 	 * @return URL string
 	 */
-	private StringBuilder getURL(GeoPoint src, GeoPoint dest) {
+	private StringBuilder getURL(GeoPoint src, GeoPoint dest, boolean isKML) {
 		StringBuilder urlString = new StringBuilder(); 
 		urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
 		urlString.append("&saddr="); 
@@ -493,8 +529,13 @@ public class RouteMap extends MapActivity
 		urlString.append("&daddr=");
 		urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6 )); 
 		urlString.append(","); 
-		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 )); 
-		urlString.append("&ie=UTF8&0&om=0&output=kml");
+		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 ));
+		
+		if(isKML) {
+			urlString.append("&ie=UTF8&0&om=0&output=kml");
+		}
+		else
+			urlString.append("&ie=UTF8&0&om=0&output=dragdir");
 		
 		return urlString;
 	}	
@@ -544,8 +585,6 @@ public class RouteMap extends MapActivity
 	}
 
 	private void setRemainingTime(TextView remainingTime) {
-
-
 		second = new TimerTask() {
 			public void run() {
 
