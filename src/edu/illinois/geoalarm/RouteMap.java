@@ -1,18 +1,20 @@
 package edu.illinois.geoalarm;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
 import android.app.Activity;
@@ -27,16 +29,13 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.media.AsyncPlayer;
 import android.media.AudioManager;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.Vibrator;
-import android.text.Layout.Directions;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,7 +54,6 @@ import android.os.Process;
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
  */
-
 public class RouteMap extends MapActivity 
 {
 	private static final int INITIAL_ZOOM = 15;
@@ -84,11 +82,6 @@ public class RouteMap extends MapActivity
 	private Vibrator vibrator;
 	private TextView remainingTime;
 	private TextView remainingDistance;
-	private final Handler handler = new Handler();
-	private TimerTask second;
-	private Date currentDt; 
-    private int currentHours; 
-    private int currentMinutes;
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -150,7 +143,7 @@ public class RouteMap extends MapActivity
         	initializeTripVariables();
         	updateCoordinates();        
             drawPath(src, dest);
-            calcRemainingTimeAndDistance();
+            calcRemainingTimeAndDistance(src, dest);
             
             startAlarmService();
         }                       
@@ -435,83 +428,73 @@ public class RouteMap extends MapActivity
 			Log.d("RouteMap", "Source or Destination not set");
 			return;
 		}
+		
 		StringBuilder urlString = getURL(src, dest, true);
+
+		Document doc;
+		HttpURLConnection urlConnection;
 		
-		//------------------------------------------------------------------------------//
-		StringBuilder test = getURL(src, dest, false);
-		//------------------------------------------------------------------------------//
+		try {
+			urlConnection = setupConnection(urlString);
 
-		Document doc = null; 
-		HttpURLConnection urlConnection = null; 
-		URL url = null; 
-		
-		//------------------------------------------------------------------------------//
-		Document doc1 = null; 
-		HttpURLConnection urlConnection1 = null; 
-		URL url1 = null;
-		//------------------------------------------------------------------------------//
+			int responseCode = urlConnection.getResponseCode(); 
+			if (responseCode == HttpURLConnection.HTTP_OK) { 
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
+				DocumentBuilder db = dbf.newDocumentBuilder(); 
+				doc = db.parse(urlConnection.getInputStream()); 
 
-		try 
-		{ 
-			url = new URL(urlString.toString()); 
-			urlConnection=(HttpURLConnection)url.openConnection(); 
-			urlConnection.setRequestMethod("GET"); 
-			urlConnection.setDoOutput(true); 
-			urlConnection.setDoInput(true); 
-			urlConnection.connect(); 
-			
-			//------------------------------------------------------------------------------//
-			URL inUrl = new URL(test.toString()); 
-		    URLConnection yc = inUrl.openConnection(); 
-			BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-			
-			String inputLine; 
-		    String encoded = ""; 
-		    while ((inputLine = in.readLine()) != null) 
-		        encoded = encoded.concat(inputLine); 
-		    in.close(); 
-		    
-			Log.d("TESTTESTTEST", encoded); 
-			//------------------------------------------------------------------------------//
-
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
-			DocumentBuilder db = dbf.newDocumentBuilder(); 
-			doc = db.parse(urlConnection.getInputStream()); 
-
-			if(doc.getElementsByTagName("GeometryCollection").getLength()>0) 
-			{ 
-				String path = doc.getElementsByTagName("GeometryCollection").item(0).getFirstChild().getFirstChild().getFirstChild().getNodeValue() ; 
-				Log.d("xxx","path="+ path); 
-				String [] pairs = path.split(" "); 
-				String [] lngLat = pairs[0].split(",");
-				
-				GeoPoint startGP = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6));
-				mainMap.getOverlays().add(new DirectionPathOverlay(startGP,startGP)); 
-				
-				GeoPoint gp1; 
-				GeoPoint gp2 = startGP; 
-				for(int i = 1; i < pairs.length; i++)
+				if(doc.getElementsByTagName("GeometryCollection").getLength()>0) 
 				{ 
-					lngLat = pairs[i].split(","); 
-					gp1 = gp2; 
+					String path = doc.getElementsByTagName("GeometryCollection").item(0).getFirstChild().getFirstChild().getFirstChild().getNodeValue() ; 
+					Log.d("xxx","path="+ path); 
+					String [] pairs = path.split(" "); 
+					String [] lngLat = pairs[0].split(",");
 
-					gp2 = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
-					mainMap.getOverlays().add(new DirectionPathOverlay(gp1,gp2)); 
-					Log.d("xxx","pair:" + pairs[i]); 
+					GeoPoint startGP = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6));
+					mainMap.getOverlays().add(new DirectionPathOverlay(startGP,startGP)); 
+
+					GeoPoint gp1; 
+					GeoPoint gp2 = startGP; 
+					for(int i = 1; i < pairs.length; i++)
+					{ 
+						lngLat = pairs[i].split(","); 
+						gp1 = gp2; 
+
+						gp2 = new GeoPoint((int)(Double.parseDouble(lngLat[1])*1E6),(int)(Double.parseDouble(lngLat[0])*1E6)); 
+						mainMap.getOverlays().add(new DirectionPathOverlay(gp1,gp2)); 
+						Log.d("xxx","pair:" + pairs[i]); 
+					}
+
+					mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest));
+
+					mainMap.invalidate();
 				}
-				
-				mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest));
-				
-				mainMap.invalidate();
-				
-				JSONObject jsonObject = new JSONObject(); // parse response into json object 
-				JSONObject routeObject = jsonObject.getJSONObject("route"); // pull out the "route" object 
-				JSONObject durationObject = jsonObject.getJSONObject("duration"); // pull out the "duration" object 
-				String duration = durationObject.getString("text"); //this should be the duration text value 
-			} 
+			}
+			else
+				Toast.makeText(this, "Fail to draw path. Check internet connection.", Toast.LENGTH_LONG).show();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * This is a simple helper function to setup http connection
+	 * @param urlString
+	 * @return urlConnection
+	 * @throws MalformedURLException, IOException, ProtocolException
+	 */
+	private HttpURLConnection setupConnection(StringBuilder urlString) throws MalformedURLException, IOException, ProtocolException {
+		HttpURLConnection urlConnection = null; 
+		URL url = null; 
+
+		url = new URL(urlString.toString()); 
+		urlConnection=(HttpURLConnection)url.openConnection(); 
+		urlConnection.setRequestMethod("GET"); 
+		urlConnection.setDoOutput(true); 
+		urlConnection.setDoInput(true); 
+		urlConnection.connect();
+		
+		return urlConnection;
 	}
 
 	/**
@@ -521,21 +504,31 @@ public class RouteMap extends MapActivity
 	 */
 	private StringBuilder getURL(GeoPoint src, GeoPoint dest, boolean isKML) {
 		StringBuilder urlString = new StringBuilder(); 
-		urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
-		urlString.append("&saddr="); 
-		urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6 )); 
-		urlString.append(","); 
-		urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6 )); 
-		urlString.append("&daddr=");
-		urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6 )); 
-		urlString.append(","); 
-		urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6 ));
-		
-		if(isKML) {
+
+		if(isKML){
+			urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
+			urlString.append("&saddr="); 
+			urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6)); 
+			urlString.append(","); 
+			urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6)); 
+			urlString.append("&daddr=");
+			urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6)); 
+			urlString.append(","); 
+			urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6));
 			urlString.append("&ie=UTF8&0&om=0&output=kml");
 		}
-		else
-			urlString.append("&ie=UTF8&0&om=0&output=dragdir");
+		else {
+			urlString.append("http://maps.google.com/maps/api/directions/json?");
+			urlString.append("origin="); 
+			urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6)); 
+			urlString.append(","); 
+			urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6));
+			urlString.append("&destination=");
+			urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6)); 
+			urlString.append(","); 
+			urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6));
+			urlString.append("&sensor=false");
+		}
 		
 		return urlString;
 	}	
@@ -576,47 +569,54 @@ public class RouteMap extends MapActivity
 		mainMap.postInvalidate();
 	}
 	
-	private void calcRemainingTimeAndDistance() {
+	/**
+	 * This function sets remaining time and distance.
+	 * @param src, dest
+	 */
+	private void calcRemainingTimeAndDistance(GeoPoint src, GeoPoint dest) {
 		remainingTime = (TextView)findViewById(R.id.remainingTime);
 		remainingDistance = (TextView)findViewById(R.id.remainingDistance);
 		
-		setRemainingTime(remainingTime);
-		setRemainingDistance(remainingDistance);
-	}
-
-	private void setRemainingTime(TextView remainingTime) {
-		second = new TimerTask() {
-			public void run() {
-
-				Log.i("Test", "Timer start");
-
-				Update();
-
-				currentDt = new Date(); 
-				currentHours = currentDt.getHours(); 
-				currentMinutes = currentDt.getMinutes();
-			}
-		};
-
-		Timer timer = new Timer();
-		timer.schedule(second, 0, 1000);
-	}
-
-	protected void Update() {
-		Runnable updater = new Runnable() {
-			public void run() {
-			       remainingTime.setText((hourSet-currentHours) + " hours " + (minuteSet-currentMinutes) + " minutes");
-			}
-		};
-
-		handler.post(updater);
-	}
-
-	private void setRemainingDistance(TextView remainingDistance) {
+		StringBuilder urlString = getURL(src, dest, false);
 		
-		remainingDistance.setText("DISTANCE DISTANCE DISTACNE");
+		HttpURLConnection urlConnection;
+		try {
+			urlConnection = setupConnection(urlString);
+			
+			StringBuffer response = new StringBuffer();
+			int responseCode = urlConnection.getResponseCode(); 
+			if (responseCode == HttpURLConnection.HTTP_OK) {				
+				BufferedReader input = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()),8192); 
+				String strLine = null; 
+				
+				while ((strLine = input.readLine()) != null) { 
+					response.append(strLine); 
+				} 
+				input.close();
+				
+				String jsonOutput = response.toString();
+	 
+				JSONObject jsonObject = new JSONObject(jsonOutput); 
+				JSONArray routesArray = jsonObject.getJSONArray("routes");  
+				JSONObject route = routesArray.getJSONObject(0); 
+				JSONArray legs = route.getJSONArray("legs"); 
+				JSONObject leg = legs.getJSONObject(0); 
+	
+				JSONObject durationObject = leg.getJSONObject("duration"); 
+				JSONObject distanceObject = leg.getJSONObject("distance"); 
+				String duration = durationObject.getString("text");
+				String distance = distanceObject.getString("text");
+				
+				remainingTime.setText(" " + duration);
+				remainingDistance.setText(" " + distance);
+			}
+			else
+				Toast.makeText(this, "Fail to load information. Check internet connection.", Toast.LENGTH_LONG).show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
-		
+	
 	/**
 	 * This method returns whether routes are currently being displayed on the
 	 * map. Right now, they're not.
