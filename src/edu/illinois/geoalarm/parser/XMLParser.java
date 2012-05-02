@@ -30,6 +30,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 public class XMLParser {
 	private static final String API_KEY = "ef23cfb988384e259056b4098c70d877";
 	private static final String VERSION = "v2.1";
@@ -70,30 +74,36 @@ public class XMLParser {
 		String data = "";
 		String line;
 
-		try {
+		try 
+		{
 			url = new URL(address);
-		} catch (MalformedURLException e) {
-			System.err
-					.println("ERROR: the URL is malformed. Now terminating...");
-			System.exit(1);
+		} 
+		catch (MalformedURLException e) 
+		{
+			System.err.println("ERROR: the URL is malformed. Now terminating...");			
 		}
-		try {
+		try 
+		{
 			is = url.openStream();
-		} catch (IOException e) {
-			System.err.println("ERROR: cannot open stream. Now terminating...");
-			System.exit(2);
+		} 
+		catch (IOException e) 
+		{
+			System.err.println("ERROR: cannot open stream. Now terminating...");			
 		} // throws an IOException
 		dis = new BufferedReader(new InputStreamReader(is));
 
-		try {
-			while ((line = dis.readLine()) != null) {
+		try 
+		{
+			while ((line = dis.readLine()) != null) 
+			{
 				data += line;
 			}
+			dis.close();
 			is.close();
-		} catch (IOException e) {
-			System.err
-					.println("ERROR: unexpected error occured. Now terminating...");
-			System.exit(2);
+		} 
+		catch (IOException e) 
+		{
+			System.err.println("ERROR: unexpected error occured. Now terminating...");			
 		}
 		return data;
 	}
@@ -197,9 +207,8 @@ public class XMLParser {
 	 * @return Vector that contains all Itineraries
 	 * @throws XPathExpressionException
 	 */
-	private static Vector<Itinerary> parseTrip()
-			throws XPathExpressionException {
-
+	private static Vector<Itinerary> parseTrip() throws XPathExpressionException 
+	{
 		Vector<Itinerary> Itineraries = new Vector<Itinerary>();
 
 		XPath xpath = XPathFactory.newInstance().newXPath();
@@ -209,7 +218,8 @@ public class XMLParser {
 
 		NodeList nodes = (NodeList) result;
 		// traverse list of itineraries
-		for (int i = 0; i < nodes.getLength(); i++) {
+		for (int i = 0; i < nodes.getLength(); i++) 
+		{
 			String startTime, endTime;
 
 			Node currentItinerary = nodes.item(i);
@@ -230,64 +240,50 @@ public class XMLParser {
 			currentItinerary.getChildNodes().item(0).getChildNodes();
 
 			// traverse legs
-			for (int j = 0; j < legNodes.getLength(); j++) {
+			for (int j = 0; j < legNodes.getLength(); j++) 
+			{
 				Node currentLeg = legNodes.item(j);
 				System.out.println(legNodes.item(j).getNodeName());
 				// TODO: check Leg type
 				NamedNodeMap legAttributes = currentLeg.getAttributes();
-				System.out.println("type "
-						+ legAttributes.getNamedItem("type").getTextContent());
-				if (!legAttributes.getNamedItem("type").getTextContent()
-						.equals("Service"))
+				System.out.println("type " + legAttributes.getNamedItem("type").getTextContent());
+				if (!legAttributes.getNamedItem("type").getTextContent().equals("Service"))
 					continue;
 				// get service nodes
-				NodeList serviceNodes = currentLeg.getChildNodes().item(0)
-						.getChildNodes();
-				System.out.println("Number " + serviceNodes.getLength()
-						+ " NodeName " + serviceNodes.item(0).getNodeName());
-				NodeList serviceDetailNodes = serviceNodes.item(0)
-						.getChildNodes();
+				NodeList serviceNodes = currentLeg.getChildNodes().item(0).getChildNodes();
+				System.out.println("Number " + serviceNodes.getLength()	+ " NodeName " + serviceNodes.item(0).getNodeName());
+				NodeList serviceDetailNodes = serviceNodes.item(0).getChildNodes();
 				Trip begin = null, end = null;
 				String lat, lon, time, busName;
 
 				// traverse serviceDetails: begin,end,route,trip
-				for (int k = 0; k < serviceDetailNodes.getLength(); k++) {
+				for (int k = 0; k < serviceDetailNodes.getLength(); k++) 
+				{
 
 					Node currentServiceDetailNode = serviceDetailNodes.item(k);
-					System.out.println("Number "
-							+ serviceDetailNodes.getLength() + " NodeName "
-							+ serviceDetailNodes.item(k).getNodeName());
-					if (currentServiceDetailNode.getNodeName().equals("begin")) {
-						NamedNodeMap beginAttributes = currentServiceDetailNode
-								.getAttributes();
-						lat = (beginAttributes.getNamedItem("lat")
-								.getTextContent());
-						lon = (beginAttributes.getNamedItem("lon")
-								.getTextContent());
-						time = (beginAttributes.getNamedItem("time")
-								.getTextContent());
+					System.out.println("Number "+ serviceDetailNodes.getLength() + " NodeName "	+ serviceDetailNodes.item(k).getNodeName());
+					if (currentServiceDetailNode.getNodeName().equals("begin")) 
+					{
+						NamedNodeMap beginAttributes = currentServiceDetailNode.getAttributes();
+						lat = (beginAttributes.getNamedItem("lat").getTextContent());
+						lon = (beginAttributes.getNamedItem("lon").getTextContent());
+						time = (beginAttributes.getNamedItem("time").getTextContent());
 						busName = null;
 						begin = new Trip(lat, lon, time, busName);
-
 					}
-					if (currentServiceDetailNode.getNodeName().equals("end")) {
-						NamedNodeMap beginAttributes = currentServiceDetailNode
-								.getAttributes();
-						lat = (beginAttributes.getNamedItem("lat")
-								.getTextContent());
-						lon = (beginAttributes.getNamedItem("lon")
-								.getTextContent());
-						time = (beginAttributes.getNamedItem("time")
-								.getTextContent());
+					if (currentServiceDetailNode.getNodeName().equals("end")) 
+					{
+						NamedNodeMap beginAttributes = currentServiceDetailNode.getAttributes();
+						lat = (beginAttributes.getNamedItem("lat").getTextContent());
+						lon = (beginAttributes.getNamedItem("lon").getTextContent());
+						time = (beginAttributes.getNamedItem("time").getTextContent());
 						busName = null;
 						end = new Trip(lat, lon, time, busName);
 					}
-					if (currentServiceDetailNode.getNodeName().equals("route")) {
-						NamedNodeMap beginAttributes = currentServiceDetailNode
-								.getAttributes();
-						busName = (beginAttributes
-								.getNamedItem("route_short_name")
-								.getTextContent());
+					if (currentServiceDetailNode.getNodeName().equals("route")) 
+					{
+						NamedNodeMap beginAttributes = currentServiceDetailNode.getAttributes();
+						busName = (beginAttributes.getNamedItem("route_short_name").getTextContent());
 						begin.setBusName(busName);
 						end.setBusName(busName);
 					}
@@ -300,7 +296,8 @@ public class XMLParser {
 		return Itineraries;
 	}
 
-	private static Vector<String> gatherTripIDs(HashMap<String, Route> routes) {
+	private static Vector<String> gatherTripIDs(HashMap<String, Route> routes) 
+	{
 		int currIndex, endIndex;
 		String tripID;
 
@@ -310,11 +307,13 @@ public class XMLParser {
 		for (String key : routesKeySet) {
 			String data = getData(TRIP_URL + key);
 			currIndex = 0;
-			while ((currIndex = data.indexOf("trip_id", currIndex)) != -1) {
+			while ((currIndex = data.indexOf("trip_id", currIndex)) != -1) 
+			{
 				currIndex += 9;
 				endIndex = data.indexOf('"', currIndex);
 				tripID = data.substring(currIndex, endIndex);
-				if (!tripIDs.contains(tripID)) {
+				if (!tripIDs.contains(tripID)) 
+				{
 					tripIDs.add(tripID);
 				}
 			}
@@ -322,14 +321,15 @@ public class XMLParser {
 		return tripIDs;
 	}
 
-	private static HashMap<String, Route> populateStations(
-			HashMap<String, Route> routes) {
+	private static HashMap<String, Route> populateStations(HashMap<String, Route> routes) 
+	{
 		System.out.print("test2");
 		Vector<Station> stations = new Vector<Station>();
 		Vector<String> tripIDs = gatherTripIDs(routes);
 
 		int numTripIDs = tripIDs.size();
-		for (int i = 0; i < numTripIDs; i++) {
+		for (int i = 0; i < numTripIDs; i++) 
+		{
 			String stopsByTimeData = getData(STOPS_BY_TIME_URL + tripIDs.get(i));
 		}
 		System.out.print("test3");
@@ -346,9 +346,9 @@ public class XMLParser {
 	 * @throws XPathExpressionException
 	 */
 	private static void parseXmlFile() throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException {
-		DocumentBuilderFactory domFactory = DocumentBuilderFactory
-				.newInstance();
+			SAXException, IOException, XPathExpressionException 
+			{
+		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 		domFactory.setNamespaceAware(false);
 		DocumentBuilder builder = domFactory.newDocumentBuilder();
 		stationDoc = builder.parse(PATH_STATION);
@@ -366,7 +366,8 @@ public class XMLParser {
 	 * @throws ParserConfigurationException
 	 */
 	public static Document CreateXML(String xmlString) throws SAXException,
-			IOException, ParserConfigurationException {
+			IOException, ParserConfigurationException 
+			{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		InputSource source = new InputSource(new StringReader(xmlString));
 		Document document = factory.newDocumentBuilder().parse(source);
@@ -383,7 +384,8 @@ public class XMLParser {
 	 * @return query as a String
 	 */
 	public static String tripPlanner(String origin_lat, String origin_lon,
-			String dest_lat, String dest_lon) {
+			String dest_lat, String dest_lon) 
+	{
 		String trip_query = PLAN_TRIP_URL;
 
 		trip_query += "&origin_lat=" + origin_lat;
@@ -407,10 +409,10 @@ public class XMLParser {
 	 * @throws ParserConfigurationException
 	 * @throws XPathExpressionException
 	 */
-	public static Vector<Itinerary> getItinerary(String origin_lat,
-			String origin_lon, String dest_lat, String dest_lon)
+	public static Vector<Itinerary> getItinerary(String origin_lat, String origin_lon, String dest_lat, String dest_lon)
 			throws SAXException, IOException, ParserConfigurationException,
-			XPathExpressionException {
+			XPathExpressionException 
+			{
 		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat,
 				dest_lon);
 		String tripStr = XMLParser.getData(trip_url);
@@ -420,26 +422,30 @@ public class XMLParser {
 		return Itineraries;
 	}
 
-	public Vector<Itinerary> getTripItinerary(String origin_lat,
-			String origin_lon, String dest_lat, String dest_lon) {
-		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat,
-				dest_lon);
+	public Vector<Itinerary> getTripItinerary(String origin_lat, String origin_lon, String dest_lat, String dest_lon) 
+	{
+		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat, dest_lon);
 		String tripStr = getData(trip_url);
-		try {
+		try 
+		{
 			setTripDoc(CreateXML(tripStr));
 			return parseTrip();
-		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (XPathExpressionException e) 
+		{			
 			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (SAXException e) 
+		{			
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IOException e) 
+		{			
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} 
+		catch (ParserConfigurationException e) 
+		{
+			 e.printStackTrace();
 		}
 		return null;
 	}
@@ -453,7 +459,9 @@ public class XMLParser {
 	 * @return string array
 	 */
 	public String[] getItineraryArray(String origin_lat, String origin_lon,
-			String dest_lat, String dest_lon) {
+			String dest_lat, String dest_lon) 
+	{
+		
 		Vector<Itinerary> itineraries;
 		String[] itineraryArray;
 		try {
@@ -472,18 +480,30 @@ public class XMLParser {
 						+ legs.get(legs.size() - 1).getEnd().getTime().substring(11,16);
 			}
 			return itineraryArray;
-		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (XPathExpressionException e) 
+		{			
 			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
+			itineraryArray = new String[1];
+			itineraryArray[0] = "No routes available at this time";
+		} 
+		catch (SAXException e) 
+		{			
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			itineraryArray = new String[1];
+			itineraryArray[0] = "No routes available at this time";
+		} 
+		catch (IOException e) 
+		{			
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
+			itineraryArray = new String[1];
+			itineraryArray[0] = "No routes available at this time";
+		} 
+		catch (ParserConfigurationException e) 
+		{			
 			e.printStackTrace();
+			itineraryArray = new String[1];
+			itineraryArray[0] = "No routes available at this time";
 		}
 		return null;
 	}
@@ -497,12 +517,12 @@ public class XMLParser {
 	 * @param itinerary nth itinerary to be fetched
 	 * @return string array
 	 */
-	public String[] getLegArray(String origin_lat, String origin_lon,
-			String dest_lat, String dest_lon, int itinerary) {
-	
+	public String[] getLegArray(String origin_lat, String origin_lon, String dest_lat, String dest_lon, int itinerary) 
+	{	
 		Vector<Itinerary> itineraries;
 		String[] legArray;
-		try {
+		try 
+		{
 			itineraries = getItinerary(origin_lat, origin_lon, dest_lat,
 					dest_lon);
 			if (itineraries.size() <= itinerary) {
@@ -519,33 +539,41 @@ public class XMLParser {
 						+ begin.getTime().substring(11, 16) + " - " + end.getTime().substring(11,16);
 			}
 			return legArray;
-		} catch (XPathExpressionException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (XPathExpressionException e) 
+		{			
 			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
+			legArray = new String[1];
+			legArray[0] = "No routes available at this time";
+		} 
+		catch (SAXException e) 
+		{			
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			legArray = new String[1];
+			legArray[0] = "No routes available at this time";
+		} 
+		catch (IOException e) 
+		{			
 			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
+			legArray = new String[1];
+			legArray[0] = "No routes available at this time";
+		} 
+		catch (ParserConfigurationException e) 
+		{			
 			e.printStackTrace();
+			legArray = new String[1];
+			legArray[0] = "No routes available at this time";
 		}
-		return null;
+		return legArray;
 	}
 
-	public void setTripDoc(Document tripDoc) {
-		this.tripDoc = tripDoc;
+	public void setTripDoc(Document tripDoc) 
+	{
+		XMLParser.tripDoc = tripDoc;
 	}
 
 	public static void main(String[] args) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException { // TODO:
-																	// Change
-																	// the
-																	// function
-																	// name to
-																	// gatherData()
+			SAXException, IOException, XPathExpressionException {
 
 		/** DEBUG SETUP **/
 		// parseXmlFile();

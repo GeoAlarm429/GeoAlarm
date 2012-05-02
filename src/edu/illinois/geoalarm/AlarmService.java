@@ -153,7 +153,9 @@ public class AlarmService extends Service
      */
     public void checkIfAtDestination()
     {
-    	if(currentLocation.distanceTo(destinationLocation) < 50) // 10 meters from destination
+    	float distanceTo = currentLocation.distanceTo(destinationLocation);
+    	
+    	if(selectedNotificationTime.equals(TripPlannerBus.AT_STOP_CHOICE) && distanceTo < 50.0)
     	{
     		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
     		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);
@@ -162,6 +164,15 @@ public class AlarmService extends Service
     		startActivity(wakeUpRouteMap);
     		stopSelf();
     	}
+    	else if(selectedNotificationTime.equals(TripPlannerBus.STATION_BEFORE_STOP_CHOICE) && distanceTo < 150.0)
+    	{
+    		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
+    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);
+    		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.isPlannedTrip", false);
+    		wakeUpRouteMap.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		startActivity(wakeUpRouteMap);
+    		stopSelf();    		
+    	}    	
     }
     
     /**

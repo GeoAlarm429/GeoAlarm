@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.SQLException;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.view.KeyEvent;
@@ -295,8 +298,11 @@ public class TripPlannerBus extends Activity
 	{
 		this.showDialog(ALARM_OPTIONS_ID);		
 		this.showDialog(TIME_OPTIONS_ID);
-		this.showDialog(LEG_ID);
-		this.showDialog(ITINERARY_OPTIONS_ID);
+		if(isOnline())
+		{
+			this.showDialog(LEG_ID);
+			this.showDialog(ITINERARY_OPTIONS_ID);
+		}
 	}
 	
 	@Override
@@ -327,6 +333,20 @@ public class TripPlannerBus extends Activity
 		
 		
 		return dialog;		
+	}
+	
+	/**
+	 * Checks whether we have a network connection
+	 * @return true if connected, false otherwise
+	 */
+	public boolean isOnline() 
+	{
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 	
 	private AlertDialog createItineraryOptionsDialog()
@@ -361,9 +381,9 @@ public class TripPlannerBus extends Activity
 		String endLon = "" + df.format(database.getLongitude(selectedDestinationStation));
 			
 		final CharSequence[] items = parser.getLegArray(startLat, startLon, endLat, endLon, itineraryNum);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("Selected itinerary");
-		builder.setItems(items, new DialogInterface.OnClickListener() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Selected itinerary");
+			builder.setItems(items, new DialogInterface.OnClickListener() {
 			
 			public void onClick(DialogInterface dialog, int item) 
 			{
@@ -620,7 +640,8 @@ public class TripPlannerBus extends Activity
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) 
+	{
 		switch (item.getItemId()) {
 		case R.id.options:
 			Intent intent = new Intent(TripPlannerBus.this, Options.class);

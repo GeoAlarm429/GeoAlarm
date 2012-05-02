@@ -31,6 +31,8 @@ import android.location.LocationManager;
 import android.media.AsyncPlayer;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
@@ -149,8 +151,11 @@ public class RouteMap extends MapActivity
         {
         	initializeTripVariables();
         	updateCoordinates();        
-            drawPath(src, dest);
-            calcRemainingTimeAndDistance(src, dest);
+        	if(isOnline())
+        	{
+        		drawPath(src, dest);
+        		calcRemainingTimeAndDistance(src, dest);
+        	}
             
             startAlarmService();
         }                       
@@ -416,16 +421,25 @@ public class RouteMap extends MapActivity
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) 
 	{
-		boolean result = super.dispatchTouchEvent(event);
-		if (event.getAction() == MotionEvent.ACTION_UP){
-			GeoPoint center = mainMap.getMapCenter();
-			mapCenter = new Location("");
-			mapCenter.setLatitude((double)center.getLatitudeE6()/(double)1E6);
-			mapCenter.setLongitude((double)center.getLongitudeE6()/(double)1E6);
+		boolean result = false;
+		try	
+		{
+			result = super.dispatchTouchEvent(event);
+			if (event.getAction() == MotionEvent.ACTION_UP)
+			{
+				GeoPoint center = mainMap.getMapCenter();
+				mapCenter = new Location("");
+				mapCenter.setLatitude((double)center.getLatitudeE6()/(double)1E6);
+				mapCenter.setLongitude((double)center.getLongitudeE6()/(double)1E6);
 
-			nearOverlay.getOverlays().clear();
-			showNearBusStopsOnMap(mapCenter);
+				nearOverlay.getOverlays().clear();
+				showNearBusStopsOnMap(mapCenter);
+			}
 		}
+		catch(IndexOutOfBoundsException ex)
+		{
+			ex.printStackTrace();
+		}		
 
 		return result;
 	}
@@ -700,4 +714,18 @@ public class RouteMap extends MapActivity
         }        
        
     }   
+    
+    /**
+	 * Checks whether we have a network connection
+	 * @return true if connected, false otherwise
+	 */
+	public boolean isOnline() 
+	{
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
+	}
 }

@@ -20,7 +20,7 @@ public class Contact extends Activity
 
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));
+		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
 	}
 
     @Override
@@ -28,7 +28,7 @@ public class Contact extends Activity
 	{
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));
+		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
 		super.onResume();
 	}
 	

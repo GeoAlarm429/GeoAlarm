@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.SQLException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
@@ -48,6 +50,7 @@ public class GeoAlarm extends Activity
 {
 	GeoAlarmDB database;
 	SharedPreferences myPrefs;
+	Activity thisActivity;
 	private static final long UPDATE_INTERVAL = 1000 * 60 * 60 * 24 * 1; // 1 day
 
 	// Android's default system path for databases
@@ -69,7 +72,8 @@ public class GeoAlarm extends Activity
 
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));      			
+		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));      	
+		thisActivity = this;
     }
     
     /**
@@ -90,20 +94,39 @@ public class GeoAlarm extends Activity
 		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
 		if(firstRun)
 		{
-			AlertDialog.Builder downloadDB = new AlertDialog.Builder(this);
-			downloadDB.setMessage("You need to download the database! Click OK to go to the Options screen and download it!");
-			downloadDB.setTitle("Welcome!");
-			downloadDB.setPositiveButton("Go to Options", new DialogInterface.OnClickListener() {
+			if(!isOnline())
+			{
+				AlertDialog.Builder failureBuilder = new AlertDialog.Builder(this);
+				failureBuilder.setMessage("Network connection failure! GeoAlarm must be connected to the internet on first run!");
+				failureBuilder.setTitle("Sorry!");
+				failureBuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
 
-				public void onClick(DialogInterface dialog, int which) 
-				{					
-					Intent optionIntent = new Intent(GeoAlarm.this, Options.class);
-					startActivityForResult(optionIntent, 0);					
-				}
+					public void onClick(DialogInterface dialog, int which) 
+					{
+						thisActivity.finish();
+					}
+					
+				});
+				AlertDialog failure = failureBuilder.create();
+				failure.show();
+			}
+			else
+			{			
+				AlertDialog.Builder downloadDB = new AlertDialog.Builder(this);
+				downloadDB.setMessage("You need to download the database! Click OK to go to the Options screen and download it!");
+				downloadDB.setTitle("Welcome!");
+				downloadDB.setPositiveButton("Go to Options", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) 
+					{					
+						Intent optionIntent = new Intent(GeoAlarm.this, Options.class);
+						startActivityForResult(optionIntent, 0);					
+					}
 				
-			});
-			AlertDialog success = downloadDB.create();
-			success.show();
+				});
+				AlertDialog success = downloadDB.create();
+				success.show();
+			}
 		}
 			
 	}
@@ -114,6 +137,20 @@ public class GeoAlarm extends Activity
     	database.close();
     	super.onPause();
     }
+    
+    /**
+	 * Checks whether we have a network connection
+	 * @return true if connected, false otherwise
+	 */
+	public boolean isOnline() 
+	{
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
+	}
     
     
     /**

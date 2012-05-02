@@ -18,9 +18,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -106,19 +109,38 @@ public class Options extends Activity
 		
 		// Update database if first run
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+		View v = findViewById(R.id.optionsTopLayout);
+		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
 		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
 		if(firstRun)
-		{
-			onClickUpdateDatabase(null);
+		{			
+				if(isOnline())
+				{
+					onClickUpdateDatabase(null);		
+				}
 		}
 		
-	}
+	}	
 
 	@Override
 	public void onStop()
 	{		
 		database.close();
 		super.onStop();
+	}
+	
+	/**
+	 * Checks whether we have a network connection
+	 * @return true if connected, false otherwise
+	 */
+	public boolean isOnline() 
+	{
+	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 	/**
@@ -310,8 +332,27 @@ public class Options extends Activity
 	 */
 	public void onClickUpdateDatabase(View view)
 	{
-		DownloadNewDatabase download = new DownloadNewDatabase(this);  	
-		download.execute("http://deflume1.projects.cs.illinois.edu/geoAlarmDB.sqlite");
+		if(isOnline())
+		{
+			DownloadNewDatabase download = new DownloadNewDatabase(this);  	
+			download.execute("http://deflume1.projects.cs.illinois.edu/geoAlarmDB.sqlite");
+		}
+		else
+		{
+			AlertDialog.Builder failureBuilder = new AlertDialog.Builder(this);
+			failureBuilder.setMessage("Network connection failure! GeoAlarm must be connected to the internet to update the database!");
+			failureBuilder.setTitle("Sorry!");
+			failureBuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+
+				public void onClick(DialogInterface dialog, int which) 
+				{
+					// do nothing
+				}
+				
+			});
+			AlertDialog failure = failureBuilder.create();
+			failure.show();
+		}
 	}
 
 	private class DownloadNewDatabase extends AsyncTask<String, Integer, Integer> 
@@ -435,6 +476,14 @@ public class Options extends Activity
 				AlertDialog.Builder successBuilder = new AlertDialog.Builder(mContext);
 				successBuilder.setMessage("Database successfully updated");
 				successBuilder.setTitle("Success!");
+				successBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) 
+					{						
+						// Do nothing
+					}
+					
+				});
 				AlertDialog success = successBuilder.create();
 				success.show();
 				break;
@@ -442,15 +491,33 @@ public class Options extends Activity
 				AlertDialog.Builder errorURLbuilder = new AlertDialog.Builder(mContext);
 				errorURLbuilder.setMessage("Couldn't reach update server");
 				errorURLbuilder.setTitle("URL Error");
+				errorURLbuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) 
+					{						
+						// Do nothing
+					}
+					
+				});
 				AlertDialog urlError = errorURLbuilder.create();
 				urlError.show();
+				updateProgressDialog.dismiss();
 				return;				
 			case ERROR_IO:
 				AlertDialog.Builder errorIObuilder = new AlertDialog.Builder(mContext);
 				errorIObuilder.setMessage("A problem was encountered downloading the file");
 				errorIObuilder.setTitle("Download Error");
+				errorIObuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) 
+					{						
+						// Do nothing
+					}
+					
+				});
 				AlertDialog ioError = errorIObuilder.create();
 				ioError.show();
+				updateProgressDialog.dismiss();
 				return;					   	    		
 			}   	   
 			updateProgressDialog.dismiss();
