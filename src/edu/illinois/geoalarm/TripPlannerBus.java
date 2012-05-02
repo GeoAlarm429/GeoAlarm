@@ -300,7 +300,6 @@ public class TripPlannerBus extends Activity
 		this.showDialog(TIME_OPTIONS_ID);
 		if(isOnline())
 		{
-			this.showDialog(LEG_ID);
 			this.showDialog(ITINERARY_OPTIONS_ID);
 		}
 	}

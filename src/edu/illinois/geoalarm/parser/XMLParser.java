@@ -67,7 +67,8 @@ public class XMLParser {
 	 *            - URL query
 	 * @return - data from query
 	 */
-	static String getData(String address) {
+	static String getData(String address) 
+	{
 		URL url = null;
 		InputStream is = null;
 		BufferedReader dis;
@@ -80,15 +81,17 @@ public class XMLParser {
 		} 
 		catch (MalformedURLException e) 
 		{
-			System.err.println("ERROR: the URL is malformed. Now terminating...");			
+			System.err.println("ERROR: the URL is malformed. Now terminating...");		
+			return null;
 		}
 		try 
 		{
-			is = url.openStream();
+			is = url.openStream();			
 		} 
 		catch (IOException e) 
 		{
-			System.err.println("ERROR: cannot open stream. Now terminating...");			
+			System.err.println("ERROR: cannot open stream. Now terminating...");	
+			return null;
 		} // throws an IOException
 		dis = new BufferedReader(new InputStreamReader(is));
 
@@ -103,7 +106,8 @@ public class XMLParser {
 		} 
 		catch (IOException e) 
 		{
-			System.err.println("ERROR: unexpected error occured. Now terminating...");			
+			System.err.println("ERROR: unexpected error occured. Now terminating...");
+			return null;
 		}
 		return data;
 	}
@@ -416,9 +420,16 @@ public class XMLParser {
 		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat,
 				dest_lon);
 		String tripStr = XMLParser.getData(trip_url);
-		tripDoc = CreateXML(tripStr);
-
-		Vector<Itinerary> Itineraries = parseTrip();
+		Vector<Itinerary> Itineraries;
+		if(tripStr != null)
+		{
+			tripDoc = CreateXML(tripStr);
+			Itineraries = parseTrip();
+		}
+		else
+		{
+			Itineraries = new Vector<Itinerary>();			
+		}
 		return Itineraries;
 	}
 

@@ -78,13 +78,15 @@ public class RouteMap extends MapActivity
 	private int startingLongitude;
 	private int destinationLatitude;
 	private int destinationLongitude;
-	private Intent alarmService;
 	private LocationManager locationManager;
 	private Uri notification;
 	private AsyncPlayer player;
 	private Vibrator vibrator;
 	private TextView remainingTime;
 	private TextView remainingDistance;
+	NearStopOverlayItem startingLocationItem;
+	NearStopOverlayItem destinationLocationItem;
+	
 	
 	/* Route data from TripPlannerBus or Map selection */
 	private String selectedLine;
@@ -107,6 +109,7 @@ public class RouteMap extends MapActivity
 	private long minTime = 3000;
 	private float minDistance = 10;
 	CurrMarkerOverlay itemizedOverlay;
+	NearStopOverlay startDestOverlay;
 
 	/** 
 	 * Called when the activity is first created.
@@ -263,8 +266,7 @@ public class RouteMap extends MapActivity
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationTime", selectedNotificationTime);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationHour", hourSet);
         serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationMinute", minuteSet);
-        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);        
-        alarmService = serviceIntent;
+        serviceIntent.putExtra("edu.illinois.geoalarm.selectedNotificationIsAM", isAM);      
         startService(serviceIntent);        
 	}
 	
@@ -311,6 +313,20 @@ public class RouteMap extends MapActivity
 		destinationLongitude = (int) (dbController.getLongitude(selectedDestinationStation)* 1E6);
 		src = new GeoPoint(startingLatitude, startingLongitude);
 		dest = new GeoPoint(destinationLatitude, destinationLongitude);
+		
+		StopInfo startingItem = dbController.getStopInfo(src);
+		StopInfo destItem = dbController.getStopInfo(dest);
+		
+		mapOverlays = mainMap.getOverlays();
+		if(startDestOverlay != null)
+		{
+			mapOverlays.remove(startDestOverlay);
+		}
+		Drawable drawable = this.getResources().getDrawable(R.drawable.start_dest);     
+		startDestOverlay = new NearStopOverlay(drawable, this, dbController);
+		startDestOverlay.addOverlay(new NearStopOverlayItem(startingItem));
+		startDestOverlay.addOverlay(new NearStopOverlayItem(destItem));		     
+		mapOverlays.add(startDestOverlay);		
 	}
 
 	/**
@@ -393,7 +409,8 @@ public class RouteMap extends MapActivity
      * Helper function to show the bus stops near the current location on the map
      * @param currentLocation
      */
-	private void showNearBusStopsOnMap(Location currentLocation) {
+	private void showNearBusStopsOnMap(Location currentLocation) 
+	{
 		mapOverlays = mainMap.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(R.drawable.near);
 		
@@ -413,6 +430,10 @@ public class RouteMap extends MapActivity
 			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_SHORT).show();
 			onResume();
 		}
+		
+		
+		
+		
 	}
 	
     /**

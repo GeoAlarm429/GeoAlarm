@@ -254,9 +254,8 @@ public class Options extends Activity
 				editor.putString("color_name", selectedColor);   		
 				editor.commit();		   	
 
-				View v = findViewById(R.id.optionsTopLayout);
-				View root = v.getRootView();
-				root.setBackgroundColor(color);
+				View v = findViewById(R.id.optionsTopLayout);				
+				v.setBackgroundColor(color);
 			}
 
 			/* We do nothing here.  May want to change behavior so the last selected item behavior is used */
