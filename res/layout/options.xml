@@ -37,6 +37,15 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical" >
 
+			<Button
+			    android:id="@+id/updateDatabaseButton"
+			    android:layout_width="fill_parent"
+			    android:layout_height="wrap_content"
+			    android:text="@string/update_database_button"
+			    android:layout_marginLeft="40dp"
+			    android:layout_marginRight="40dp"
+			    android:onClick="onClickUpdateDatabase" />
+
 			<TextView
 				android:id="@+id/optionsRingtoneText"
 				android:layout_width="wrap_content"

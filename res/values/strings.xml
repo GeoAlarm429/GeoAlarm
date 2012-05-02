@@ -49,5 +49,8 @@
         <string name="splash_screen_label">Turn on/off the splash screen:</string>
         <string name="splash_screen_toggle_button">ToggleButton</string>
         <string name="view_timetable">View Timetable</string>
+        <string name="route_map_dialog_routes_label">Routes Servicing</string>
+        <string name="routeMapDialogTripButton">Start/End Trip</string>
+        <string name="update_database_button">Update Database</string>
 
 </resources>

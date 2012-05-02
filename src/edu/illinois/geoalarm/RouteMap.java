@@ -393,7 +393,7 @@ public class RouteMap extends MapActivity
 		Drawable drawable = this.getResources().getDrawable(R.drawable.near);
 		
 		nearStops = dbController.getAroundMe(currentLocation);
-		nearOverlay = new NearStopOverlay(drawable, this);
+		nearOverlay = new NearStopOverlay(drawable, this, dbController);
 		
 		if(!nearStops.isEmpty()){
 			for(StopInfo stopToShow : nearStops){

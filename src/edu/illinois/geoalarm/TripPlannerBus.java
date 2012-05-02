@@ -89,9 +89,9 @@ public class TripPlannerBus extends Activity
         View root = v.getRootView();
         root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
         
-		initializeHandles();		
-        
-        loadDatabase();        
+		initializeHandles();
+		loadDatabase();
+
 		populateLineSpinner();
 
 		ImageButton speakButton1 = (ImageButton) findViewById(R.id.voice1);
@@ -109,18 +109,8 @@ public class TripPlannerBus extends Activity
         }
         
         parser = new XMLParser();
+        database.close();
     }	
-	
-	/**
-     * This method is called when the activity is going to become visible to the user.
-     * We setup the selection event listener for the Spinner here.
-     */
-    @Override
-    public void onStart()
-    {   	
-    	/* Call superclass constructor.  Required */
-    	super.onStart();	   
-    }
     
     @Override
     public void onPause()

@@ -27,7 +27,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 
 	private static final int DATABASE_VERSION = 1;
 	// Android's default system path for databases
-	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases";
+	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases/";
 	// The name of the database
 	private static String DB_NAME = "geoAlarmDB.sqlite";
 	
@@ -531,6 +531,43 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		}		
 		result.close();
 		return stopTimes;		
+	}
+	
+	/**
+	 * Returns the list of stops that service a particular station
+	 * @param stationName The name of the station
+	 * @return An array list of strings representing the station
+	 */
+	public ArrayList<String> getLinesForStopName(String stationName)
+	{
+		ArrayList<String> lines = new ArrayList<String>();
+		
+		int stationID = getStationIDFromStationName(stationName);
+		
+		Cursor result = geoAlarmDB.query("Route_Station", new String[] {"routeID"}, "stationID = " + stationID, null, null, null, null);
+		ArrayList<Integer> routeIDs = new ArrayList<Integer>();
+		if(result.moveToFirst())
+		{
+			while(!result.isAfterLast())
+			{				
+				routeIDs.add(result.getInt(0));
+				result.moveToNext();
+			}
+		}
+		result.close();
+		
+		for(int routeIDIndex = 0; routeIDIndex < routeIDs.size(); routeIDIndex++)
+		{
+			result = geoAlarmDB.query("Routes", new String[]{"name"}, "routeID = " + routeIDs.get(routeIDIndex), null, null, null, null);
+			if(result.moveToFirst())
+			{
+					int columnIndex = result.getColumnIndex("name");
+					lines.add(result.getString(columnIndex));					
+			}
+			result.close();
+		}		
+		
+		return lines;		
 	}
 
 	public Context getMyContext()
