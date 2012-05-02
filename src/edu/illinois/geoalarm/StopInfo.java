@@ -4,13 +4,15 @@ package edu.illinois.geoalarm;
  * Bus stop information
  * @author Seungmok Lee, Hyungjoo Kim
  */
-public class StopInfo {
+public class StopInfo 
+{
 	private String name;
 	private double latitude;
 	private double longitude;
 	private boolean isSelected;
 	
-	public StopInfo(String fullName, double latitude, double longitude) {
+	public StopInfo(String fullName, double latitude, double longitude) 
+	{
 		super();
 		this.name = fullName;
 		this.latitude = latitude;
@@ -19,24 +21,29 @@ public class StopInfo {
 	}
 
 	// Getters
-	public String getFullName() {
+	public String getFullName() 
+	{
 		return name;
 	}
 
-	public double getLatitude() {
+	public double getLatitude() 
+	{
 		return latitude;
 	}
 
-	public double getLongitude() {
+	public double getLongitude() 
+	{
 		return longitude;
 	}
 	
-	public boolean getIsSelected() {
+	public boolean getIsSelected() 
+	{
 		return isSelected;
 	}
 
 	// Setters
-	public void setSelected(boolean isSelected) {
+	public void setSelected(boolean isSelected) 
+	{
 		this.isSelected = isSelected;
 	}
 }

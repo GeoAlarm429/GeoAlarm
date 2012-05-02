@@ -1,10 +1,13 @@
 package edu.illinois.geoalarm;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import edu.illinois.geoalarm.parser.XMLParser;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -53,6 +56,7 @@ public class TripPlannerBus extends Activity
 	private String selectedNotificationTime = AT_STOP_CHOICE;
 	private int hourSet = -1;
 	private int minuteSet = -1;
+	private int itineraryNum=0;
 	
 	public static final String AT_STOP_CHOICE = "At Stop";
 	public static final String STATION_BEFORE_STOP_CHOICE = "Station Before Stop";
@@ -62,9 +66,13 @@ public class TripPlannerBus extends Activity
 	public static final String VIBRATE_NOTIFICATION = "Vibrate";
 	public static final String POP_UP_NOTIFICATION = "PopUp Message";
 	
-	private static final int ALARM_OPTIONS_ID = 0;
-	private static final int TIME_OPTIONS_ID = 1;
-	private static final int INPUT_TIME_ID = 2;
+	private static final int ITINERARY_OPTIONS_ID = 0;
+	private static final int ALARM_OPTIONS_ID = 1;
+	private static final int TIME_OPTIONS_ID = 2;
+	private static final int INPUT_TIME_ID = 3;
+	private static final int LEG_ID = 4;
+
+	XMLParser parser;
 
 	private int buttonVoice = 0;
 
@@ -77,7 +85,7 @@ public class TripPlannerBus extends Activity
         setContentView(R.layout.trip_cta_bus);   
         
         SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
-        View v = findViewById(R.id.serviceTextView);
+        View v = findViewById(R.id.startingLocationSearchBar);
         View root = v.getRootView();
         root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
         
@@ -99,6 +107,8 @@ public class TripPlannerBus extends Activity
             speakButton2.setEnabled(false);
             speakButton3.setEnabled(false);
         }
+        
+        parser = new XMLParser();
     }	
 	
 	/**
@@ -295,6 +305,8 @@ public class TripPlannerBus extends Activity
 	{
 		this.showDialog(ALARM_OPTIONS_ID);		
 		this.showDialog(TIME_OPTIONS_ID);
+		this.showDialog(LEG_ID);
+		this.showDialog(ITINERARY_OPTIONS_ID);
 	}
 	
 	@Override
@@ -304,6 +316,12 @@ public class TripPlannerBus extends Activity
 		
 		switch(dialogID)
 		{
+		case ITINERARY_OPTIONS_ID:
+			dialog = createItineraryOptionsDialog();
+			break;
+		case LEG_ID:
+			dialog = createLegsDialog();
+			break;
 		case ALARM_OPTIONS_ID:
 			dialog = createAlarmOptionsDialog();
 			break;
@@ -319,6 +337,50 @@ public class TripPlannerBus extends Activity
 		
 		
 		return dialog;		
+	}
+	
+	private AlertDialog createItineraryOptionsDialog()
+	{
+		DecimalFormat df = new DecimalFormat("#.######");
+		String startLat = "" + df.format(database.getLatitude(selectedStartingStation));
+		String startLon = "" + df.format(database.getLongitude(selectedStartingStation));
+		String endLat = "" + df.format(database.getLatitude(selectedDestinationStation));
+		String endLon = "" + df.format(database.getLongitude(selectedDestinationStation));
+			
+		final CharSequence[] items = parser.getItineraryArray(startLat, startLon, endLat, endLon);
+		//final CharSequence[] items = {"blah", "blah2"};
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Select itinerary");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int item) 
+			{
+				itineraryNum = item;
+				showDialog(LEG_ID);
+			}
+		});		
+		return builder.create();
+	}
+	
+	private AlertDialog createLegsDialog()
+	{
+		DecimalFormat df = new DecimalFormat("#.######");
+		String startLat = "" + df.format(database.getLatitude(selectedStartingStation));
+		String startLon = "" + df.format(database.getLongitude(selectedStartingStation));
+		String endLat = "" + df.format(database.getLatitude(selectedDestinationStation));
+		String endLon = "" + df.format(database.getLongitude(selectedDestinationStation));
+			
+		final CharSequence[] items = parser.getLegArray(startLat, startLon, endLat, endLon, itineraryNum);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Selected itinerary");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+			
+			public void onClick(DialogInterface dialog, int item) 
+			{
+				showDialog(TIME_OPTIONS_ID);	
+			}
+		});		
+		return builder.create();
 	}
 	
 	/**

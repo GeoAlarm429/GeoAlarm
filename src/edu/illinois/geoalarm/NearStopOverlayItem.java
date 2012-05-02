@@ -7,14 +7,16 @@ import com.google.android.maps.OverlayItem;
  * For the near bus stop overlay item
  * @author Seungmok Lee, Hyungjoo Kim
  */
-public class NearStopOverlayItem extends OverlayItem {
+public class NearStopOverlayItem extends OverlayItem 
+{
 	private StopInfo busStop;
 	
 	/**
 	 * Default constructor
 	 * @param point, title, snippet
 	 */
-	public NearStopOverlayItem(GeoPoint point, String title, String snippet) {
+	public NearStopOverlayItem(GeoPoint point, String title, String snippet) 
+	{
 		super(point, title, snippet);
 	}
 	
@@ -27,7 +29,8 @@ public class NearStopOverlayItem extends OverlayItem {
 		busStop = stop;
 	}
 	
-	public StopInfo getBusStop() {
+	public StopInfo getBusStop() 
+	{
 		return busStop;
 	}
 }

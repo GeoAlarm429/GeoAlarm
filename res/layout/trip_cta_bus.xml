@@ -1,132 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:baselineAligned="false" >
 
-    <TableLayout
-        android:id="@+id/tableLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:stretchColumns="2" >
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#FFFFFF"
+	android:gravity="center_horizontal"
+	android:orientation="vertical" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_height="wrap_content" >
+	<LinearLayout
+		android:id="@+id/optionsTopLayout"
+		android:layout_width="fill_parent"
+		android:layout_height="100sp"
+		android:background="#3D55F2"
+		android:gravity="center"
+		android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/serviceTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/service_label" />
-            <TextView
-                android:id="@+id/busServiceTextField"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/serviceBusTextFieldString"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/app_name"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textColor="#FFFFFF"
+			android:textSize="30sp"
+			android:textStyle="bold" />
 
-        </TableRow>
+	</LinearLayout>
 
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/lineTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/busLineTextFieldString" />
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent" >
 
-            <ImageButton
-                android:id="@+id/voice1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="speakButtonClicked1"
-                android:src="@drawable/ic_voice_search_api_holo_light" />
-
-            <AutoCompleteTextView
-                android:id="@+id/lineSearchBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:singleLine="true" >
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:paddingLeft="7sp"
+			android:paddingRight="7sp" >
 
-            </AutoCompleteTextView>
- 
-        </TableRow>
+			<TableLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="25sp"
+				android:stretchColumns="1"
+				android:orientation="vertical" >
 
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_height="wrap_content" >
-            <TextView
-                android:id="@+id/startingLocationTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/star_loc_label" />
+				<TableRow
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal" >
 
-            <ImageButton
-                android:id="@+id/voice2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="speakButtonClicked2"
-                android:src="@drawable/ic_voice_search_api_holo_light" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/busLineTextFieldString"
+						android:textColor="#000000"
+						android:layout_marginRight="2sp" />
 
-            <AutoCompleteTextView
-                android:id="@+id/startingLocationSearchBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:singleLine="true" />
+					<AutoCompleteTextView
+						android:id="@+id/lineSearchBar"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:completionThreshold="1"
+						android:singleLine="true" />
 
-        </TableRow>
-        <TableRow>
-            
-            <TextView
-                android:id="@+id/destinationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/destination" />
+					<ImageButton
+						android:id="@+id/voice1"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="speakButtonClicked1"
+						android:src="@drawable/ic_voice_search_api_holo_light" />
 
-            <ImageButton
-                android:id="@+id/voice3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="speakButtonClicked3"
-                android:src="@drawable/ic_voice_search_api_holo_light" />
+				</TableRow>
 
-            <AutoCompleteTextView
-                android:id="@+id/destinationLocationSearchBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:singleLine="true"/>
+				<TableRow
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal" >
 
-        </TableRow>
-    </TableLayout>
-    
-        <Button
-            android:id="@+id/alarmOptionsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/alarm_options_label" 
-            android:onClick="configureAlarmOptions" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/star_loc_label"
+						android:textColor="#000000"
+						android:layout_marginRight="2sp" />
 
-        <Button
-            android:id="@+id/setAlarmButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/set_alarm_label"
-            android:onClick="setAlarm" />
+					<AutoCompleteTextView
+						android:id="@+id/startingLocationSearchBar"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:completionThreshold="1"
+						android:singleLine="true" />
 
-        <Spinner
-            android:id="@+id/startingLocationSpinner"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+					<ImageButton
+						android:id="@+id/voice2"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="speakButtonClicked2"
+						android:src="@drawable/ic_voice_search_api_holo_light" />
+
+				</TableRow>
+
+				<TableRow
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal"
+					android:layout_marginRight="2sp" >
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/destination"
+						android:textColor="#000000" />
+
+					<AutoCompleteTextView
+						android:id="@+id/destinationLocationSearchBar"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:completionThreshold="1"
+						android:singleLine="true" />
+
+					<ImageButton
+						android:id="@+id/voice3"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:onClick="speakButtonClicked3"
+						android:src="@drawable/ic_voice_search_api_holo_light" />
+
+				</TableRow>
+
+			</TableLayout>
+
+			<Button
+				android:id="@+id/alarmOptionsButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:onClick="configureAlarmOptions"
+				android:text="@string/alarm_options_label"
+				android:layout_marginTop="10sp" />
+
+			<Button
+				android:id="@+id/setAlarmButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
+				android:onClick="setAlarm"
+				android:text="@string/set_alarm_label"
+				android:layout_marginTop="10sp"
+				android:layout_marginBottom="25sp" />
+
+		</LinearLayout>
+
+	</ScrollView>
 
 </LinearLayout>

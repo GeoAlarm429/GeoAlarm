@@ -3,6 +3,11 @@
 	<item
 		android:id="@+id/options"
 		android:title="Options"
-		android:icon="@drawable/ic_menu_settings_holo_light" />
+		android:icon="@drawable/ic_menu_manage" />
+
+	<item
+		android:id="@+id/contact"
+		android:title="Contact us"
+		android:icon="@drawable/ic_menu_compose" />
 
 </menu>

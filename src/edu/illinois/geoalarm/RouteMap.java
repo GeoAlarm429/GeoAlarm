@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AsyncPlayer;
 import android.media.AudioManager;
@@ -63,7 +64,7 @@ public class RouteMap extends MapActivity
 	private MapController mapControl;
 	private CheckBox satellite;
 	private Location currentLocation;
-	private GeoPoint centerPoint;
+	private GeoPoint currentLocationPoint;
 	private List<Overlay> mapOverlays;
 	private NearStopOverlay nearOverlay;
 	private ArrayList<StopInfo> nearStops;
@@ -98,6 +99,12 @@ public class RouteMap extends MapActivity
 	public static final String POP_UP_NOTIFICATION = "PopUp Message";
 	private int ringLength;
 	private int vibrateLength;
+	private LocationListener locationListener;
+	private boolean gpsEnabled;
+	private boolean networkEnabled;
+	private long minTime = 3000;
+	private float minDistance = 10;
+	CurrMarkerOverlay itemizedOverlay;
 
 	/** 
 	 * Called when the activity is first created.
@@ -314,9 +321,9 @@ public class RouteMap extends MapActivity
 		mapControl = mainMap.getController();
         mainMap.setBuiltInZoomControls(true);
 
-        if(centerPoint != null)
+        if(currentLocationPoint != null)
         {
-        	mapControl.animateTo(centerPoint);
+        	mapControl.animateTo(currentLocationPoint);
         }
         mapControl.setZoom(INITIAL_ZOOM);
 	}
@@ -326,6 +333,9 @@ public class RouteMap extends MapActivity
 	 */
 	private void showCurrentLocation() {
 		setCurrentPoint();		
+		checkForProviders();
+		setLocationListener();
+		registerListeners();
 		showMarkerOnMap();
 	}
 	
@@ -349,8 +359,8 @@ public class RouteMap extends MapActivity
 		{
 			double latitude = currentLocation.getLatitude();   
 			double longitude = currentLocation.getLongitude();	  
-			centerPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
-		}
+			currentLocationPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+		}		
 	}
 
 	/**
@@ -358,13 +368,16 @@ public class RouteMap extends MapActivity
 	 */
 	private void showMarkerOnMap() 
 	{
-		if(centerPoint != null)
-		{
-			mapOverlays = mainMap.getOverlays(); 
-			Drawable drawable = this.getResources().getDrawable(R.drawable.current);        
-	    
-			CurrMarkerOverlay itemizedOverlay = new CurrMarkerOverlay(drawable, this);
-			OverlayItem overlayitem = new OverlayItem(centerPoint, "", "");
+		if(currentLocationPoint != null)
+		{			
+			mapOverlays = mainMap.getOverlays();
+			if(itemizedOverlay != null)
+			{
+				mapOverlays.remove(itemizedOverlay);
+			}
+			Drawable drawable = this.getResources().getDrawable(R.drawable.current);     
+			itemizedOverlay = new CurrMarkerOverlay(drawable, this);
+			OverlayItem overlayitem = new OverlayItem(currentLocationPoint, "", "");
         
 			itemizedOverlay.addOverlay(overlayitem);  
 			mapOverlays.add(itemizedOverlay);
@@ -565,7 +578,7 @@ public class RouteMap extends MapActivity
 		Location location = new Location(LocationManager.GPS_PROVIDER);
 		location.setLatitude(((double)latitude) / 1E6);
 		location.setLongitude(((double)longitude) / 1E6);
-		showNearBusStopsOnMap(location);		
+		showNearBusStopsOnMap(location);	
 		mainMap.postInvalidate();
 	}
 	
@@ -626,4 +639,65 @@ public class RouteMap extends MapActivity
 	{
 		return false;
 	}
+	
+	 /**
+     * This function sets up a gps/network location event listener.  When location is updated, it checks to see
+     * if we have reached the destination
+     */
+    private void setLocationListener()
+    {
+    	locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+    	locationListener = new LocationListener(){ 
+            
+            public void onLocationChanged(Location location) 
+            {            	    	
+            	currentLocation = location;  
+            	double latitude = currentLocation.getLatitude();   
+    			double longitude = currentLocation.getLongitude();	  
+    			currentLocationPoint = new GeoPoint((int)(latitude*1E6), (int)(longitude*1E6));
+    			showMarkerOnMap();   
+    			mainMap.invalidate();    			
+            }        
+            public void onProviderDisabled(String provider) 
+            {
+            	
+            }
+            public void onProviderEnabled(String provider) 
+            {
+            	
+            }        
+            public void onStatusChanged(String provider, int status, Bundle extras) 
+            {
+            	
+            }
+    		
+        };        
+        
+        locationManager.removeUpdates(locationListener);       
+    }
+    
+    /**
+     * This method checks to see what location providers are currently enabled
+     */
+    protected void checkForProviders()
+    {    	
+    	gpsEnabled = locationManager.getProviders(true).contains(LocationManager.GPS_PROVIDER);              
+        networkEnabled = locationManager.getProviders(true).contains(LocationManager.NETWORK_PROVIDER);        
+    }
+    
+    /**
+     * This method registers
+     */
+    protected void registerListeners()
+    {
+        if(gpsEnabled==true)
+        {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, locationListener);
+        }
+        if(networkEnabled==true)
+        {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, locationListener);
+        }        
+       
+    }   
 }

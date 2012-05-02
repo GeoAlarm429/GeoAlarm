@@ -1,96 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="bottom|center_vertical|right|top"
-    android:orientation="vertical" >
 
-    <FrameLayout
-        android:id="@+id/frameLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.33" >
-        
-        <com.google.android.maps.MapView
-            android:id="@+id/mainMap"
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:gravity="bottom|center_vertical|right|top"
+	android:orientation="vertical"
+	android:background="#FFFFFF" >
+
+	<FrameLayout
+		android:id="@+id/frameLayout1"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="0.33" >
+
+		<com.google.android.maps.MapView
+			android:id="@+id/mainMap"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
-			android:apiKey="0u9J4SaW7HiWVqOXqpqpVPAaXG2mFuckEgkP_NQ"
+			android:apiKey="0c3JtNivMphhLewaAtzebijmMAaqJqH8ses0aHQ"
 			android:enabled="true"
 			android:clickable="true" /> 
 
-    </FrameLayout>
+	</FrameLayout>
 
-    <TableLayout
-        android:id="@+id/tableLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+	<TableLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" >
 
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+		<TableRow
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" >
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/time_remaining" />
-            
-            <TextView
-                android:id="@+id/remainingTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/time_remaining"
+				android:textColor="#000000" />
 
-        </TableRow>
+			<TextView
+				android:id="@+id/remainingTime"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text=""
+				android:textColor="#000000" />
 
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+		</TableRow>
 
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dist_remaining" />
+		<TableRow
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" >
 
-            <TextView
-                android:id="@+id/remainingDistance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="" />
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/dist_remaining"
+				android:textColor="#000000" />
 
-        </TableRow>
+			<TextView
+				android:id="@+id/remainingDistance"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text=""
+				android:textColor="#000000" />
 
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight=".5" >
-
-            <CheckBox
-                android:id="@+id/satellite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/satellite_label" />
+		</TableRow>
 
-            <Button
-                android:id="@+id/viewTimetableButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_timetable"
-                android:onClick="showTimetable" />
+		<TableRow
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight=".5" >
 
-            <TextView
-                android:id="@+id/TextView1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".25"
-                android:gravity="center|center_vertical"
-                android:text="@string/empty" />
-        </TableRow>
-    </TableLayout>
+			<CheckBox
+				android:id="@+id/satellite"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/satellite_label"
+				android:textColor="#000000" />
+
+			<Button
+				android:id="@+id/viewTimetableButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/view_timetable"
+				android:onClick="showTimetable" />
+
+			<TextView
+				android:id="@+id/TextView1"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight=".25"
+				android:gravity="center|center_vertical"
+				android:text="@string/empty" />
+
+		</TableRow>
+
+	</TableLayout>
 
 </LinearLayout>

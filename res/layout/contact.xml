@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:background="#FFFFFF"
+	android:orientation="vertical"
+	android:gravity="center_horizontal" >
+
+	<LinearLayout
+		android:id="@+id/optionsTopLayout"
+		android:layout_width="fill_parent"
+		android:layout_height="100sp"
+		android:background="#3D55F2"
+		android:orientation="vertical"
+		android:gravity="center" >
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/app_name"
+			android:textColor="#FFFFFF"
+			android:textStyle="bold"
+			android:textSize="30sp"
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	</LinearLayout>
+
+   	<LinearLayout
+		android:layout_marginTop="10sp"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="horizontal"
+		android:gravity="center_horizontal"
+		android:layout_marginBottom="25sp">
+
+		<ImageView
+			android:layout_width="64px"
+			android:layout_height="64px"
+			android:id="@+id/contact_facebook"
+			android:src="@drawable/contact_facebook"
+			android:layout_marginRight="15sp" />	
+
+		<ImageView
+			android:layout_width="64px"
+			android:layout_height="64px"
+			android:id="@+id/contact_twitter"
+			android:src="@drawable/contact_twitter"
+			android:layout_marginRight="15sp" />
+
+		<ImageView
+			android:layout_width="64px"
+			android:layout_height="64px"
+			android:id="@+id/contact_youtube"
+			android:src="@drawable/contact_youtube" />
+
+	</LinearLayout>
+
+</LinearLayout>
