@@ -231,30 +231,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     	
     	result.close();
     	return nearStops;
-	}
-	
-	/**
-	 * Constructs a new StopInfo for a location and returns it
-	 * @param loc The location of a stop
-	 * @return The StopInfo, or null on failure
-	 */
-	public StopInfo getStopInfo(GeoPoint point)
-	{
-		StopInfo info = null;
-		
-		double latitude = point.getLatitudeE6() / 1E6;
-		double longitude = point.getLongitudeE6() / 1E6;
-		
-		Cursor result = geoAlarmDB.query("Station", new String[] {"name"}, "latitude = " + latitude + "and longitude = " + longitude, null, null, null, null);
-		
-		if(result.moveToFirst())
-		{
-			String name = result.getString(0);		
-			info = new StopInfo(name, latitude, longitude);
-		}
-		result.close();
-		return info;		
-	}
+	}		
 	
 	/**
 	 * This method returns an ArrayList<<String>> containing the names of the bus lines,

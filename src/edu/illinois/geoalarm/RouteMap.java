@@ -312,21 +312,21 @@ public class RouteMap extends MapActivity
 		destinationLatitude = (int) (dbController.getLatitude(selectedDestinationStation)* 1E6);
 		destinationLongitude = (int) (dbController.getLongitude(selectedDestinationStation)* 1E6);
 		src = new GeoPoint(startingLatitude, startingLongitude);
-		dest = new GeoPoint(destinationLatitude, destinationLongitude);
-		
-		StopInfo startingItem = dbController.getStopInfo(src);
-		StopInfo destItem = dbController.getStopInfo(dest);
+		dest = new GeoPoint(destinationLatitude, destinationLongitude);	
 		
 		mapOverlays = mainMap.getOverlays();
 		if(startDestOverlay != null)
 		{
 			mapOverlays.remove(startDestOverlay);
 		}
-		Drawable drawable = this.getResources().getDrawable(R.drawable.start_dest);     
+						
+		Drawable drawable = this.getResources().getDrawable(R.drawable.blue_arrow);     
 		startDestOverlay = new NearStopOverlay(drawable, this, dbController);
-		startDestOverlay.addOverlay(new NearStopOverlayItem(startingItem));
-		startDestOverlay.addOverlay(new NearStopOverlayItem(destItem));		     
-		mapOverlays.add(startDestOverlay);		
+		startingLocationItem = new NearStopOverlayItem(new StopInfo(selectedStartingStation, src.getLatitudeE6() / 1E6, src.getLongitudeE6() / 1E6));
+		destinationLocationItem = new NearStopOverlayItem(new StopInfo(selectedDestinationStation, dest.getLatitudeE6() / 1E6, dest.getLongitudeE6() / 1E6));
+		startDestOverlay.addOverlay(startingLocationItem);
+		startDestOverlay.addOverlay(destinationLocationItem);		     
+		mapOverlays.add(startDestOverlay);						
 	}
 
 	/**
@@ -401,7 +401,7 @@ public class RouteMap extends MapActivity
 			OverlayItem overlayitem = new OverlayItem(currentLocationPoint, "", "");
         
 			itemizedOverlay.addOverlay(overlayitem);  
-			mapOverlays.add(itemizedOverlay);
+			mapOverlays.add(itemizedOverlay);			
 		}
 	}
 
@@ -421,13 +421,28 @@ public class RouteMap extends MapActivity
 			for(StopInfo stopToShow : nearStops){
 				
 				NearStopOverlayItem item = new NearStopOverlayItem(stopToShow);
-				nearOverlay.addOverlay(item);
+				double latitude = item.getBusStop().getLatitude();
+				double longitude = item.getBusStop().getLongitude();
+				
+				if(startingLocationItem != null && destinationLocationItem != null)
+				{
+					if(latitude != startingLocationItem.getBusStop().getLatitude() && longitude != startingLocationItem.getBusStop().getLongitude() &&
+						latitude != destinationLocationItem.getBusStop().getLatitude() && longitude != destinationLocationItem.getBusStop().getLongitude())							
+					{
+							nearOverlay.addOverlay(item);
+					}
+				}		
+				else
+				{
+					nearOverlay.addOverlay(item);
+				}
 			}
 			
 			mapOverlays.add(nearOverlay);
 		}
-		else {
-			Toast.makeText(RouteMap.this, "No near bus stop", Toast.LENGTH_SHORT).show();
+		else 
+		{
+			Toast.makeText(RouteMap.this, "No nearby bus stop", Toast.LENGTH_SHORT).show();
 			onResume();
 		}
 		

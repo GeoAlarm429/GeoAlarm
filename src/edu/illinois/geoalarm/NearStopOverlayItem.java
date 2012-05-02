@@ -18,6 +18,7 @@ public class NearStopOverlayItem extends OverlayItem
 	public NearStopOverlayItem(GeoPoint point, String title, String snippet) 
 	{
 		super(point, title, snippet);
+		busStop = new StopInfo(title, point.getLatitudeE6() / 1E6, point.getLongitudeE6() / 1E6);
 	}
 	
 	/**
