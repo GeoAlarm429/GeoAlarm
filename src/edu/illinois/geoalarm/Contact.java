@@ -9,6 +9,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+/**
+ * A class used to display team/app contact info, when we haven any. 
+ * @author GeoAlarm
+ */
+
 public class Contact extends Activity
 {
 
@@ -20,7 +25,7 @@ public class Contact extends Activity
 
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
+		v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));
 	}
 
     @Override

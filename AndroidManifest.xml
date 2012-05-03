@@ -52,7 +52,7 @@
         
         <activity
             android:label="@string/app_name"
-            android:name="TripPlannerBus"
+            android:name=".TripPlanner"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         

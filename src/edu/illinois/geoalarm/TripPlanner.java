@@ -40,12 +40,14 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.TimePicker;
 
 /**
- * The TripPlannerBus activity handles planning a bus trip.
- * @author deflume1
+ * The TripPlanner activity handles planning a bus trip.
+ * This class uses the data input by the user to display possible itineraries,
+ * and then passes the trip data to the RouteMap class so it can start the trip
+ * @author GeoAlarm
  *
  */
 
-public class TripPlannerBus extends Activity
+public class TripPlanner extends Activity
 {
 	private AutoCompleteTextView lineSearchBar;
 	private AutoCompleteTextView startingLocationSearchBar;
@@ -89,9 +91,8 @@ public class TripPlannerBus extends Activity
         setContentView(R.layout.trip_cta_bus);   
         
         SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
-        View v = findViewById(R.id.startingLocationSearchBar);
-        View root = v.getRootView();
-        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        View v = findViewById(R.id.optionsTopLayout);		
+        v.setBackgroundResource(settings.getInt("color_value", Color.BLACK));
         
 		initializeHandles();
 		loadDatabase();
@@ -350,6 +351,10 @@ public class TripPlannerBus extends Activity
 	    return false;
 	}
 	
+	/**
+	 * This method creates a new dialog for displaying itinerary options
+	 * @return The new AlertDialog for itineraries
+	 */
 	private AlertDialog createItineraryOptionsDialog()
 	{
 		DecimalFormat df = new DecimalFormat("#.######");
@@ -373,6 +378,10 @@ public class TripPlannerBus extends Activity
 		return builder.create();
 	}
 	
+	/**
+	 * This method creates a new dialog for displaying leg options
+	 * @return The new AlertDialog
+	 */
 	private AlertDialog createLegsDialog()
 	{
 		DecimalFormat df = new DecimalFormat("#.######");
@@ -489,25 +498,42 @@ public class TripPlannerBus extends Activity
 		return database;
 	}
 
+	/**
+	 * Called when the line select voice button is clicked. Sets the button clicked
+	 * and starts the voice recognition activity
+	 * @param v The button clicked
+	 */
     public void speakButtonClicked1(View v)
     {
         buttonVoice = 1;
         startVoiceRecognitionActivity();
     }    
 	
+    /**
+	 * Called when the start select voice button is clicked. Sets the button clicked
+	 * and starts the voice recognition activity
+	 * @param v The button clicked
+	 */
 	public void speakButtonClicked2(View v)
-    {
-		// TODO Auto-generated method stub
+    {		
         buttonVoice = 2;
         startVoiceRecognitionActivity();
     }
     
+	/**
+	 * Called when the end select voice button is clicked. Sets the button clicked
+	 * and starts the voice recognition activity
+	 * @param v The button clicked
+	 */
     public void speakButtonClicked3(View v)
     {
         buttonVoice = 3;
         startVoiceRecognitionActivity();
     }
 	
+    /**
+     * Starts the built-in android activity for voice recognition
+     */
     private void startVoiceRecognitionActivity()
     {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -609,7 +635,8 @@ public class TripPlannerBus extends Activity
     }
     
     /**
-	 * @return the lineSearchBar
+     * Returns a handle to the line AutoCompleteTextView
+	 * @return the lineSearchBar AutoCompleteTextView
 	 */
 	public AutoCompleteTextView getLineSearchBar() 
 	{
@@ -617,7 +644,8 @@ public class TripPlannerBus extends Activity
 	}
 
 	/**
-	 * @return the startingLocationSearchBar
+     * Returns a handle to the start AutoCompleteTextView
+	 * @return the startingLocationSearchBar AutoCompleteTextView
 	 */
 	public AutoCompleteTextView getStartingLocationSearchBar() 
 	{
@@ -625,7 +653,8 @@ public class TripPlannerBus extends Activity
 	}
 
 	/**
-	 * @return the destinationLocationSearchBar
+     * Returns a handle to the end AutoCompleteTextView
+	 * @return the destinationLocationSearchBar AutoCompleteTextView
 	 */
 	public AutoCompleteTextView getDestinationLocationSearchBar() 
 	{
@@ -645,12 +674,16 @@ public class TripPlannerBus extends Activity
 	{
 		switch (item.getItemId()) {
 		case R.id.options:
-			Intent intent = new Intent(TripPlannerBus.this, Options.class);
+			Intent intent = new Intent(TripPlanner.this, Options.class);
 			startActivityForResult(intent, 0);
 		}
 		return true;
 	}
 	
+	/**
+	 * This method can be used to execute a "next" editor action on the start search bar.
+	 * User for compatibility issues with the Robotium testing library
+	 */
 	public void makeEditorAction()
 	{		
 		refresh.post(new Runnable() {

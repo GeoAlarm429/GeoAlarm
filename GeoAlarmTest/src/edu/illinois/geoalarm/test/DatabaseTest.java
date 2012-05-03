@@ -4,13 +4,13 @@ import edu.illinois.geoalarm.*;
 import android.database.Cursor;
 import android.test.ActivityInstrumentationTestCase2;
 
-public class DatabaseTest extends ActivityInstrumentationTestCase2<TripPlannerBus>
+public class DatabaseTest extends ActivityInstrumentationTestCase2<TripPlanner>
 {
 	GeoAlarmDB database;
 	
 	public DatabaseTest() 
 	{
-		super("edu.illinois.geoalarm", TripPlannerBus.class);
+		super("edu.illinois.geoalarm", TripPlanner.class);
 	}
 
 	@Override

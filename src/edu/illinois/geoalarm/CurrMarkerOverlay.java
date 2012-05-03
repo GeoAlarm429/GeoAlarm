@@ -8,13 +8,19 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 /**
- * To show marker on the map
- * @author Seungmok Lee, Hyungjoo Kim
+ * This class override ItemizedOverlay<<OverlayItem>>, to provide an overlay suitable for displaying the
+ * current location of the user.  This ItemizedOverlay can be used in an instance of the RouteMap class
+ * @author GeoAlarm
  */
 public class CurrMarkerOverlay extends ItemizedOverlay<OverlayItem> 
 {
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();	
 	
+	/**
+	 * Constructs a new CurrMarkerOverlay
+	 * @param defaultMarker The Drawable used for marker display
+	 * @param context The context the overlay will be used in
+	 */
 	public CurrMarkerOverlay(Drawable defaultMarker, Context context) 
 	{
 		super(boundCenterBottom(defaultMarker));		
@@ -32,9 +38,13 @@ public class CurrMarkerOverlay extends ItemizedOverlay<OverlayItem>
 		return overlays.size();
 	}
 
-	public void addOverlay(OverlayItem overlay) 
+	/**
+	 * Adds a new overlay item to this overlay
+	 * @param overlayItem The OverlayItem to be added
+	 */
+	public void addOverlay(OverlayItem overlayItem) 
 	{ 
-		overlays.add(overlay); 
+		overlays.add(overlayItem); 
 	    populate(); 
 	}
 }

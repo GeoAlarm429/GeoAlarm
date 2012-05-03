@@ -19,9 +19,11 @@ import android.location.Location;
 import android.util.Log;
 
 /**
- * @author GeoAlaem
- * 
- * GeoAlarmDB dynamically loads an existing database from the assets folder.
+ * Used for loading and manipulating the local SQLLite database.
+ * This database is used for storing route information, state information, etc.
+ * This class is an implementation of SQLiteOpenHelper, an Android class used
+ * to wrap SQLite database operations
+ * @author GeoAlarm
  */
 public class GeoAlarmDB extends SQLiteOpenHelper
 {
@@ -62,44 +64,49 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	private final Context myContext;
 
 	/**
-	 * Constructor
-	 *
-	 * @param context
+	 * Constructs a new GeoAlarmDB.
+	 * @param context The context where the GeoAlarmDB is being created
 	 */
 	public GeoAlarmDB(Context context)
 	{
 		super(context, DB_NAME, null, DATABASE_VERSION);
 		this.myContext = context;
 	}
+	
+	@Override
+	public void onCreate(SQLiteDatabase db) 
+	{
+	       Log.i("onCreate", "Creating the database...");
+	       db.execSQL(DB_CREATE_SQL);
+	}
 
-	// Creates an empty database on the system and rewrites it with the specified database table
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
+	{
+		// Upgrades are handled independently of this database, so do nothing
+	}
+
+	/**
+	 * Initializes the database if it does not already exist
+	 * @throws IOException Some I/O error occurred on database read
+	 */
 	public void createDataBase() throws IOException
 	{
 		boolean dbExist = checkDataBase();
 
-		if (dbExist)
+		if(!dbExist)
 		{
-			// do nothing - database already exist, which is what we want
-		}
-		else
-		{
-			// By calling this method an empty database will be created into the default system path
-			// of the application so application will be able to overwrite that database with our database
-			this.getReadableDatabase();
-			try
-			{
-				copyDataBase();
-			}
-			catch (IOException e)
-			{
-				throw new Error("Error copying database");
-			}
+			// Create an empty database in our application's internal storage
+			this.getReadableDatabase();			
+			
+			// try to copy the database into internal storage
+			copyDataBase();			
 		}
 	}
 
 	/**
-	 * Check if the database already exist to avoid re-copying the file each time user opens the application.
-	 * 
+	 * Checks if a database file already exists in the application's internal storage.
+	 * Tries to open the database, and returns false if it cannot
 	 * @return true if db exists, false otherwise
 	 */
 	private boolean checkDataBase()
@@ -116,7 +123,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 			e.printStackTrace();
 		}
 
-		if(checkDB != null) {
+		if(checkDB != null) 
+		{
 			checkDB.close();
 		}
 
@@ -157,9 +165,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	}
 
 	/**
-	 * Opens the database from existing SQLite database file and loads it into geoAlarmDB global
-	 * 
-	 * @throws SQLException
+	 * Opens a read-write copy of the database, and stores a handle to it in GeoAlarmDB
+	 * @throws SQLException If an error occurs while opening the database
 	 */
 	public void openDataBase() throws SQLException
 	{
@@ -172,8 +179,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	public synchronized void close()
 	{
 		try
-		{
-			
+		{			
 			if(geoAlarmDB != null)
 			{
 				geoAlarmDB.close();
@@ -188,17 +194,18 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	}
 	
 	/**
-	 * To collect bus stops around current location
-	 * @param current
-	 * @return bus stops near current location
-	 * @author Hyung Joo Kim and Seung Mok Lee
+	 * Queries the database for all bus stops, and returns an ArrayList<<StopInfo>> containing
+	 * those stops near the passed in location
+	 * @param loc The Location that we want nearby stops for
+	 * @return An ArrayList<<StopInfo>> of the stops around loc
 	 */
-	public ArrayList<StopInfo> getAroundMe(Location current){
-		// Get all data
-	   	Cursor result = geoAlarmDB.query(DB_TABLE_NAME, null, 
-									null, null, null, null, null);
+	public ArrayList<StopInfo> getAroundMe(Location loc)
+	{
+		// Query database for all data
+	   	Cursor result = geoAlarmDB.query(DB_TABLE_NAME, null, null, null, null, null, null);
 	   	
-    	if (result != null){
+    	if (result != null)
+    	{
     		result.moveToFirst();
     	}
     	
@@ -209,7 +216,8 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     	StopInfo tempStop = null;
     	
     	// Save near stops to array list
-    	while(!result.isAfterLast()){
+    	while(!result.isAfterLast())
+    	{
     		longitude = result.getDouble(1);
     		latitude = result.getDouble(2);
     		
@@ -217,10 +225,11 @@ public class GeoAlarmDB extends SQLiteOpenHelper
     		tempLocation.setLatitude(latitude);
     		tempLocation.setLongitude(longitude);
     		
-    		float distance = current.distanceTo(tempLocation);
+    		float distance = loc.distanceTo(tempLocation);
     		
     		// if the point is within 400 meters, store it to the array list
-    		if ((int)distance < 400){
+    		if ((int)distance < 400)
+    		{
     			tempStop = new StopInfo(result.getString(3), latitude, longitude);
     			nearStops.add(tempStop);
     		}
@@ -234,8 +243,7 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 	
 	/**
 	 * This method returns an ArrayList<<String>> containing the names of the bus lines,
-	 * ordered by spelling
-	 * in the database.
+	 * ordered by spelling in the database.
 	 * @return An ArrayList<<String>> of the bus lines in the database
 	 */
 	public ArrayList<String> getBusLines()
@@ -572,49 +580,67 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 		return lines;		
 	}
 
+	/**
+	 * Returns the Context this instance of GeoAlarmDB was initialized with
+	 * @return The GeoAlarmDB context
+	 */
 	public Context getMyContext()
 	{
 		return myContext;
 	}
 
+	/**
+	 * Returns the name of the database
+	 * @return The name of the database
+	 */
 	public static String getDB_NAME()
 	{
 		return DB_NAME;
 	}
 
+	/**
+	 * Sets the name of the database
+	 * @param dB_NAME The new name of the database
+	 */
 	public static void setDB_NAME(String dB_NAME)
 	{
 		DB_NAME = dB_NAME;
 	}
 
+	/**
+	 * Returns a handle to the SQLiteDatabase this object wraps
+	 * @return The SQLiteDatabase for this object
+	 */
 	public SQLiteDatabase getGeoAlarmDB()
 	{
 		return geoAlarmDB;
 	}
 
+	/**
+	 * Sets the database this object wraps to a different database
+	 * @param geoAlarmDB
+	 */
 	public void setProfessorDroidDB(SQLiteDatabase geoAlarmDB)
 	{
 		this.geoAlarmDB = geoAlarmDB;
 	}
 
-	public static int getDatabaseVersion() {
+	/**
+	 * Returns the database version
+	 * @return The version of the database
+	 */
+	public static int getDatabaseVersion() 
+	{
 		return DATABASE_VERSION;
 	}
 
-	public static String getDbPath() {
+	/**
+	 * Returns the path where the database is stored in internal storage
+	 * @return The database path
+	 */
+	public static String getDbPath() 
+	{
 		return DB_PATH;
 	}
-
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-	       Log.i("onCreate", "Creating the database...");
-	       db.execSQL(DB_CREATE_SQL);
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-	}
-
 	
 }

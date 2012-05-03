@@ -2,7 +2,6 @@ package edu.illinois.geoalarm.test;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.test.ActivityInstrumentationTestCase2;
 import edu.illinois.geoalarm.*;
 
@@ -62,12 +61,10 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 	public void testSetAppColor()
 	{
 		solo.pressSpinnerItem(0, 3); // Corresponds to red
-		solo.waitForText("Red");
+		solo.waitForText("Pink");
 		SharedPreferences settings = mActivity.getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);	
-		String colorName = settings.getString("color_name", null);
-		assertEquals("Red", colorName);
 		int color = settings.getInt("color_value", -1);
-		assertEquals(color, Color.parseColor("red"));		
+		assertEquals(color, edu.illinois.geoalarm.R.color.Pink);		
 	}
 	
 	@Smoke

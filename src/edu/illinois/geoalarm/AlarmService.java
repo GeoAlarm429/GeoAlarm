@@ -18,13 +18,19 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-
+/**
+ * This Service is launched when a trip is planned.  It monitors the current time/location, and then
+ * it signals the RouteMap service to sound the alarm.
+ * @author GeoAlarm
+ *
+ */
 
 public class AlarmService extends Service
 {        
 	/* Constants */
 	private final long minTime = 3000; // milliseconds
 	private final long minDistance = 10; // meters
+	 private final IBinder serviceBinder = new AlarmServiceBinder();
 	
 	/* Instance Variables */
     private LocationManager locationManager;   
@@ -34,8 +40,7 @@ public class AlarmService extends Service
     private Location destinationLocation;
     private Location currentLocation;
     private boolean gpsEnabled;
-    private boolean networkEnabled;
-    private final IBinder serviceBinder = new AlarmServiceBinder();
+    private boolean networkEnabled;   
     
     private int startingLatitude;
 	private int startingLongitude;
@@ -149,7 +154,7 @@ public class AlarmService extends Service
     {
     	float distanceTo = currentLocation.distanceTo(destinationLocation);
     	
-    	if(selectedNotificationTime.equals(TripPlannerBus.AT_STOP_CHOICE) && distanceTo < 50.0)
+    	if(selectedNotificationTime.equals(TripPlanner.AT_STOP_CHOICE) && distanceTo < 50.0)
     	{
     		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
     		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);
@@ -158,7 +163,7 @@ public class AlarmService extends Service
     		startActivity(wakeUpRouteMap);
     		stopSelf();
     	}
-    	else if(selectedNotificationTime.equals(TripPlannerBus.STATION_BEFORE_STOP_CHOICE) && distanceTo < 150.0)
+    	else if(selectedNotificationTime.equals(TripPlanner.STATION_BEFORE_STOP_CHOICE) && distanceTo < 150.0)
     	{
     		Intent wakeUpRouteMap = new Intent(getBaseContext(), RouteMap.class);
     		wakeUpRouteMap.putExtra("edu.illinois.geoalarm.timedAlarmSignal", true);

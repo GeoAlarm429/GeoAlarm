@@ -10,18 +10,33 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
-public class DirectionPathOverlay extends Overlay {
+/**
+ * This class implements Android Overlay to allow display of travel paths
+ * on the map
+ * @author GeoAlarm
+ *
+ */
+
+public class DirectionPathOverlay extends Overlay 
+{
 	 
-    private GeoPoint gp1; 
-    private GeoPoint gp2; 
+    private GeoPoint startPoint; 
+    private GeoPoint endPoint; 
  
-    public DirectionPathOverlay(GeoPoint gp1, GeoPoint gp2) { 
-        this.gp1 = gp1; 
-        this.gp2 = gp2; 
+    /**
+     * Constructs a new DirectionPathOverlay, with the specified points
+     * @param startPoint - The start point of the path to be drawn
+     * @param endPoint - The end point of the path to be drawn
+     */
+    public DirectionPathOverlay(GeoPoint startPoint, GeoPoint endPoint) 
+    { 
+        this.startPoint = startPoint; 
+        this.endPoint = endPoint; 
     } 
  
     @Override 
-    public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) { 
+    public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) 
+    { 
         Projection projection = mapView.getProjection(); 
         if (shadow == false) { 
  
@@ -29,11 +44,11 @@ public class DirectionPathOverlay extends Overlay {
             paint.setAntiAlias(true); 
             
             Point point = new Point(); 
-            projection.toPixels(gp1, point); 
+            projection.toPixels(startPoint, point); 
             paint.setColor(Color.BLUE); 
             
             Point point2 = new Point(); 
-            projection.toPixels(gp2, point2);
+            projection.toPixels(endPoint, point2);
             
 			paint.setStrokeWidth(10); 
 			paint.setAlpha(120); 
@@ -45,7 +60,8 @@ public class DirectionPathOverlay extends Overlay {
     } 
  
     @Override 
-    public void draw(Canvas canvas, MapView mapView, boolean shadow) {
+    public void draw(Canvas canvas, MapView mapView, boolean shadow)
+    {
         super.draw(canvas, mapView, shadow); 
     }
 }

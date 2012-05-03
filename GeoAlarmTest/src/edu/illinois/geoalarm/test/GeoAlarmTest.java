@@ -67,7 +67,7 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	 {
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
 		 solo.clickOnImage(0); // Corresponds to plan trip button
-		 solo.assertCurrentActivity("Expected TripPlannerBus activity", "TripPlannerBus"); 
+		 solo.assertCurrentActivity("Expected TripPlannerBus activity", "TripPlanner"); 
 		 solo.goBack();
 		 solo.goBack();
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");		 

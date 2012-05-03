@@ -13,8 +13,8 @@ import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
 
 /**
- * To show near bus stops on the map
- * @author Seungmok Lee, Hyungjoo Kim
+ * An ItemizedOverlay<<OverlayItem>> for showing nearby stops on the map
+ * @author GeoAlarm
  */
 public class NearStopOverlay extends ItemizedOverlay<OverlayItem> 
 {
@@ -23,6 +23,12 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem>
 	private NearStopOverlayItem selectedItem;
 	private GeoAlarmDB database;
 
+	/**
+	 * Constructs a new NearStopOverlay with specified parameters
+	 * @param defaultMarker The Drawable used for marker display
+	 * @param context The context the overlay will be used in
+	 * @param db A handle to the GeoAlarmDB database
+	 */
 	public NearStopOverlay(Drawable defaultMarker, Context context, GeoAlarmDB db) 
 	{
 		super(boundCenterBottom(defaultMarker));
@@ -42,6 +48,10 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem>
 		return mOverlays.size();
 	}	
 	
+	/**
+	 * Adds a new overlay to this object
+	 * @param overlay The NearStopOverlayItem to add
+	 */
 	public void addOverlay(NearStopOverlayItem overlay) 
 	{ 
 		mOverlays.add(overlay); 
@@ -49,7 +59,8 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem>
 	}
 	
 	/**
-	 * Called when the bus icon is tapped
+	 * Called when the bus icon is tapped.  Shows the list of bus lines that service the
+	 * selected stop in a custom dialog.
 	 */
 	@Override
 	protected boolean onTap(int index) 
@@ -85,6 +96,10 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem>
 		return true;		
 	}
 
+	/**
+	 * Returns the list of overlay objects this NearStopOverlay wraps
+	 * @return The ArrayList<<NearStopOverlayItem>> this object wraps
+	 */
 	public ArrayList<NearStopOverlayItem> getOverlays() 
 	{
 		return mOverlays;

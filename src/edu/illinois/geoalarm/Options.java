@@ -2,6 +2,8 @@ package edu.illinois.geoalarm;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,7 +24,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -43,8 +44,7 @@ import android.widget.ToggleButton;
 /**
  * This Activity is used to set various user options
  * for the GeoAlarm app
- * @author deflume1
- *
+ * @author GeoAlarm
  */
 
 public class Options extends Activity 
@@ -63,8 +63,7 @@ public class Options extends Activity
 
 	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases/";	
 	private static String DB_NAME = "geoAlarmDB.sqlite";
-
-	/** Called when the activity is first created. */
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) 
 	{
@@ -126,7 +125,7 @@ public class Options extends Activity
 		}
 		
 	}	
-
+	
 	@Override
 	public void onStop()
 	{		
@@ -182,7 +181,8 @@ public class Options extends Activity
 
 
 	/**
-	 * This function updates the usage data labels when its launched.  It uses the data stored in the UsageTable of GeoAlarmDB
+	 * This function updates the usage data labels when its launched.  
+	 * It uses the data stored in the UsageTable of GeoAlarmDB. 
 	 */
 	public void showUsageData()
 	{
@@ -229,17 +229,19 @@ public class Options extends Activity
 			database.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + numBytesReceivedDelta);
 			database.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted + numBytesTransmittedDelta);			
 		}
-	}
-
+	}	
+	
 	/**
 	 * This function populates the color select spinner
 	 */
 	public void populateBackgroundColorSelectSpinner()
-	{	   
-		String[] colorList = this.getResources().getStringArray(R.array.color_array);		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, colorList);		
+	{	
+		String[] colorList =	this.getResources().getStringArray(R.array.color_array);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getBaseContext(), android.R.layout.simple_spinner_item, colorList);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		backgroundColorSelectSpinner.setAdapter(adapter);
+		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+		backgroundColorSelectSpinner.setSelection(settings.getInt("color_number", 0));
 	}
 
 	/**
@@ -254,16 +256,38 @@ public class Options extends Activity
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) 
 			{   				
 				String selectedColor = (String) backgroundColorSelectSpinner.getSelectedItem();
-
-				int color = Color.parseColor(selectedColor.toLowerCase());
+				
+				int color;
+   				int number;
+   				if(selectedColor.equals("Black"))
+   				{
+   					color = R.color.Black;
+   					number = 2;
+   				}
+   				else if(selectedColor.equals("Pink"))
+   				{
+   					color = R.color.Pink;
+   					number = 3;
+   				}
+   				else if(selectedColor.equals("Red"))
+   				{
+   					color = R.color.Red;
+   					number = 1;
+   				}
+   				else
+   				{
+   					color = R.color.Blue;
+   					number = 0;
+   				}
+				
 				SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 				SharedPreferences.Editor editor = settings.edit();
 				editor.putInt("color_value", color);
-				editor.putString("color_name", selectedColor);   		
+   				editor.putInt("color_number", number);   		
 				editor.commit();		   	
 
-				View v = findViewById(R.id.optionsTopLayout);				
-				v.setBackgroundColor(color);
+				View v = findViewById(R.id.optionsTopLayout);
+				v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));
 			}
 
 			/* We do nothing here.  May want to change behavior so the last selected item behavior is used */
@@ -276,7 +300,9 @@ public class Options extends Activity
 	}
 
 	/**
-	 * Method called when Save button is clicked, writes preferences
+	 * Method called when Save button is clicked, writes preferences to private preferences
+	 * file
+	 * @param view The clicked button
 	 */
 	public void saveButton(View view)
 	{
@@ -342,7 +368,7 @@ public class Options extends Activity
 		if(isOnline())
 		{
 			DownloadNewDatabase download = new DownloadNewDatabase(this, firstCopy);  	
-			download.execute("http://deflume1.projects.cs.illinois.edu/geoAlarmDB.sqlite");
+			download.execute("http://deflume1.projects.cs.illinois.edu/geoAlarmDB.sqlite", "http://deflume1.projects.cs.illinois.edu/db_version.txt");
 		}
 		else
 		{
@@ -362,15 +388,23 @@ public class Options extends Activity
 		}
 	}
 
+	/**
+	 * A private class, used to download the new database asynchronously.  Checks the database for the version number,
+	 * and returns an error code if we already have the latest version, or there is an IO error
+	 * @author GeoAlarm
+	 *
+	 */
 	private class DownloadNewDatabase extends AsyncTask<String, Integer, Integer> 
 	{	
 		Context mContext;
 		final int DOWNLOAD_OK = 0;
 		final int ERROR_URL = 1;
 		final int ERROR_IO = 2;   
+		final int OLD_VERSION = 3;
 		final String tempFileName = "/data/data/edu.illinois.geoalarm/dbdownload.temp";
 		long fileSize;
 		boolean firstCopy;
+		int versionNumber;
 		
 		long numBytesLastReceivedSession;
 		long numBytesLastTransmittedSession;
@@ -379,6 +413,11 @@ public class Options extends Activity
 		long numBytesReceivedTare;
 		long numBytesTransmittedTare;
 
+		/**
+		 * Constructs a new async task, to download the database
+		 * @param taskContext The context this async task was launched in
+		 * @param firstCopy A flag indicating whether this is the first run of GeoAlarm
+		 */
 		public DownloadNewDatabase(Context taskContext, boolean firstCopy)
 		{		
 			super();	
@@ -404,12 +443,81 @@ public class Options extends Activity
 			}
 			mContext = taskContext;
 		}
+		
+		/**
+		 * Checks the database version stored on the server.  If the database version is old,
+		 * it returns an error code.  Otherwise, responds with DOWNLOAD_OK
+		 * @param sUrl The array of URLs passed to this async task
+		 * @return A status code for the download
+		 */
+		protected Integer checkDBVersion(String... sUrl)
+		{
+			try
+			{
+				// Read version file from server
+				URL versionUrl = new URL(sUrl[1]);     		
+				HttpURLConnection versionUrlConnection = (HttpURLConnection) versionUrl.openConnection();
+				versionUrlConnection.setRequestMethod("GET");
+				versionUrlConnection.setDoOutput(true);
+				versionUrlConnection.connect();			
 
+				InputStream versionInputStream = versionUrlConnection.getInputStream();			
+
+				versionNumber = 0;
+				int vSize = versionUrlConnection.getContentLength();
+				int vDownloadedSize = 0;
+				byte[] vBuffer = new byte[12];
+				int vBufferLength = 0;
+
+				while((vBufferLength = versionInputStream.read(vBuffer)) > 0)
+				{			
+					vDownloadedSize += vBufferLength;
+				}
+				versionInputStream.close();
+
+				if(vDownloadedSize != vSize)
+				{
+					return ERROR_IO;
+				}
+				
+				// Use DataInputStream(ByteArrayInputStream) to read the downloaded version number
+				DataInputStream dStream = new DataInputStream(new ByteArrayInputStream(vBuffer));
+				versionNumber = dStream.readInt();
+				dStream.close();
+
+				SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+				if(versionNumber <= settings.getInt("db_version_number", 0))
+				{
+					return OLD_VERSION;
+				}		
+			}
+			catch(MalformedURLException e)
+			{
+				e.printStackTrace();
+				return ERROR_URL;
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+				return ERROR_IO;
+			}
+			
+			return DOWNLOAD_OK;
+		}
+		
+		/**
+		 * The main body of this async task.  Checks to see if we need to perform a database download,
+		 * performs the download, and then copies the new database
+		 */
 		@Override
 		protected Integer doInBackground(String... sUrl)
 		{    	   			 
 			try
 			{
+				// check database version
+				int downloadOK = checkDBVersion(sUrl);
+				if(downloadOK != DOWNLOAD_OK) return downloadOK;
+				
 				// open connection to database on server
 				URL url = new URL(sUrl[0]);     		
 				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -424,8 +532,8 @@ public class Options extends Activity
 					tempFile.delete();   	    			
 				}
 
+				// Read in database, write to temp file
 				OutputStream tempFileOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile));
-
 				InputStream inputStream = urlConnection.getInputStream();
 
 				int totalSize = urlConnection.getContentLength();
@@ -472,6 +580,10 @@ public class Options extends Activity
 			return DOWNLOAD_OK;    	
 		}      
 
+		/**
+		 * Executed prior to async task execution. Closes the database, then
+		 * shows the progress dialog
+		 */
 		@Override
 		protected void onPreExecute() 
 		{
@@ -480,16 +592,24 @@ public class Options extends Activity
 			{
 				database.close();
 			}
-			updateProgressDialog.show();
+			updateProgressDialog.show();			
 		}
 
+		/**
+		 * Called when the task calls publishProgress.  Updates the progress
+		 * dialog
+		 */
 		@Override
 		protected void onProgressUpdate(Integer... progress)
 		{
 			super.onProgressUpdate(progress);
 			updateProgressDialog.setProgress(progress[0]);
 		}
-
+		
+		/**
+		 * Called after the task is finished.  Examines the status code for success/error,
+		 * and then displays result to user.
+		 */
 		@Override
 		protected void onPostExecute(Integer result)
 		{   	    	
@@ -542,10 +662,28 @@ public class Options extends Activity
 				AlertDialog ioError = errorIObuilder.create();
 				ioError.show();
 				updateProgressDialog.dismiss();
-				return;					   	    		
+				return;		
+			case OLD_VERSION:
+				AlertDialog.Builder versionIObuilder = new AlertDialog.Builder(mContext);
+				versionIObuilder.setMessage("Database is already the most recent version!");
+				versionIObuilder.setTitle("Success!");
+				versionIObuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+
+					public void onClick(DialogInterface dialog, int which) 
+					{						
+						// Do nothing
+					}
+					
+				});
+				AlertDialog versionError = versionIObuilder.create();
+				versionError.show();
+				updateProgressDialog.dismiss();
+				return;		
+				
 			}   	   
 			updateProgressDialog.dismiss();
 			
+			// Some housekeeping, to ensure data usage is correct
 			loadDatabase();
 			database.setupUsageDataTable();				
 			
@@ -565,23 +703,31 @@ public class Options extends Activity
 			SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 			SharedPreferences.Editor editor = settings.edit();
 			editor.putBoolean("geo_alarm_first_run", false);
+			editor.putInt("db_version_number", versionNumber);
 			editor.commit();			
 		}
 
+		/**
+		 * A helper method, used to copy the database from the temporary file to
+		 * the actual database file
+		 */
 		private void copyNewDatabase()
 		{
 			try
 			{
-				//delete old database, and copy new one
+				//delete old database
 				File databaseFile = new File(DB_PATH + DB_NAME);
 				if(databaseFile.exists())
 				{
 					databaseFile.delete();
 				}
 				mContext.deleteDatabase(DB_NAME);
+				
+				// create empty database
 				SQLiteDatabase d = mContext.openOrCreateDatabase(DB_NAME, 0, null);
 				d.close();
 
+				// copy database
 				File tempFile = new File(tempFileName);   	    		
 				InputStream newDatabaseInputStream = new BufferedInputStream(new FileInputStream(tempFile));
 
@@ -603,6 +749,7 @@ public class Options extends Activity
 				newDatabaseOutputStream.close();
 				newDatabaseInputStream.close();
 
+				// delete old database file
 				if(tempFile.exists())
 				{
 					tempFile.delete();
@@ -610,7 +757,21 @@ public class Options extends Activity
 
 				if(sizeSoFar != fileSize)
 				{
-					// horrible error
+					// fatal error
+					AlertDialog.Builder errorIObuilder = new AlertDialog.Builder(mContext);
+					errorIObuilder.setMessage("No more space available in internal storage.  Please redownload GeoAlarm");
+					errorIObuilder.setTitle("Fatal Error");
+					errorIObuilder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) 
+						{						
+							// Do nothing
+						}
+						
+					});
+					AlertDialog ioError = errorIObuilder.create();
+					ioError.show();
+					throw new Error("No more space available in internal storage");
 				}				
 			}
 			catch(FileNotFoundException e)

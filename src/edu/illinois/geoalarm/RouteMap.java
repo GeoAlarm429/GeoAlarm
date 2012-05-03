@@ -56,10 +56,14 @@ import android.os.Process;
 
 /**
  * A MapActivity class that will be responsible for displaying the transit map.
+ * This class implements the Android MapActivity class, which allows us to display a map.
+ * The class is also responsible for launching the AlarmService when a trip is planned, and for
+ * sounding the alarm when the user arrives at their destination.
+ * @author GeoAlarm
  */
 public class RouteMap extends MapActivity 
 {
-	private static final int INITIAL_ZOOM = 15;
+	private static final int INITIAL_ZOOM = 17;
 	protected static final int LAUNCH_ACTIVITY = 1;
 
 	private MapView mainMap;
@@ -71,15 +75,14 @@ public class RouteMap extends MapActivity
 	private NearStopOverlay nearOverlay;
 	private ArrayList<StopInfo> nearStops;
 	private Location mapCenter;
-	private GeoAlarmDB dbController;
+	private GeoAlarmDB database;
 	private GeoPoint src;
 	private GeoPoint dest;
 	private int startingLatitude;
 	private int startingLongitude;
 	private int destinationLatitude;
 	private int destinationLongitude;
-	private LocationManager locationManager;
-	private Uri notification;
+	private LocationManager locationManager;	
 	private AsyncPlayer player;
 	private Vibrator vibrator;
 	private TextView remainingTime;
@@ -111,9 +114,6 @@ public class RouteMap extends MapActivity
 	CurrMarkerOverlay itemizedOverlay;
 	NearStopOverlay startDestOverlay;
 
-	/** 
-	 * Called when the activity is first created.
-	 */
 	@Override
     public void onCreate(Bundle savedInstanceState) 
 	{
@@ -123,23 +123,14 @@ public class RouteMap extends MapActivity
         SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
         View v = findViewById(R.id.mainMap);
         View root = v.getRootView();
-        root.setBackgroundColor(settings.getInt("color_value", Color.BLACK));
+        root.setBackgroundResource(settings.getInt("color_value", Color.BLACK));
         ringLength = settings.getInt("ring_length", 3);
         vibrateLength = settings.getInt("vibrate_length", 3);
         
         ThreadPolicy tp = ThreadPolicy.LAX; 
         StrictMode.setThreadPolicy(tp);
         
-        dbController = new GeoAlarmDB(this);
-        try 
-        {
-        	dbController.openDataBase();
-        } 
-        catch (SQLException e) 
-        {
-        	e.printStackTrace();
-        	throw e;
-        }
+        loadDatabase();
         		
         mainMap = (MapView)findViewById(R.id.mainMap);
         satellite = (CheckBox)findViewById(R.id.satellite);
@@ -171,38 +162,35 @@ public class RouteMap extends MapActivity
 	{
 		super.onPause();
 		updateUsageData();
+		database.close();		
 	}
+	
+	@Override
+    public void onResume()
+	{
+		super.onResume();
+		loadDatabase();
+	}	
 	
 	/**
 	 * Updates the stored usage data with the most up-to-date numbers
 	 */
 	public void updateUsageData()
 	{
-		if(dbController != null)
+		if(database != null)
 		{		
-			long numBytesLastReceivedSession =  dbController.getBytes(GeoAlarmDB.DB_RX_SESSION);
-			long numBytesLastTransmittedSession =  dbController.getBytes(GeoAlarmDB.DB_TX_SESSION);
-			long numBytesReceived = dbController.getBytes(GeoAlarmDB.DB_RX);
-			long numBytesTransmitted = dbController.getBytes(GeoAlarmDB.DB_TX);
-			long numBytesReceivedDelta = TrafficStats.getUidRxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION) - numBytesLastReceivedSession;
-			long numBytesTransmittedDelta = TrafficStats.getUidTxBytes(Process.myUid()) - dbController.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION) - numBytesLastTransmittedSession;
+			long numBytesLastReceivedSession =  database.getBytes(GeoAlarmDB.DB_RX_SESSION);
+			long numBytesLastTransmittedSession =  database.getBytes(GeoAlarmDB.DB_TX_SESSION);
+			long numBytesReceived = database.getBytes(GeoAlarmDB.DB_RX);
+			long numBytesTransmitted = database.getBytes(GeoAlarmDB.DB_TX);
+			long numBytesReceivedDelta = TrafficStats.getUidRxBytes(Process.myUid()) - database.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION) - numBytesLastReceivedSession;
+			long numBytesTransmittedDelta = TrafficStats.getUidTxBytes(Process.myUid()) - database.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION) - numBytesLastTransmittedSession;
 		
-			dbController.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + numBytesReceivedDelta);
-			dbController.setBytes(GeoAlarmDB.DB_TX_SESSION, numBytesLastTransmittedSession + numBytesTransmittedDelta);
-			dbController.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + numBytesReceivedDelta);
-			dbController.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted + numBytesTransmittedDelta);			
+			database.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + numBytesReceivedDelta);
+			database.setBytes(GeoAlarmDB.DB_TX_SESSION, numBytesLastTransmittedSession + numBytesTransmittedDelta);
+			database.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + numBytesReceivedDelta);
+			database.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted + numBytesTransmittedDelta);			
 		}
-	}
-	
-	/**
-	 * Called when the os destroys this process.
-	 */
-	@Override
-    public void onDestroy()
-	{
-		super.onDestroy();
-		updateUsageData();
-		dbController.close();
 	}
 	
 	@Override
@@ -211,42 +199,66 @@ public class RouteMap extends MapActivity
 		Log.d("RouteMap", "Alarm Received");
 		this.setIntent(newIntent);
 		boolean alarmTime = getIntent().getBooleanExtra("edu.illinois.geoalarm.timedAlarmSignal", false);
+		
 	    if(alarmTime)
 	    {
-				Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
-	    		if(selectedNotification.equals(RING_NOTIFICATION))
-	    		{
-	    			notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-	    			player = new AsyncPlayer("RingAlarm");
-	    			player.play(getApplicationContext(), notification, false, AudioManager.STREAM_RING);
-	    			TimerTask task = new TimerTask() 
-	    			{
-	    			    @Override
-	    			    public void run() 
-	    			    {
-	    			    	player.stop();
-	    			    }
-	    			};
-	    			Timer timer = new Timer();
-	    			timer.schedule(task, ringLength * 1000);
-
-	    		}
-	    		else if(selectedNotification.equals(VIBRATE_NOTIFICATION))
-	    		{
-	    			vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-	    			vibrator.vibrate(500);
-	    			TimerTask task = new TimerTask() 
-	    			{
-	    			    @Override
-	    			    public void run() 
-	    			    {
-	    			    	vibrator.cancel();
-	    			    }
-	    			};
-	    			Timer timer = new Timer();
-	    			timer.schedule(task, vibrateLength * 1000);	    			
-	    		}	    		
+			launchAlarm();	
 	    } 
+	}
+	
+	/**
+	 * Helper method for sounding the appropriate alarm
+	 */
+	private void launchAlarm()
+	{
+		Toast.makeText(this, "YOU HAVE ARRIVED", Toast.LENGTH_LONG).show();
+		if(selectedNotification.equals(RING_NOTIFICATION))
+		{
+			soundRingtone();
+		}
+		else if(selectedNotification.equals(VIBRATE_NOTIFICATION))
+		{
+			vibratePhone();
+		}	    
+	}
+	
+	/**
+	 * Plays the default ringtone for the number of seconds specified by the user in Options 
+	 */
+	private void soundRingtone()
+	{
+		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		player = new AsyncPlayer("RingAlarm");
+		player.play(getApplicationContext(), notification, false, AudioManager.STREAM_RING);
+		TimerTask task = new TimerTask() 
+		{
+		    @Override
+		    public void run() 
+		    {
+		    	player.stop();
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(task, ringLength * 1000);
+	}
+	
+	/**
+	 * Vibrates the phone for the number of seconds specified by the user in Options
+	 */
+	private void vibratePhone()
+	{
+		vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		vibrator.vibrate(500);
+		TimerTask task = new TimerTask() 
+		{
+		    @Override
+		    public void run() 
+		    {
+		    	vibrator.cancel();
+		    }
+		};
+		Timer timer = new Timer();
+		timer.schedule(task, vibrateLength * 1000);	    		
 	}
 	
 	/**
@@ -286,11 +298,13 @@ public class RouteMap extends MapActivity
 	}
 	
 	/**
-	 * This method sets up the event listener for the Satellite button
+	 * This method sets up the event listener for the Satellite button.  This toggles
+	 * between a street view and satellite image
 	 */
 	private void setSatelliteOnClickListener()
 	{
-			satellite.setOnClickListener(new OnClickListener() {
+			satellite.setOnClickListener(new OnClickListener() 
+			{
 			
 			public void onClick(View v) {
 				if(satellite.isChecked()){
@@ -303,17 +317,27 @@ public class RouteMap extends MapActivity
 	}
 	
 	/**
-	 * This method update the coordinates of the start and destination
+	 * This method update the coordinates of the start and destination stops to refer to those
+	 * selected in the trip planner. 
 	 */
 	private void updateCoordinates()
 	{
-		startingLatitude = (int) (dbController.getLatitude(selectedStartingStation) * 1E6) ;
-		startingLongitude = (int) (dbController.getLongitude(selectedStartingStation)* 1E6);
-		destinationLatitude = (int) (dbController.getLatitude(selectedDestinationStation)* 1E6);
-		destinationLongitude = (int) (dbController.getLongitude(selectedDestinationStation)* 1E6);
+		startingLatitude = (int) (database.getLatitude(selectedStartingStation) * 1E6) ;
+		startingLongitude = (int) (database.getLongitude(selectedStartingStation)* 1E6);
+		destinationLatitude = (int) (database.getLatitude(selectedDestinationStation)* 1E6);
+		destinationLongitude = (int) (database.getLongitude(selectedDestinationStation)* 1E6);
 		src = new GeoPoint(startingLatitude, startingLongitude);
 		dest = new GeoPoint(destinationLatitude, destinationLongitude);	
-		
+		showStartAndDestOnMap();
+					
+	}
+	
+	/**
+	 * This method removes old start and destination data from the map, creates a new overlay to display this data,
+	 * and adds this overlay to the main map
+	 */
+	private void showStartAndDestOnMap()
+	{
 		mapOverlays = mainMap.getOverlays();
 		if(startDestOverlay != null)
 		{
@@ -321,16 +345,16 @@ public class RouteMap extends MapActivity
 		}
 						
 		Drawable drawable = this.getResources().getDrawable(R.drawable.blue_arrow);     
-		startDestOverlay = new NearStopOverlay(drawable, this, dbController);
+		startDestOverlay = new NearStopOverlay(drawable, this, database);
 		startingLocationItem = new NearStopOverlayItem(new StopInfo(selectedStartingStation, src.getLatitudeE6() / 1E6, src.getLongitudeE6() / 1E6));
 		destinationLocationItem = new NearStopOverlayItem(new StopInfo(selectedDestinationStation, dest.getLatitudeE6() / 1E6, dest.getLongitudeE6() / 1E6));
 		startDestOverlay.addOverlay(startingLocationItem);
 		startDestOverlay.addOverlay(destinationLocationItem);		     
-		mapOverlays.add(startDestOverlay);						
+		mapOverlays.add(startDestOverlay);			
 	}
 
 	/**
-	 * Setup Google Map's options
+	 * Setup the options for the main map, like the default zoom and first center point
 	 */
 	private void setupGoogleMap() 
 	{
@@ -352,7 +376,8 @@ public class RouteMap extends MapActivity
 	/**
 	 * Method to show current location on the map
 	 */
-	private void showCurrentLocation() {
+	private void showCurrentLocation() 
+	{
 		setCurrentPoint();		
 		checkForProviders();
 		setLocationListener();
@@ -372,9 +397,17 @@ public class RouteMap extends MapActivity
 
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.NO_REQUIREMENT);
-		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
+		criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);	
 		
-		currentLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
+		String provider = locationManager.getBestProvider(criteria, true);
+		if(provider != null)
+		{		
+			currentLocation = locationManager.getLastKnownLocation(provider);		
+		}
+		else
+		{
+			currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		}
 	
 		if(currentLocation != null)
 		{
@@ -406,20 +439,22 @@ public class RouteMap extends MapActivity
 	}
 
     /**
-     * Helper function to show the bus stops near the current location on the map
-     * @param currentLocation
+     * Helper function to show the bus stops near the current location on the map.
+     * This function will only draw overlays that don't hide the start and destination overlays
+     * @param loc The location we want to display nearby stops for
      */
-	private void showNearBusStopsOnMap(Location currentLocation) 
+	private void showNearBusStopsOnMap(Location loc) 
 	{
 		mapOverlays = mainMap.getOverlays();
 		Drawable drawable = this.getResources().getDrawable(R.drawable.near);
 		
-		nearStops = dbController.getAroundMe(currentLocation);
-		nearOverlay = new NearStopOverlay(drawable, this, dbController);
+		nearStops = database.getAroundMe(loc);
+		nearOverlay = new NearStopOverlay(drawable, this, database);
 		
-		if(!nearStops.isEmpty()){
-			for(StopInfo stopToShow : nearStops){
-				
+		if(!nearStops.isEmpty())
+		{
+			for(StopInfo stopToShow : nearStops)
+			{				
 				NearStopOverlayItem item = new NearStopOverlayItem(stopToShow);
 				double latitude = item.getBusStop().getLatitude();
 				double longitude = item.getBusStop().getLongitude();
@@ -443,17 +478,9 @@ public class RouteMap extends MapActivity
 		else 
 		{
 			Toast.makeText(RouteMap.this, "No nearby bus stop", Toast.LENGTH_SHORT).show();
-			onResume();
-		}
-		
-		
-		
-		
+		}		
 	}
-	
-    /**
-     * Called when the user move the center of the map
-     */
+	   
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) 
 	{
@@ -481,27 +508,31 @@ public class RouteMap extends MapActivity
 	}
 
 	/**
-	 * Draw a path on the map
-	 * @param src, dest
+	 * Draws the start to destination path on the map.  It queries Google for drawing information, then
+	 * draws the path
+	 * @param startPoint - The starting point of the route
+	 * @param endPoint - The ending point of the route
 	 */
-	private void drawPath(GeoPoint src, GeoPoint dest) 
+	private void drawPath(GeoPoint startPoint, GeoPoint endPoint) 
 	{ 
-		if(src == null || dest == null)
+		if(startPoint == null || endPoint == null)
 		{
 			Log.d("RouteMap", "Source or Destination not set");
 			return;
 		}
 		
-		StringBuilder urlString = getURL(src, dest, true);
+		StringBuilder urlString = getURL(startPoint, endPoint, true);
 
 		Document doc;
 		HttpURLConnection urlConnection;
 		
-		try {
+		try 
+		{
 			urlConnection = setupConnection(urlString);
 
 			int responseCode = urlConnection.getResponseCode(); 
-			if (responseCode == HttpURLConnection.HTTP_OK) { 
+			if (responseCode == HttpURLConnection.HTTP_OK) 
+			{ 
 				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance(); 
 				DocumentBuilder db = dbf.newDocumentBuilder(); 
 				doc = db.parse(urlConnection.getInputStream()); 
@@ -528,7 +559,7 @@ public class RouteMap extends MapActivity
 						Log.d("xxx","pair:" + pairs[i]); 
 					}
 
-					mainMap.getOverlays().add(new DirectionPathOverlay(dest,dest));
+					mainMap.getOverlays().add(new DirectionPathOverlay(endPoint,endPoint));
 
 					mainMap.invalidate();
 				}
@@ -542,11 +573,12 @@ public class RouteMap extends MapActivity
 
 	/**
 	 * This is a simple helper function to setup http connection
-	 * @param urlString
-	 * @return urlConnection
+	 * @param urlString The URL we want to setup the connection to
+	 * @return urlConnection The setup connection
 	 * @throws MalformedURLException, IOException, ProtocolException
 	 */
-	private HttpURLConnection setupConnection(StringBuilder urlString) throws MalformedURLException, IOException, ProtocolException {
+	private HttpURLConnection setupConnection(StringBuilder urlString) throws MalformedURLException, IOException, ProtocolException 
+	{
 		HttpURLConnection urlConnection = null; 
 		URL url = null; 
 
@@ -561,35 +593,40 @@ public class RouteMap extends MapActivity
 	}
 
 	/**
-	 * Helper to build URL 
-	 * @param src, dest
-	 * @return URL string
+	 * Helper to build the URL string to send to Google for the query
+	 * @param startPoint - The starting point of the path
+	 * @param endPoint - The ending point of the path
+	 * @param isKML - A flag indicating KML
+	 * @return The URL string
 	 */
-	private StringBuilder getURL(GeoPoint src, GeoPoint dest, boolean isKML) {
+	private StringBuilder getURL(GeoPoint startPoint, GeoPoint endPoint, boolean isKML) 
+	{
 		StringBuilder urlString = new StringBuilder(); 
 
-		if(isKML){
+		if(isKML)
+		{
 			urlString.append("http://maps.google.com/maps?f=d&hl=en"); 
 			urlString.append("&saddr="); 
-			urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6)); 
+			urlString.append( Double.toString((double)startPoint.getLatitudeE6()/1.0E6)); 
 			urlString.append(","); 
-			urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6)); 
+			urlString.append( Double.toString((double)startPoint.getLongitudeE6()/1.0E6)); 
 			urlString.append("&daddr=");
-			urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6)); 
+			urlString.append( Double.toString((double)endPoint.getLatitudeE6()/1.0E6)); 
 			urlString.append(","); 
-			urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6));
+			urlString.append( Double.toString((double)endPoint.getLongitudeE6()/1.0E6));
 			urlString.append("&ie=UTF8&0&om=0&output=kml");
 		}
-		else {
+		else 
+		{
 			urlString.append("http://maps.google.com/maps/api/directions/json?");
 			urlString.append("origin="); 
-			urlString.append( Double.toString((double)src.getLatitudeE6()/1.0E6)); 
+			urlString.append( Double.toString((double)startPoint.getLatitudeE6()/1.0E6)); 
 			urlString.append(","); 
-			urlString.append( Double.toString((double)src.getLongitudeE6()/1.0E6));
+			urlString.append( Double.toString((double)startPoint.getLongitudeE6()/1.0E6));
 			urlString.append("&destination=");
-			urlString.append( Double.toString((double)dest.getLatitudeE6()/1.0E6)); 
+			urlString.append( Double.toString((double)endPoint.getLatitudeE6()/1.0E6)); 
 			urlString.append(","); 
-			urlString.append( Double.toString((double)dest.getLongitudeE6()/1.0E6));
+			urlString.append( Double.toString((double)endPoint.getLongitudeE6()/1.0E6));
 			urlString.append("&sensor=false");
 		}
 		
@@ -598,7 +635,7 @@ public class RouteMap extends MapActivity
 	
 	/**
 	 * This method starts the Timetable activity
-	 * @param view
+	 * @param view The clicked button
 	 */
 	public void showTimetable(View view)
 	{
@@ -633,26 +670,32 @@ public class RouteMap extends MapActivity
 	}
 	
 	/**
-	 * This function sets remaining time and distance.
-	 * @param src, dest
+	 * This function sets remaining time and distance. It asks Google for this information, then displays it
+	 * to the user
+	 * @param startPoint - The starting point of the trip
+	 * @param endPoint - The ending point of the tirip
 	 */
-	private void calcRemainingTimeAndDistance(GeoPoint src, GeoPoint dest) {
+	private void calcRemainingTimeAndDistance(GeoPoint startPoint, GeoPoint endPoint) 
+	{
 		remainingTime = (TextView)findViewById(R.id.remainingTime);
 		remainingDistance = (TextView)findViewById(R.id.remainingDistance);
 		
-		StringBuilder urlString = getURL(src, dest, false);
+		StringBuilder urlString = getURL(startPoint, endPoint, false);
 		
 		HttpURLConnection urlConnection;
-		try {
+		try 
+		{
 			urlConnection = setupConnection(urlString);
 			
 			StringBuffer response = new StringBuffer();
 			int responseCode = urlConnection.getResponseCode(); 
-			if (responseCode == HttpURLConnection.HTTP_OK) {				
+			if (responseCode == HttpURLConnection.HTTP_OK) 
+			{				
 				BufferedReader input = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()),8192); 
 				String strLine = null; 
 				
-				while ((strLine = input.readLine()) != null) { 
+				while ((strLine = input.readLine()) != null)
+				{ 
 					response.append(strLine); 
 				} 
 				input.close();
@@ -675,15 +718,13 @@ public class RouteMap extends MapActivity
 			}
 			else
 				Toast.makeText(this, "Fail to load information. Check internet connection.", Toast.LENGTH_LONG).show();
-		} catch (Exception e) {
+		} catch (Exception e) 
+		{
 			e.printStackTrace();
 		}
 	}
 	
-	/**
-	 * This method returns whether routes are currently being displayed on the
-	 * map. Right now, they're not.
-	 */
+	
 	@Override
 	protected boolean isRouteDisplayed() 
 	{
@@ -691,8 +732,8 @@ public class RouteMap extends MapActivity
 	}
 	
 	 /**
-     * This function sets up a gps/network location event listener.  When location is updated, it checks to see
-     * if we have reached the destination
+     * This function sets up a gps/network location event listener.  When location is updated, it calls the showMarkerOnMap
+     * method to update the displayed user location on the map
      */
     private void setLocationListener()
     {
@@ -736,7 +777,7 @@ public class RouteMap extends MapActivity
     }
     
     /**
-     * This method registers
+     * This method registers listeners for enabled location providers
      */
     protected void registerListeners()
     {
@@ -759,9 +800,39 @@ public class RouteMap extends MapActivity
 	{
 	    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) 
+	    {
 	        return true;
 	    }
 	    return false;
 	}
+	
+	/**
+	 * Helper function to load the database
+	 */
+	public void loadDatabase()
+	{
+		// Instantiate the database
+		database = new GeoAlarmDB(this.getApplicationContext());
+
+		// Check the custom SQLite helper functions that load existing DB
+		try
+		{
+			database.createDataBase();
+		}
+		catch (IOException e)
+		{
+			throw new Error("Unable to create/find database");
+		}	
+
+		// Open the SQLite database
+		try
+		{
+			database.openDataBase();
+		}
+		catch (SQLException sql)
+		{
+			throw new Error("Unable to execute sql in: " + sql.toString());
+		}
+	}        
 }

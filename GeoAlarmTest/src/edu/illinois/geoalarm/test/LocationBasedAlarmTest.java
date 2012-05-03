@@ -43,7 +43,7 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 	public void testPlanTrip()
 	{		
 		solo.clickOnImage(0); // Corresponds to plan trip button
-		solo.assertCurrentActivity("Expected TripPlannerBus Activity", TripPlannerBus.class);		
+		solo.assertCurrentActivity("Expected TripPlannerBus Activity", TripPlanner.class);		
 		mCurrentActivity = solo.getCurrentActivity();
 		selectGoldLine();
 		selectStart();

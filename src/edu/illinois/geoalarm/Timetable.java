@@ -15,6 +15,13 @@ import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
 
+/**
+ * This Activity displays the bus schedule to the user.  This schedule is static, and stored
+ * in the local SQLite database
+ * @author deflume1
+ *
+ */
+
 public class Timetable extends Activity
 {
 	private Spinner timetableLineSpinner;
@@ -23,8 +30,7 @@ public class Timetable extends Activity
 	private GeoAlarmDB database;
 	private String selectedLine;
 	private String selectedStop;
-	
-	/** Called when the activity is first created. */
+		
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {

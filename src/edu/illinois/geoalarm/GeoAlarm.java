@@ -25,6 +25,7 @@ import android.view.View;
  * The main Activity for the GeoAlarm app
  * When the app is launched, this Activity sets the content view
  * to main, and initializes the primary UI elements.
+ * @author GeoAlarm
  *
  */
 public class GeoAlarm extends Activity 
@@ -33,7 +34,6 @@ public class GeoAlarm extends Activity
 	SharedPreferences myPrefs;
 	Activity thisActivity;
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
@@ -47,7 +47,7 @@ public class GeoAlarm extends Activity
 
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));      	
+		v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));      	
 		thisActivity = this;
 		
 		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
@@ -94,9 +94,6 @@ public class GeoAlarm extends Activity
 		}
     }
     
-    /**
-     * Called after onStart().  
-     */
     @Override
 	public void onResume()
 	{		
@@ -104,7 +101,7 @@ public class GeoAlarm extends Activity
 		
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
+		v.setBackgroundResource(settings.getInt("color_value", R.color.Blue));
 		
 		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
 		
@@ -198,10 +195,11 @@ public class GeoAlarm extends Activity
 	/** This method is called when the Trip button is clicked.
 	 *  It launches the TripPlanner activity.
 	 *  We use the onClick XML attribute in main.xml to bind the method to the click event.
+	 *  @param view The button that was clicked
 	 */
 	public void showTripScreen(View view)
 	{
-		Intent intent = new Intent(view.getContext(), TripPlannerBus.class);
+		Intent intent = new Intent(view.getContext(), TripPlanner.class);
 		startActivityForResult(intent, 0);
 	}
 

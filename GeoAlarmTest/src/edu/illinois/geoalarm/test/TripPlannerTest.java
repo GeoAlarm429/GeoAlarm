@@ -1,22 +1,22 @@
 package edu.illinois.geoalarm.test;
 
-import edu.illinois.geoalarm.TripPlannerBus;
+import edu.illinois.geoalarm.TripPlanner;
 import android.app.Activity;
 import android.test.ActivityInstrumentationTestCase2;
 import android.widget.Spinner;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
-public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPlannerBus> 
+public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanner> 
 {
 	Activity mActivity;
 	Spinner startingSpinner;
 	Spinner lineSpinner;
 	Solo solo;
 	
-	public TripPlannerBusTest() 
+	public TripPlannerTest() 
 	{
-		super("edu.illinois.geoalarm", TripPlannerBus.class);		
+		super("edu.illinois.geoalarm", TripPlanner.class);		
 	}
 	
 	@Override

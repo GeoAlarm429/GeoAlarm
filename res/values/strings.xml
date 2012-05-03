@@ -20,9 +20,9 @@
     <string name="digitalclock">DigitalClock</string>
     <string name="splash_screen">Splash</string>
     <string-array name="travel_type_array">
-        <item>Select</item><item >Bus</item>
-        <item >Train</item>
-        
+        <item>Select</item>
+        <item >Bus</item>
+        <item >Train</item>        
     </string-array>
     <string name="serviceBusTextFieldString">Bus</string>
     <string name="busLineTextFieldString">Line:</string>
@@ -36,13 +36,10 @@
     <string name="vibration_length">Vibration Length:</string>
     
     <string-array name="color_array">
-        <item>Black</item>
-        <item>Blue</item>
-        <item>Green</item>
-        <item>Red</item>
-        <item>Yellow</item>
-        <item>White</item>
-        <item>Gray</item>
+        <item>Blue</item> 
+        <item>Red</item> 
+        <item>Black</item> 
+        <item>Pink</item>
     </string-array>
         <string name="select_app_color">Select App Color:</string>
         <string name="save_preferences">Save</string>

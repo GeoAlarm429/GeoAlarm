@@ -5,16 +5,13 @@ import java.util.Calendar;
 import com.jayway.android.robotium.solo.Solo;
 
 import android.app.Activity;
-import android.os.Handler;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.Smoke;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Spinner;
 import edu.illinois.geoalarm.RouteMap;
-import edu.illinois.geoalarm.TripPlannerBus;
+import edu.illinois.geoalarm.TripPlanner;
 
-public class DistanceTimeTest extends ActivityInstrumentationTestCase2<TripPlannerBus> 
+public class DistanceTimeTest extends ActivityInstrumentationTestCase2<TripPlanner> 
 {
 	Activity mActivity;
 	Activity mCurrentActivity;
@@ -24,7 +21,7 @@ public class DistanceTimeTest extends ActivityInstrumentationTestCase2<TripPlann
 	
 	public DistanceTimeTest() 
 	{
-		super("edu.illinois.geoalarm", TripPlannerBus.class);		
+		super("edu.illinois.geoalarm", TripPlanner.class);		
 	}
 	
 	@Override
@@ -65,7 +62,7 @@ public class DistanceTimeTest extends ActivityInstrumentationTestCase2<TripPlann
 	{		
 		solo.clickOnEditText(1);
 		solo.enterText(1, "First & Gregory (NE Corner)");
-		((TripPlannerBus)mActivity).makeEditorAction();		
+		((TripPlanner)mActivity).makeEditorAction();		
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));			
 	}	
 	
