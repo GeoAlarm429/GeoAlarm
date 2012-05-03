@@ -52,5 +52,6 @@
         <string name="route_map_dialog_routes_label">Routes Servicing</string>
         <string name="routeMapDialogTripButton">Start/End Trip</string>
         <string name="update_database_button">Update Database</string>
+        <string name="voice">Voice Search</string>
 
 </resources>

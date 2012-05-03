@@ -1,7 +1,6 @@
 package edu.illinois.geoalarm;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -17,9 +16,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.text.format.Time;
 import android.util.Log;
-import android.widget.Toast;
 
 
 
@@ -44,12 +41,10 @@ public class AlarmService extends Service
 	private int startingLongitude;
 	private int destinationLatitude;
 	private int destinationLongitude;
-	private String selectedNotification;
 	private String selectedNotificationTime ;
 	private int hourSet;
 	private int minuteSet;
 	
-	private int count = 0;
 	
 	private static Service mInstance;
         
@@ -60,7 +55,6 @@ public class AlarmService extends Service
     	startingLongitude = intent.getIntExtra("edu.illinois.geoalarm.startingStationLongitude", 0);
     	destinationLatitude = intent.getIntExtra("edu.illinois.geoalarm.destinationStationLatitude", 0);
     	destinationLongitude = intent.getIntExtra("edu.illinois.geoalarm.destinationStationLongitude", 0);
-    	selectedNotification = intent.getStringExtra("edu.illinois.geoalarm.selectedNotification");
     	selectedNotificationTime = intent.getStringExtra("edu.illinois.geoalarm.selectedNotificationTime") ;
     	hourSet = intent.getIntExtra("edu.illinois.geoalarm.selectedNotificationHour", 0);
     	minuteSet = intent.getIntExtra("edu.illinois.geoalarm.selectedNotificationMinute", 0); 	

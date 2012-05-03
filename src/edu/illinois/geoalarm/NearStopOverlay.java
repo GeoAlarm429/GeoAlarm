@@ -2,20 +2,12 @@ package edu.illinois.geoalarm;
 
 import java.util.ArrayList;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.OverlayItem;
@@ -28,7 +20,6 @@ public class NearStopOverlay extends ItemizedOverlay<OverlayItem>
 {
 	private ArrayList<NearStopOverlayItem> mOverlays = new ArrayList<NearStopOverlayItem>();
 	private Context mContext;
-	private ArrayList<StopInfo> startAndDest = new ArrayList<StopInfo>(2);
 	private NearStopOverlayItem selectedItem;
 	private GeoAlarmDB database;
 

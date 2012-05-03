@@ -1,36 +1,18 @@
 package edu.illinois.geoalarm;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.SQLException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -38,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * The main Activity for the GeoAlarm app
@@ -51,12 +32,6 @@ public class GeoAlarm extends Activity
 	GeoAlarmDB database;
 	SharedPreferences myPrefs;
 	Activity thisActivity;
-	private static final long UPDATE_INTERVAL = 1000 * 60 * 60 * 24 * 1; // 1 day
-
-	// Android's default system path for databases
-	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases";
-	// The name of the database
-	private static String DB_NAME = "geoAlarmDB.sqlite";
 
     /** Called when the activity is first created. */
     @Override
@@ -74,22 +49,6 @@ public class GeoAlarm extends Activity
 		View v = findViewById(R.id.optionsTopLayout);
 		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));      	
 		thisActivity = this;
-    }
-    
-    /**
-     * Called after onStart().  
-     */
-    @Override
-	public void onResume()
-	{		
-		super.onResume();
-		
-		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
-		View v = findViewById(R.id.optionsTopLayout);
-		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
-		
-		loadDatabase();
-		tareSessionDataValues();
 		
 		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
 		if(firstRun)
@@ -111,7 +70,7 @@ public class GeoAlarm extends Activity
 				failure.show();
 			}
 			else
-			{			
+			{							
 				AlertDialog.Builder downloadDB = new AlertDialog.Builder(this);
 				downloadDB.setMessage("You need to download the database! Click OK to go to the Options screen and download it!");
 				downloadDB.setTitle("Welcome!");
@@ -128,13 +87,40 @@ public class GeoAlarm extends Activity
 				success.show();
 			}
 		}
-			
+		else
+		{
+			loadDatabase();
+			tareSessionDataValues();
+		}
+    }
+    
+    /**
+     * Called after onStart().  
+     */
+    @Override
+	public void onResume()
+	{		
+		super.onResume();
+		
+		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
+		View v = findViewById(R.id.optionsTopLayout);
+		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
+		
+		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
+		
+		if(!firstRun)
+		{
+			loadDatabase();
+		}		
 	}
     
     @Override
     protected void onPause()
     {
-    	database.close();
+    	if(database != null)
+    	{
+    		database.close();
+    	}
     	super.onPause();
     }
     

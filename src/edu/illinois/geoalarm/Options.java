@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -58,6 +59,7 @@ public class Options extends Activity
 	Spinner backgroundColorSelectSpinner;
 	ToggleButton toggleSplashScreenButton;
 	ProgressDialog updateProgressDialog;
+	boolean firstCopy;
 
 	private static final String DB_PATH = "/data/data/edu.illinois.geoalarm/databases/";	
 	private static String DB_NAME = "geoAlarmDB.sqlite";
@@ -104,20 +106,23 @@ public class Options extends Activity
 	public void onResume()
 	{
 		super.onResume();
-		loadDatabase();
-		showUsageData();	
 		
 		// Update database if first run
 		SharedPreferences settings = getSharedPreferences("GeoAlarm", Activity.MODE_PRIVATE);
 		View v = findViewById(R.id.optionsTopLayout);
 		v.setBackgroundColor(settings.getInt("color_value", R.color.Blue));
-		boolean firstRun = settings.getBoolean("geo_alarm_first_run", true);
-		if(firstRun)
+		firstCopy = settings.getBoolean("geo_alarm_first_run", true);
+		if(firstCopy)
 		{			
 				if(isOnline())
 				{
 					onClickUpdateDatabase(null);		
 				}
+		}
+		else
+		{
+			loadDatabase();
+			showUsageData();
 		}
 		
 	}	
@@ -125,7 +130,10 @@ public class Options extends Activity
 	@Override
 	public void onStop()
 	{		
-		database.close();
+		if(database != null)
+		{
+			database.close();
+		}
 		super.onStop();
 	}
 	
@@ -333,7 +341,7 @@ public class Options extends Activity
 	{
 		if(isOnline())
 		{
-			DownloadNewDatabase download = new DownloadNewDatabase(this);  	
+			DownloadNewDatabase download = new DownloadNewDatabase(this, firstCopy);  	
 			download.execute("http://deflume1.projects.cs.illinois.edu/geoAlarmDB.sqlite");
 		}
 		else
@@ -361,7 +369,8 @@ public class Options extends Activity
 		final int ERROR_URL = 1;
 		final int ERROR_IO = 2;   
 		final String tempFileName = "/data/data/edu.illinois.geoalarm/dbdownload.temp";
-		int fileSize;
+		long fileSize;
+		boolean firstCopy;
 		
 		long numBytesLastReceivedSession;
 		long numBytesLastTransmittedSession;
@@ -370,16 +379,29 @@ public class Options extends Activity
 		long numBytesReceivedTare;
 		long numBytesTransmittedTare;
 
-		public DownloadNewDatabase(Context taskContext)
+		public DownloadNewDatabase(Context taskContext, boolean firstCopy)
 		{		
 			super();	
-			loadDatabase();
-			numBytesLastReceivedSession =  database.getBytes(GeoAlarmDB.DB_RX_SESSION);
-			numBytesLastTransmittedSession =  database.getBytes(GeoAlarmDB.DB_TX_SESSION);
-			numBytesReceived = database.getBytes(GeoAlarmDB.DB_RX);
-			numBytesTransmitted = database.getBytes(GeoAlarmDB.DB_TX);
-			numBytesReceivedTare = database.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION);
-			numBytesTransmittedTare = database.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION);
+			this.firstCopy = firstCopy;
+			if(!firstCopy)
+			{
+				loadDatabase();
+				numBytesLastReceivedSession =  database.getBytes(GeoAlarmDB.DB_RX_SESSION);
+				numBytesLastTransmittedSession =  database.getBytes(GeoAlarmDB.DB_TX_SESSION);
+				numBytesReceived = database.getBytes(GeoAlarmDB.DB_RX);
+				numBytesTransmitted = database.getBytes(GeoAlarmDB.DB_TX);
+				numBytesReceivedTare = database.getBytes(GeoAlarmDB.DB_RX_TARE_SESSION);
+				numBytesTransmittedTare = database.getBytes(GeoAlarmDB.DB_TX_TARE_SESSION);
+			}
+			else
+			{
+				numBytesLastReceivedSession =  0;
+				numBytesLastTransmittedSession =  0;
+				numBytesReceived = 0;
+				numBytesTransmitted = 0;
+				numBytesReceivedTare = 0;
+				numBytesTransmittedTare = 0;
+			}
 			mContext = taskContext;
 		}
 
@@ -454,7 +476,10 @@ public class Options extends Activity
 		protected void onPreExecute() 
 		{
 			super.onPreExecute();
-			database.close();
+			if(!firstCopy)
+			{
+				database.close();
+			}
 			updateProgressDialog.show();
 		}
 
@@ -522,15 +547,18 @@ public class Options extends Activity
 			updateProgressDialog.dismiss();
 			
 			loadDatabase();
-			database.setupUsageDataTable();
+			database.setupUsageDataTable();				
 			
-			database.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession);
+			database.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + fileSize);
 			database.setBytes(GeoAlarmDB.DB_TX_SESSION, numBytesLastTransmittedSession);
-			database.setBytes(GeoAlarmDB.DB_RX, numBytesReceived);
+			database.setBytes(GeoAlarmDB.DB_RX, numBytesReceived + fileSize);
 			database.setBytes(GeoAlarmDB.DB_TX, numBytesTransmitted);	
 			database.setBytes(GeoAlarmDB.DB_RX_TARE_SESSION, numBytesReceivedTare);
-			database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedTare);
+			database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedTare);			
 			
+			tareSessionDataValues(fileSize);
+			database.setBytes(GeoAlarmDB.DB_RX_SESSION, numBytesLastReceivedSession + fileSize);
+									
 			updateUsageData();
 			showUsageData();			
 			
@@ -551,6 +579,8 @@ public class Options extends Activity
 					databaseFile.delete();
 				}
 				mContext.deleteDatabase(DB_NAME);
+				SQLiteDatabase d = mContext.openOrCreateDatabase(DB_NAME, 0, null);
+				d.close();
 
 				File tempFile = new File(tempFileName);   	    		
 				InputStream newDatabaseInputStream = new BufferedInputStream(new FileInputStream(tempFile));
@@ -581,8 +611,7 @@ public class Options extends Activity
 				if(sizeSoFar != fileSize)
 				{
 					// horrible error
-				}
-
+				}				
 			}
 			catch(FileNotFoundException e)
 			{
@@ -594,6 +623,22 @@ public class Options extends Activity
 			}   	    	
 		}
 	}
+	
+	/**
+     * This method gets the tare data values for the session, and stores them in the DB
+     */
+    public void tareSessionDataValues(long fileSize)
+    {
+    	/* Get tare data values for this session and store them */        
+        long numBytesReceivedAtStart = 0;
+        numBytesReceivedAtStart = TrafficStats.getUidRxBytes(Process.myUid()) - fileSize;	
+        long numBytesTransmittedAtStart = 0;
+        numBytesTransmittedAtStart = TrafficStats.getUidTxBytes(Process.myUid());   
+        
+        database.setupUsageDataTable();
+        database.setBytes(GeoAlarmDB.DB_RX_TARE_SESSION, numBytesReceivedAtStart);
+        database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, numBytesTransmittedAtStart);    	
+    }
 
 
 

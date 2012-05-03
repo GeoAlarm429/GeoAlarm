@@ -43,6 +43,8 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		database.setBytes(GeoAlarmDB.DB_RX_SESSION, 0);
 		database.setBytes(GeoAlarmDB.DB_TX, 0);
 		database.setBytes(GeoAlarmDB.DB_RX, 0);
+		database.setBytes(GeoAlarmDB.DB_RX_TARE_SESSION, 0);
+		database.setBytes(GeoAlarmDB.DB_TX_TARE_SESSION, 0);
 		
 		solo.sendKey(Solo.MENU);
 		solo.clickOnText("Options");
@@ -61,8 +63,8 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	@Smoke
 	public void testTXSessionDataUsage() throws InterruptedException
 	{				
-		String sessionTX = solo.getText(11).getText().toString(); // Corresponds to sessionTX
-		assertEquals(sessionTX, " 0 MB");
+		String sessionTX = solo.getText(12).getText().toString(); // Corresponds to sessionTX
+		assertEquals(" 0 MB", sessionTX);
 		long sessionTXbytes = database.getBytes(GeoAlarmDB.DB_TX_SESSION);
 		assertEquals(sessionTXbytes, 0);		
 				
@@ -82,7 +84,7 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.sendKey(Solo.MENU);
 		solo.clickOnText("Options");
 		
-		sessionTX = solo.getText(11).getText().toString(); // Corresponds to sessionTX
+		sessionTX = solo.getText(12).getText().toString(); // Corresponds to sessionTX
 		assertFalse(sessionTX.equals(" 0 MB"));
 		sessionTXbytes = database.getBytes(GeoAlarmDB.DB_TX_SESSION);
 		assertTrue(sessionTXbytes > 0);		
@@ -91,10 +93,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	@Smoke
 	public void testRXSessionDataUsage() throws InterruptedException
 	{
-		String sessionRX = solo.getText(13).getText().toString(); // Corresponds to sessionRX
-		assertEquals(sessionRX, " 0 MB");
+		String sessionRX = solo.getText(14).getText().toString(); // Corresponds to sessionRX
+		assertEquals(" 0 MB", sessionRX);
 		long sessionRXbytes = database.getBytes(GeoAlarmDB.DB_RX_SESSION);
-		assertEquals(sessionRXbytes, 0);	
+		assertEquals(0, sessionRXbytes);	
 		
 		// Transition to Map activity to transfer some data, the transition back
 		solo.goBack();
@@ -112,7 +114,7 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.sendKey(Solo.MENU);
 		solo.clickOnText("Options");
 		
-		sessionRX = solo.getText(13).getText().toString(); // Corresponds to sessionRX
+		sessionRX = solo.getText(14).getText().toString(); // Corresponds to sessionRX
 		assertFalse(sessionRX.equals(" 0 MB"));
 		sessionRXbytes = database.getBytes(GeoAlarmDB.DB_RX_SESSION);
 		assertTrue(sessionRXbytes > 0);	
@@ -121,10 +123,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	@Smoke
 	public void testTotalTXDataUsage() throws InterruptedException
 	{				
-		String totalTX = solo.getText(15).getText().toString(); // Corresponds to totalTX
-		assertEquals(totalTX, " 0 MB");
+		String totalTX = solo.getText(16).getText().toString(); // Corresponds to totalTX
+		assertEquals(" 0 MB", totalTX);
 		long totalTXBytes = database.getBytes(GeoAlarmDB.DB_TX);
-		assertEquals(totalTXBytes, 0);
+		assertEquals(0, totalTXBytes);
 		
 		// Transition to Map activity to transfer some data, the transition back
 		solo.goBack();		
@@ -142,7 +144,7 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.sendKey(Solo.MENU);
 		solo.clickOnText("Options");		
 		
-		totalTX = solo.getText(15).getText().toString();
+		totalTX = solo.getText(16).getText().toString();
 		assertFalse(totalTX.equals(" 0 MB"));
 		totalTXBytes = database.getBytes(GeoAlarmDB.DB_TX);
 		assertTrue(totalTXBytes > 0);
@@ -151,10 +153,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	@Smoke
 	public void testTotalRXDataUsage() throws InterruptedException
 	{
-		String totalRX = solo.getText(17).getText().toString(); // Corresponds to totalRX
-		assertEquals(totalRX, " 0 MB");
+		String totalRX = solo.getText(18).getText().toString(); // Corresponds to totalRX
+		assertEquals(" 0 MB", totalRX);
 		long totalRXBytes = database.getBytes(GeoAlarmDB.DB_RX);
-		assertEquals(totalRXBytes, 0);
+		assertEquals(0, totalRXBytes);
 		
 		// Transition to Map activity
 		solo.goBack();		
@@ -172,7 +174,7 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.sendKey(Solo.MENU);
 		solo.clickOnText("Options");
 		
-		totalRX = solo.getText(17).getText().toString();
+		totalRX = solo.getText(18).getText().toString();
 		assertFalse(totalRX.equals(" 0 MB"));
 		totalRXBytes = database.getBytes(GeoAlarmDB.DB_RX);
 		assertTrue(totalRXBytes > 0);

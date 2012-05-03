@@ -63,6 +63,16 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 	public void testAlarmOptionsOne()
 	{
 		solo.clickOnButton("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
 		solo.clickOnText("At Stop");		
 		solo.clickOnText("Ring");
 	}
@@ -71,6 +81,16 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 	public void testAlarmOptionsTwo()
 	{
 		solo.clickOnButton("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
 		solo.clickOnText("Station Before Stop");
 		solo.clickOnText("Vibrate");
 	}
@@ -79,6 +99,16 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 	public void testAlarmOptionsThree()
 	{
 		solo.clickOnButton("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
 		solo.clickOnText("At Time");
 		
 		solo.setTimePicker(0, 7, 33);
@@ -86,7 +116,5 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 		boolean actual1 = solo.searchText("7:33 AM");
 		assertEquals("Correct time set", expected1, actual1);
 		
-		solo.clickOnButton("Set");		
-		solo.clickOnText("PopUp Message");
 	}	
 }

@@ -3,14 +3,14 @@ import java.util.Vector;
 
 // TODO: add transportationID, when we
 // are working with CTA
-public class Route {
-	private String routeID;
+public class Route 
+{
 	private String name;
 	private int number;
 	private Vector<Station> stops;
 	
-	public Route(String routeID, String name, int number) {
-		this.routeID = routeID;
+	public Route(String routeID, String name, int number) 
+	{		
 		this.name = name;
 		this.number = number;
 		this.stops = new Vector<Station>();

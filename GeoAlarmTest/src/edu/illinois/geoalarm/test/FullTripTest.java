@@ -84,6 +84,16 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	public void setAlarmOptions()
 	{
 		solo.clickOnText("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}		
+		solo.clickInList(0);
 		solo.clickOnText("At Time");
 		Calendar c = Calendar.getInstance();		
 		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 2); // Set alarm for two minutes from now

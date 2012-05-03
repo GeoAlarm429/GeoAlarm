@@ -8,10 +8,6 @@ import edu.illinois.geoalarm.*;
 
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
-import android.util.Log;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.Spinner;
 
 public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 {	
@@ -79,8 +75,19 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	}
 	
 	public void setAlarmOptions()
-	{
+	{		
 		solo.clickOnText("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
+		
 		solo.clickOnText("At Time");
 		Calendar c = Calendar.getInstance();		
 		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 2); // Set alarm for two minutes from now
@@ -139,6 +146,16 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 	public void setSecondAlarmOptions()
 	{
 		solo.clickOnText("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
 		solo.clickOnText("At Stop");
 		solo.clickOnText("Ring");
 		setSecondAlarm();

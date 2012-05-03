@@ -42,6 +42,7 @@ public class AttributePair<T,K>
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -50,7 +51,7 @@ public class AttributePair<T,K>
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AttributePair other = (AttributePair) obj;
+		AttributePair<T,K> other = (AttributePair<T,K>) obj;
 		if (firstElement == null) {
 			if (other.firstElement != null)
 				return false;

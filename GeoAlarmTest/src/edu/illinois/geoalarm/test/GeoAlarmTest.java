@@ -1,10 +1,7 @@
 package edu.illinois.geoalarm.test;
 
 import edu.illinois.geoalarm.GeoAlarm;
-import android.graphics.drawable.Drawable;
 import android.test.ActivityInstrumentationTestCase2;
-import android.widget.Button;
-import android.widget.DigitalClock;
 import android.widget.ImageView;
 
 import com.jayway.android.robotium.solo.Solo;
@@ -71,6 +68,7 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm"); 
 		 solo.clickOnImage(0); // Corresponds to plan trip button
 		 solo.assertCurrentActivity("Expected TripPlannerBus activity", "TripPlannerBus"); 
+		 solo.goBack();
 		 solo.goBack();
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");		 
 	 }

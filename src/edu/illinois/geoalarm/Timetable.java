@@ -7,12 +7,10 @@ import java.util.List;
 import android.app.Activity;
 import android.database.SQLException;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
@@ -21,7 +19,6 @@ public class Timetable extends Activity
 {
 	private Spinner timetableLineSpinner;
 	private Spinner timetableStopSpinner;
-	private ScrollView timetableScrollView;
 	private LinearLayout timetableLinearLayout;
 	private GeoAlarmDB database;
 	private String selectedLine;
@@ -35,8 +32,7 @@ public class Timetable extends Activity
         setContentView(R.layout.timetable);
         
         timetableLineSpinner = (Spinner)findViewById(R.id.timetableLineSpinner);
-    	timetableStopSpinner = (Spinner)findViewById(R.id.timetableStopSpinner);
-    	timetableScrollView = (ScrollView)findViewById(R.id.timetableScrollView);  
+    	timetableStopSpinner = (Spinner)findViewById(R.id.timetableStopSpinner); 
     	timetableLinearLayout = (LinearLayout)findViewById(R.id.timetableLinearLayout);
     	
     	setLineSpinnerEventListeners();

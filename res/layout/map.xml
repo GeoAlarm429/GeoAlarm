@@ -6,12 +6,13 @@
 	android:layout_height="match_parent"
 	android:gravity="bottom|center_vertical|right|top"
 	android:orientation="vertical"
-	android:background="#FFFFFF" >
+	android:background="#FFFFFF"
+	android:baselineAligned="false" >
 
 	<FrameLayout
 		android:id="@+id/frameLayout1"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="0dip"
 		android:layout_weight="0.33" >
 
 		<com.google.android.maps.MapView

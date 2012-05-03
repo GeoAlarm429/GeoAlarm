@@ -1,15 +1,13 @@
 package edu.illinois.geoalarm.parser;
 import java.util.Vector;
 
-public class Itinerary {
+public class Itinerary 
+{
 	private Vector<Leg> legs;
-	private String startTime;
-	private String endTime;
 	
-	public Itinerary(String startTime,String endTime){
+	public Itinerary(String startTime,String endTime)
+	{
 		legs = new Vector<Leg>();
-		this.startTime=startTime;
-		this.endTime=endTime;
 	}
 	
 	public void addLeg(Trip begin, Trip end){

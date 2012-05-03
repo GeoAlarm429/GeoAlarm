@@ -8,8 +8,6 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.util.ArrayList;
 
-import com.google.android.maps.GeoPoint;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -113,8 +111,9 @@ public class GeoAlarmDB extends SQLiteOpenHelper
 			String myPath = DB_PATH + DB_NAME;
 			checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
 		}
-		catch(SQLiteException e) {
-			//database does't exist yet
+		catch(SQLiteException e) 
+		{
+			e.printStackTrace();
 		}
 
 		if(checkDB != null) {

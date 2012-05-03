@@ -1,7 +1,5 @@
 package edu.illinois.geoalarm.test;
 
-import java.util.Calendar;
-
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
@@ -84,6 +82,16 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 	public void setAlarmOptionsPopUp()
 	{
 		solo.clickOnText("Alarm Options");
+		solo.clickInList(0);
+		try 
+		{
+			Thread.sleep(1000);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		solo.clickInList(0);
 		solo.clickOnText("At Stop");		
 		solo.clickOnText("PopUp Message");		
 	}

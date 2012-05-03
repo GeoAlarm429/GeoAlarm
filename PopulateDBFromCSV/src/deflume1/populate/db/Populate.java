@@ -11,11 +11,8 @@ import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Scanner;
-import java.util.ArrayList;
 import java.sql.*;
 
 
@@ -402,7 +399,6 @@ public class Populate
 			Connection conn = DriverManager.getConnection("jdbc:sqlite:assets\\geoAlarmDB.sqlite");
 			
 			PreparedStatement prep = conn.prepareStatement("insert into timetable values (?, ?, ?);");
-			DateFormat d = DateFormat.getInstance();
 			for(TimetableEntry entry : timetable)
 			{
 				prep.setInt(1, entry.getStopIDHash());
