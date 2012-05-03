@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -79,6 +80,7 @@ public class TripPlannerBus extends Activity
 	private int buttonVoice = 0;
 
 	ArrayList<String> matches;
+	Handler refresh;
 		
 	@Override
     public void onCreate(Bundle savedInstanceState) 
@@ -112,6 +114,7 @@ public class TripPlannerBus extends Activity
         
         parser = new XMLParser();
         database.close();
+        refresh = new Handler();
     }	
     
     @Override
@@ -385,7 +388,7 @@ public class TripPlannerBus extends Activity
 			
 			public void onClick(DialogInterface dialog, int item) 
 			{
-				showDialog(TIME_OPTIONS_ID);	
+				//showDialog(TIME_OPTIONS_ID);	
 			}
 		});		
 		return builder.create();
@@ -646,5 +649,16 @@ public class TripPlannerBus extends Activity
 			startActivityForResult(intent, 0);
 		}
 		return true;
+	}
+	
+	public void makeEditorAction()
+	{		
+		refresh.post(new Runnable() {
+		    public void run()
+		    {
+		    	startingLocationSearchBar.onEditorAction(EditorInfo.IME_ACTION_NEXT);
+		    }
+		});
+		
 	}
 }

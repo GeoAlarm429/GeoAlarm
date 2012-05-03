@@ -117,4 +117,58 @@ public class TripPlannerBusTest extends ActivityInstrumentationTestCase2<TripPla
 		assertEquals("Correct time set", expected1, actual1);
 		
 	}	
+	
+	@Smoke
+	public void testAutoCompleteLine()
+	{
+		solo.clearEditText(0);
+		solo.clickOnEditText(0);
+		solo.enterText(0, "g");
+		
+		assertTrue(solo.searchText("Gold"));
+		assertTrue(solo.searchText("Gold Alternate"));
+		assertTrue(solo.searchText("Goldhopper"));		
+	}
+	
+	@Smoke
+	public void testAutoCompleteStart()
+	{
+		solo.clearEditText(0);
+		solo.clickOnEditText(0);
+		solo.enterText(0, "g");
+		solo.clickOnText("Gold");
+		solo.sendKey(Solo.ENTER);
+		
+		solo.clearEditText(1);
+		solo.clickOnEditText(1);
+		solo.enterText(1, "k");
+		
+		assertTrue(solo.searchText("Kirby & First"));
+		assertTrue(solo.searchText("Kirby & Arrow"));		
+	}
+	
+	@Smoke
+	public void testAutoCompleteDest()
+	{		
+		solo.clearEditText(0);
+		solo.clickOnEditText(0);
+		solo.enterText(0, "g");
+		solo.clickOnText("Gold");
+		solo.sendKey(Solo.ENTER);
+		
+		solo.clearEditText(1);
+		solo.clickOnEditText(1);
+		solo.enterText(1, "k");
+		solo.clickOnText("Kirby & First");
+		solo.sendKey(Solo.ENTER);
+		
+		solo.clearEditText(1);
+		solo.clickOnEditText(1);
+		solo.enterText(1, "l");
+		assertTrue(solo.searchText("Chemical & Life"));
+		assertTrue(solo.searchText("Devonshire"));
+		
+		
+	
+	}
 }
