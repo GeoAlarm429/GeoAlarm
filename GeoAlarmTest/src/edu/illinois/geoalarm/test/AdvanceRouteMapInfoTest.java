@@ -1,6 +1,5 @@
 package edu.illinois.geoalarm.test;
 
-import com.google.android.maps.OverlayItem;
 import com.jayway.android.robotium.solo.Solo;
 
 import android.app.Activity;

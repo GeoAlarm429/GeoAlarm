@@ -19,7 +19,7 @@
 			android:id="@+id/mainMap"
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
-			android:apiKey="0c3JtNivMphhLewaAtzebijmMAaqJqH8ses0aHQ"
+			android:apiKey="0c3JtNivMphiCKyZRA8Q9OSjjSpoZbEDdYoB3rw"
 			android:enabled="true"
 			android:clickable="true" /> 
 

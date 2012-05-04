@@ -1,0 +1,22 @@
+Before attempting a manual installation of GeoAlarm, 
+you must first allow your phone to install from “Unknown Sources” (i.e. non-Market apps).
+
+To do this, navigate to Menu -> Settings -> Applications and check the box marked “Unknown Sources“.
+
+Step 1: Install File Manager
+
+Android does not natively come with any method of browsing the data on your SD card, 
+so you will need to install a file manager from a market. We recommend ASTRO File Manager.
+
+Step 2: Copy .apk file to SD card
+
+Once you have ASTRO File Manager installed, connect your Android device to your PC using your USB cable.
+Mount the SD card and copy over the .apk file you would like to install.
+
+On your Android device, navigate to the .apk file using ASTRO File Manager and select it.
+
+This will open a dialog box allowing you to install the app. Select “Open App Manager“.
+
+On the next two pages, select “Install” and “Install” again to install the .apk.
+
+Your new app is now installed.
