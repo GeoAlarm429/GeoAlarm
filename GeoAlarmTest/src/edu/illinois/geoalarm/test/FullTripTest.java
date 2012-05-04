@@ -40,6 +40,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 
+	/**
+	 * Setup a trip
+	 */
 	@Smoke
 	public void testPlanTrip()
 	{
@@ -55,6 +58,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		numberOfStopsAroundMe();
 	}	
 	
+	/**
+	 * Select a line
+	 */
 	public void selectGoldLine()
 	{		
 		solo.clickOnEditText(0);
@@ -63,6 +69,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected		
 	}	
 	
+	/**
+	 * Select starting location
+	 */
 	public void selectStart()
 	{		
 		solo.clickOnEditText(1);
@@ -71,6 +80,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));			
 	}	
 	
+	/**
+	 * Select destination location
+	 */
 	public void selectDestination()
 	{		
 		solo.clickOnEditText(2);
@@ -81,19 +93,16 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));		
 	}
 	
+	/**
+	 * Select alarm options
+	 */
 	public void setAlarmOptions()
 	{
 		solo.clickOnText("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}		
-		solo.clickInList(0);
+		thisWait(2000);
+		solo.clickInList(0);			
 		solo.clickOnText("At Time");
 		Calendar c = Calendar.getInstance();		
 		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 2); // Set alarm for two minutes from now
@@ -101,6 +110,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.clickOnText("PopUp Message");
 	}
 	
+	/**
+	 * Set an alarm
+	 */
 	public void setAlarm()
 	{
 		solo.clickOnText("Set Alarm");
@@ -108,6 +120,9 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		mCurrentActivity = solo.getCurrentActivity();			
 	}
 	
+	/**
+	 * Verify that correct nearby stops display
+	 */
 	public void numberOfStopsAroundMe()
 	{
 		/* Latitude and Longitude of First & Gregory (NE Corner) stop */
@@ -119,5 +134,21 @@ public class FullTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo.goBackToActivity("GeoAlarm");
 	}
 	
+	/**
+	 * Sleeps the thread for milliseconds
+	 * @param millis milliseconds to sleep
+	 */
+	private void thisWait(long millis)
+	{
+		try 
+		{
+			Thread.sleep(millis);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		
+	}
 	
 }

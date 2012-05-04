@@ -11,6 +11,12 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests signaling an alarm based on a location
+ * @author GeoAlarm
+ *
+ */
+
 public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm> 
 {
 	Activity mActivity;
@@ -39,6 +45,9 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	
+	/**
+	 * Plan a trip
+	 */
 	@Smoke
 	public void testPlanTrip()
 	{		
@@ -53,6 +62,9 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		waitForAlarm();
 	}	
 	
+	/**
+	 * Select a line
+	 */
 	public void selectGoldLine()
 	{		
 		solo.clickOnEditText(0);
@@ -61,6 +73,9 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected
 	}	
 	
+	/**
+	 * Select starting location
+	 */
 	public void selectStart()
 	{		
 		solo.clickOnEditText(1);
@@ -69,6 +84,9 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));
 	}	
 	
+	/**
+	 * Select destination location
+	 */
 	public void selectDestination()
 	{		
 		solo.clickOnEditText(2);
@@ -79,23 +97,24 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));	
 	}
 	
+	/**
+	 * Select alarm options
+	 */
 	public void setAlarmOptionsPopUp()
 	{
 		solo.clickOnText("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
+			
 		solo.clickOnText("At Stop");		
 		solo.clickOnText("PopUp Message");		
 	}
 	
+	/**
+	 * Set an alarm
+	 */
 	public void setAlarm()
 	{
 		solo.clickOnText("Set Alarm");
@@ -103,6 +122,10 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		mCurrentActivity = solo.getCurrentActivity();			
 	}	
 	
+	/**
+	 * Send fake location information to the activity.  Then poll until we see pop-up indicating that
+	 * we have arrived
+	 */
 	public void waitForAlarm()
 	{		
 		double latitude = 40.11282333;
@@ -133,6 +156,23 @@ public class LocationBasedAlarmTest extends ActivityInstrumentationTestCase2<Geo
 		
 		assertTrue(found);
 		solo.goBackToActivity("GeoAlarm");
+	}
+	
+	/**
+	 * Sleeps the thread for milliseconds
+	 * @param millis milliseconds to sleep
+	 */
+	private void thisWait(long millis)
+	{
+		try 
+		{
+			Thread.sleep(millis);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		
 	}
 
 }

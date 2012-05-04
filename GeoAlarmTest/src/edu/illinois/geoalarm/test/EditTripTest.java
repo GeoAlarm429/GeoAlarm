@@ -9,6 +9,13 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests editing a trip in progress, by setting up a trip, then going back
+ * and setting up a second trip
+ * @author GeoAlarm
+ *
+ */
+
 public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 {	
 	Activity mActivity;
@@ -35,6 +42,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	
+	/**
+	 * Start planning a trip
+	 */
 	@Smoke
 	public void testChangeTrip()
 	{
@@ -45,6 +55,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectGoldLine();
 	}
 	
+	/**
+	 * Select a line
+	 */
 	public void selectGoldLine()
 	{	
 		solo.clickOnEditText(0);
@@ -54,6 +67,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectStart();
 	}
 	
+	/**
+	 * Select starting location
+	 */
 	public void selectStart()
 	{	
 		solo.clickOnEditText(1);
@@ -63,6 +79,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectDestination();
 	}	
 	
+	/**
+	 * Select destination location
+	 */
 	public void selectDestination()
 	{		
 		solo.clickOnEditText(2);
@@ -74,18 +93,15 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		setAlarmOptions();
 	}
 	
+	/**
+	 * Set some alarm options
+	 */
 	public void setAlarmOptions()
 	{		
 		solo.clickOnText("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
 		
 		solo.clickOnText("At Time");
@@ -96,6 +112,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		setAlarm();
 	}
 	
+	/**
+	 * Set the alarm
+	 */
 	public void setAlarm()
 	{
 		solo.clickOnText("Set Alarm");
@@ -104,6 +123,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		planNewTrip();
 	}
 	
+	/**
+	 * Go back and start a new trip
+	 */
 	public void planNewTrip()
 	{
 		solo.goBack();
@@ -112,6 +134,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectBronzeLine();
 	}
 	
+	/**
+	 * Select a second line
+	 */
 	public void selectBronzeLine()
 	{		
 		solo.clearEditText(0);
@@ -122,6 +147,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectSecondStart();
 	}
 	
+	/**
+	 * Select a second starting location
+	 */
 	public void selectSecondStart()
 	{		
 		solo.clearEditText(1);
@@ -132,6 +160,9 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		selectSecondDestination();
 	}
 	
+	/**
+	 * Select a second destination location
+	 */
 	public void selectSecondDestination()
 	{		
 		solo.clearEditText(2);
@@ -143,29 +174,46 @@ public class EditTripTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		setSecondAlarmOptions();
 	}
 	
+	/**
+	 * Select a second set of alarm options
+	 */
 	public void setSecondAlarmOptions()
 	{
 		solo.clickOnText("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
 		solo.clickOnText("At Stop");
 		solo.clickOnText("Ring");
 		setSecondAlarm();
 	}
 	
+	/**
+	 * Set a second alarm
+	 */
 	public void setSecondAlarm()
 	{
 		solo.clickOnText("Set Alarm");
 		solo.assertCurrentActivity("Expected RouteMap Activity", RouteMap.class);
 		mCurrentActivity = solo.getCurrentActivity();	
 		solo.goBackToActivity("GeoAlarm");
+	}
+	
+	/**
+	 * Sleeps the thread for milliseconds
+	 * @param millis milliseconds to sleep
+	 */
+	private void thisWait(long millis)
+	{
+		try 
+		{
+			Thread.sleep(millis);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		
 	}
 }

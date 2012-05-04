@@ -7,6 +7,11 @@ import android.widget.Spinner;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests the functionality of the trip planner
+ * @author GeoAlarm
+ *
+ */
 public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanner> 
 {
 	Activity mActivity;
@@ -37,6 +42,11 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected		
 	}
 
+	
+	/**
+	 * Tests selection of a starting location, by typing the location into the box,
+	 * and verifying it
+	 */
 	@Smoke
 	public void testSelectStartingLocation()
 	{
@@ -48,6 +58,10 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));	
 	}
 	
+	/**
+	 * Tests selection of a destination location, by typing the location into the box,
+	 * and verifying it
+	 */
 	@Smoke
 	public void testSelectDestinationLocation()
 	{
@@ -59,55 +73,46 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));		
 	}
 	
+	/**
+	 * Tests the At Stop and Ring alarm options, by clicking on them
+	 */
 	@Smoke
 	public void testAlarmOptionsOne()
 	{
 		solo.clickOnButton("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
-		solo.clickInList(0);
+		thisWait(2000);
+		solo.clickInList(0);			
 		solo.clickOnText("At Stop");		
 		solo.clickOnText("Ring");
 	}
 	
+	/**
+	 * Tests the Station Before Stop and Vibrate options, by clicking on them
+	 */
 	@Smoke
 	public void testAlarmOptionsTwo()
 	{
 		solo.clickOnButton("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
 		solo.clickOnText("Station Before Stop");
 		solo.clickOnText("Vibrate");
 	}
 	
+	/**
+	 * Tests the At Time option, by clicking on them
+	 */
 	@Smoke
 	public void testAlarmOptionsThree()
 	{
 		solo.clickOnButton("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
 		solo.clickOnText("At Time");
 		
@@ -118,6 +123,10 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		
 	}	
 	
+	/**
+	 * Tests the auto complete function for lines, by entering the first letter of a line, 
+	 * and checking that correct lines display
+	 */
 	@Smoke
 	public void testAutoCompleteLine()
 	{
@@ -130,6 +139,10 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		assertTrue(solo.searchText("Goldhopper"));		
 	}
 	
+	/**
+	 * Tests the auto complete function for starting locations, by entering the first letter of a location, 
+	 * and checking that correct locations display
+	 */
 	@Smoke
 	public void testAutoCompleteStart()
 	{
@@ -147,6 +160,10 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		assertTrue(solo.searchText("Kirby & Arrow"));		
 	}
 	
+	/**
+	 * Tests the auto complete functions for destination locations, by entering the first letter of a location, 
+	 * and checking that correct locations display
+	 */
 	@Smoke
 	public void testAutoCompleteDest()
 	{		
@@ -167,8 +184,23 @@ public class TripPlannerTest extends ActivityInstrumentationTestCase2<TripPlanne
 		solo.enterText(1, "l");
 		assertTrue(solo.searchText("Chemical & Life"));
 		assertTrue(solo.searchText("Devonshire"));
-		
-		
-	
 	}
+	
+	/**
+	 * Sleeps the thread for milliseconds
+	 * @param millis milliseconds to sleep
+	 */
+	private void thisWait(long millis)
+	{
+		try 
+		{
+			Thread.sleep(millis);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		
+	}
+	
 }

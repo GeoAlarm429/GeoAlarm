@@ -7,6 +7,12 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests that the application time table works properly
+ * @author GeoAlarm
+ *
+ */
+
 public class TimetableTest extends ActivityInstrumentationTestCase2<Timetable> 
 {
 	Activity mActivity;
@@ -33,6 +39,10 @@ public class TimetableTest extends ActivityInstrumentationTestCase2<Timetable>
 		super.tearDown();
 	}
 	
+	/**
+	 * Tests selecting a line
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testSelectLine() throws InterruptedException
 	{
@@ -42,6 +52,10 @@ public class TimetableTest extends ActivityInstrumentationTestCase2<Timetable>
 		assertTrue(solo.isSpinnerTextSelected(1, "State & Ells (NW Corner)")); // This is the first Blue stop
 	}
 	
+	/**
+	 * Tests selecting a line and a stop
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testSelectLineAndStop() throws InterruptedException
 	{
@@ -53,7 +67,10 @@ public class TimetableTest extends ActivityInstrumentationTestCase2<Timetable>
 		assertTrue(solo.isSpinnerTextSelected(1,"First & Gregory (NE Corner)"));		
 	}
 	
-	
+	/**
+	 * Tests that correct times display for a line and stop
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testCorrectTimesDisplay() throws InterruptedException
 	{

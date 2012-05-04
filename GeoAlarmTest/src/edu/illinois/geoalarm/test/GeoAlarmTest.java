@@ -7,6 +7,12 @@ import android.widget.ImageView;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests the functionality of the main menu
+ * @author GeoAlarm
+ *
+ */
+
 public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm> 
 {
 	 private GeoAlarm mActivity;
@@ -36,22 +42,34 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	 
+	/**
+	 * Test that Views exist
+	 */
 	 public void testPreconditions() 
 	 {
 	      assertNotNull(mapButton);
 	      assertNotNull(tripButton);
 	 }
 	 
+	 /**
+	  * Test map button display
+	  */
 	 public void testMapsButton()
 	 {
 		 assertTrue(solo.searchText("Map"));
 	 }
 	 
+	 /**
+	  * Test PlanTrip button display
+	  */
 	 public void testTripButton()
 	 {
 		 assertTrue(solo.searchText("Plan Trip"));
 	 }
 	 
+	 /**
+	  * Test a transition to the map and back
+	  */
 	 @Smoke
 	 public void testMapsTransition()
 	 {
@@ -62,6 +80,9 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");
 	 }
 	 
+	 /**
+	  * Test a transition to the trip planner and back
+	  */
 	 @Smoke
 	 public void testPlanTripTransition()
 	 {
@@ -73,6 +94,9 @@ public class GeoAlarmTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		 solo.assertCurrentActivity("Expected GeoAlarm activity", "GeoAlarm");		 
 	 }
 	 
+	 /**
+	  * Test a transition to the options and back
+	  */
 	 @Smoke
 	 public void testOptionsTransition()
 	 {

@@ -4,6 +4,12 @@ import edu.illinois.geoalarm.*;
 import android.database.Cursor;
 import android.test.ActivityInstrumentationTestCase2;
 
+/**
+ * Tests that the database works properly, by making sample queries
+ * @author GeoAlarm
+ *
+ */
+
 public class DatabaseTest extends ActivityInstrumentationTestCase2<TripPlanner>
 {
 	GeoAlarmDB database;

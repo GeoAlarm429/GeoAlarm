@@ -36,6 +36,7 @@ import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.Vibrator;
@@ -43,6 +44,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,6 +91,7 @@ public class RouteMap extends MapActivity
 	private TextView remainingDistance;
 	NearStopOverlayItem startingLocationItem;
 	NearStopOverlayItem destinationLocationItem;
+	private Handler handler;
 	
 	
 	/* Route data from TripPlannerBus or Map selection */
@@ -154,7 +157,8 @@ public class RouteMap extends MapActivity
             startAlarmService();
         }                       
         
-        setSatelliteOnClickListener();              
+        setSatelliteOnClickListener();       
+        handler = new Handler();
     }
 
 	@Override
@@ -835,4 +839,16 @@ public class RouteMap extends MapActivity
 			throw new Error("Unable to execute sql in: " + sql.toString());
 		}
 	}        
+	
+	public void clickOnOverlay()
+	{
+		handler.post(new Runnable() {
+		    public void run()
+		    {
+		    	GeoPoint p = nearOverlay.getItem(0).getPoint();
+		    	nearOverlay.onTap(p, mainMap);
+		    }
+		});
+	}
+	
 }

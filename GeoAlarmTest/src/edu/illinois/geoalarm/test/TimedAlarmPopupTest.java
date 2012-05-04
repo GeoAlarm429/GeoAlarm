@@ -9,6 +9,12 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests that a timed trip alarm signals properly
+ * @author deflume1
+ *
+ */
+
 public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAlarm> 
 {
 	Activity mActivity;
@@ -35,6 +41,9 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	
+	/**
+	 * Setup a trip
+	 */
 	@Smoke
 	public void testPlanTrip()
 	{		
@@ -49,6 +58,9 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		waitForAlarm();
 	}	
 	
+	/**
+	 * Select a line
+	 */
 	public void selectGoldLine()
 	{		
 		solo.clickOnEditText(0);
@@ -57,6 +69,9 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		assertTrue("Selected Gold", solo.searchText("Gold")); // make sure Gold was selected
 	}	
 	
+	/**
+	 * Select a starting location
+	 */
 	public void selectStart()
 	{		
 		solo.clickOnEditText(1);
@@ -65,6 +80,9 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		assertTrue("Selected First & Gregory", solo.searchText("First & Gregory"));		
 	}	
 	
+	/**
+	 * Select a destination location
+	 */
 	public void selectDestination()
 	{		
 		solo.clickOnEditText(2);
@@ -75,26 +93,27 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		assertTrue("Selected Springfield & Gregory", solo.searchText("Springfield & Gregory"));		
 	}
 	
+	/**
+	 * Select some alarm options
+	 */
 	public void setAlarmOptionsPopUp()
 	{
 		solo.clickOnText("Alarm Options");
+		thisWait(1000);
 		solo.clickInList(0);
-		try 
-		{
-			Thread.sleep(1000);
-		} 
-		catch (InterruptedException e) 
-		{			
-			e.printStackTrace();
-		}
+		thisWait(2000);
 		solo.clickInList(0);
+		
 		solo.clickOnText("At Time");
 		Calendar c = Calendar.getInstance();		
-		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 1); // Set alarm for two minutes from now
+		solo.setTimePicker(0, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 1); // Set alarm for a minute from now
 		solo.clickOnButton("Set");
 		solo.clickOnText("PopUp Message");		
 	}
 	
+	/**
+	 * Set an alarm
+	 */
 	public void setAlarm()
 	{
 		solo.clickOnText("Set Alarm");
@@ -102,9 +121,31 @@ public class TimedAlarmPopupTest extends ActivityInstrumentationTestCase2<GeoAla
 		mCurrentActivity = solo.getCurrentActivity();			
 	}
 	
+	/**
+	 * Wait for alarm to fire
+	 */
 	public void waitForAlarm()
 	{
 		assertTrue(solo.waitForText("YOU HAVE ARRIVED", 0, 180000)); // Wait three minutes for arrival
 		solo.goBackToActivity("GeoAlarm");
 	}
+	
+	/**
+	 * Sleeps the thread for milliseconds
+	 * @param millis milliseconds to sleep
+	 */
+	private void thisWait(long millis)
+	{
+		try 
+		{
+			Thread.sleep(millis);
+		} 
+		catch (InterruptedException e) 
+		{			
+			e.printStackTrace();
+		}
+		
+	}
 }
+
+

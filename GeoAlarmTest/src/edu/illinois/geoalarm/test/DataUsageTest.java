@@ -8,6 +8,12 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests the data usage portion of the app.  Does this by setting values to zero,
+ * starting network activity, and then checking that values changed
+ * @author GeoAlarm
+ *
+ */
 public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 {
 	Activity mActivity;
@@ -60,6 +66,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		super.tearDown();
 	}
 	
+	/**
+	 * Tests that TX session usage data is updated correctly
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testTXSessionDataUsage() throws InterruptedException
 	{				
@@ -90,6 +100,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue(sessionTXbytes > 0);		
 	}
 	
+	/**
+	 * Tests that RX session usage data is updated correctly
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testRXSessionDataUsage() throws InterruptedException
 	{
@@ -120,6 +134,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue(sessionRXbytes > 0);	
 	}
 		
+	/**
+	 * Tests that TX total usage data is updated correctly
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testTotalTXDataUsage() throws InterruptedException
 	{				
@@ -150,6 +168,10 @@ public class DataUsageTest extends ActivityInstrumentationTestCase2<GeoAlarm>
 		assertTrue(totalTXBytes > 0);
 	}
 	
+	/**
+	 * Tests the RX usage data is updated correctly
+	 * @throws InterruptedException
+	 */
 	@Smoke
 	public void testTotalRXDataUsage() throws InterruptedException
 	{

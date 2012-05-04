@@ -8,6 +8,12 @@ import edu.illinois.geoalarm.*;
 import com.jayway.android.robotium.solo.Solo;
 import android.test.suitebuilder.annotation.Smoke;
 
+/**
+ * Tests the user options for the app
+ * @author GeoAlarm
+ *
+ */
+
 public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 {
 	Activity mActivity;
@@ -27,6 +33,9 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 		solo = new Solo(getInstrumentation(), getActivity());
 	}
 	
+	/**
+	 * Tests that ringtone length is set properly
+	 */
 	@Smoke
 	public void testSetRingtoneLength()
 	{
@@ -42,6 +51,9 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 		assertEquals(ringtoneLength, 5);
 	}
 	
+	/**
+	 * Tests that vibration length is set properly
+	 */
 	@Smoke
 	public void testSetVibrateLength()
 	{
@@ -57,6 +69,9 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 		assertEquals(vibrateLength, 5);
 	}
 	
+	/**
+	 * Tests that app color is set properly
+	 */
 	@Smoke
 	public void testSetAppColor()
 	{
@@ -67,6 +82,9 @@ public class OptionsTest extends ActivityInstrumentationTestCase2<Options>
 		assertEquals(color, edu.illinois.geoalarm.R.color.Pink);		
 	}
 	
+	/**
+	 * Tests that the splash screen is toggled properly
+	 */
 	@Smoke
 	public void testToggleSplashScreen()
 	{		
