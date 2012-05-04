@@ -1,5 +1,11 @@
 package edu.illinois.geoalarm.parser;
 
+/**
+ * A storage object for a Trip
+ * @author GeoAlarm
+ *
+ */
+
 public class Trip {
 	private String longitude;
 	private String latitude;

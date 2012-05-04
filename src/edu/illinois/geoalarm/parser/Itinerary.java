@@ -1,6 +1,12 @@
 package edu.illinois.geoalarm.parser;
 import java.util.Vector;
 
+/**
+ * A storage object for an itinerary
+ * @author GeoAlarm
+ *
+ */
+
 public class Itinerary 
 {
 	private Vector<Leg> legs;

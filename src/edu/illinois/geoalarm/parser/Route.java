@@ -1,8 +1,11 @@
 package edu.illinois.geoalarm.parser;
 import java.util.Vector;
 
-// TODO: add transportationID, when we
-// are working with CTA
+/**
+ * A storage object for a Route
+ * @author GeoAlarm
+ *
+ */
 public class Route 
 {
 	private String name;

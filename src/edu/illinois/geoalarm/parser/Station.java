@@ -1,6 +1,12 @@
 package edu.illinois.geoalarm.parser;
 import java.util.Vector;
 
+/**
+ * A storage object for a station
+ * @author GeoAlarm
+ *
+ */
+
 public class Station {
 
 	private String name;

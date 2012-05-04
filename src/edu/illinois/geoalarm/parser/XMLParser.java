@@ -24,8 +24,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * Queries CUMTD for real-time data, returned as XML.  Then parses the XML and 
+ * returns objects encapsulating its data
+ * @author GeoAlarm
+ *
+ */
 
-public class XMLParser {
+public class XMLParser 
+{
 	private static final String API_KEY = "ef23cfb988384e259056b4098c70d877";
 	private static final String VERSION = "v2.1";
 	private static String PLAN_TRIP_URL = "http://developer.cumtd.com/api/"
@@ -182,8 +189,8 @@ public class XMLParser {
 	/**
 	 * Creates XML from a string
 	 * 
-	 * @param xmlString
-	 * @return XML Document
+	 * @param xmlString A String containing XML data
+	 * @return XML Document A Document containing XML data
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
@@ -200,10 +207,10 @@ public class XMLParser {
 	/**
 	 * Creates query for trip
 	 * 
-	 * @param origin_lat
-	 * @param origin_lon
-	 * @param dest_lat
-	 * @param dest_lon
+	 * @param origin_lat The trip origin latitude
+	 * @param origin_lon The trip origin longitude
+	 * @param dest_lat The trip destination latitude
+	 * @param dest_lon The trip destination longitude
 	 * @return query as a String
 	 */
 	public static String tripPlanner(String origin_lat, String origin_lon,
@@ -222,11 +229,11 @@ public class XMLParser {
 	/**
 	 * user function to get all Itinerary
 	 * 
-	 * @param origin_lat
-	 * @param origin_lon
-	 * @param dest_lat
-	 * @param dest_lon
-	 * @return
+	 * @param origin_lat The trip origin latitude
+	 * @param origin_lon The trip origin longitude
+	 * @param dest_lat The trip destination latitude
+	 * @param dest_lon The trip destination longitude
+	 * @return A Vector containing all of the Itinerary parsed
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
@@ -252,6 +259,14 @@ public class XMLParser {
 		return Itineraries;
 	}
 
+	/***
+	 * Parses and returns Itineraries for a trip
+	 * @param origin_lat The trip origin latitude
+	 * @param origin_lon The trip origin longitude
+	 * @param dest_lat The trip destination latitude
+	 * @param dest_lon The trip destination longitude
+	 * @return A Vector containing all of the Itinerary parsed
+	 */
 	public Vector<Itinerary> getTripItinerary(String origin_lat, String origin_lon, String dest_lat, String dest_lon) 
 	{
 		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat, dest_lon);
@@ -286,7 +301,7 @@ public class XMLParser {
 	 * @param origin_lon longitude of the start
 	 * @param dest_lat latitude of the end
 	 * @param dest_lon longitude of the end
-	 * @return string array
+	 * @return string array of itineraries
 	 */
 	public String[] getItineraryArray(String origin_lat, String origin_lon,
 			String dest_lat, String dest_lon) 
@@ -345,7 +360,7 @@ public class XMLParser {
 	 * @param dest_lat latitude of the end
 	 * @param dest_lon longitude of the start
 	 * @param itinerary nth itinerary to be fetched
-	 * @return string array
+	 * @return string array of legs
 	 */
 	public String[] getLegArray(String origin_lat, String origin_lon, String dest_lat, String dest_lon, int itinerary) 
 	{	
@@ -397,75 +412,13 @@ public class XMLParser {
 		return legArray;
 	}
 
+	/**
+	 * Sets the trip document used by the parser
+	 * @param tripDoc The new Documents
+	 */
 	public void setTripDoc(Document tripDoc) 
 	{
 		XMLParser.tripDoc = tripDoc;
-	}
-
-	public static void main(String[] args) throws ParserConfigurationException,
-			SAXException, IOException, XPathExpressionException {
-
-		/** DEBUG SETUP **/
-		// parseXmlFile();
-
-		// SC -> Terminal
-		// String origin_lat = "40.116468";
-		// String origin_lon = "-88.223846";
-		// String dest_lat = "40.115935";
-		// String dest_lon = "-88.240947";
-
-		// University & Goodwin -> Transit Plaza
-		String origin_lat = "40.116009";
-		String origin_lon = "-88.224117";
-		String dest_lat = "40.108202";
-		String dest_lon = "-88.228923";
-		String trip_url = tripPlanner(origin_lat, origin_lon, dest_lat,
-				dest_lon);
-
-		// get trip information
-		String tripStr = getData(trip_url);
-		System.out.println(tripStr);
-		tripDoc = CreateXML(tripStr);
-
-		Vector<Itinerary> Itineraries = parseTrip();
-
-		// TODO: print trip information
-		for (int i = 0; i < Itineraries.size(); i++) {
-			System.out.println("Itinerary " + i);
-			Vector<Itinerary.Leg> legs = Itineraries.get(i).getLegs();
-			for (int j = 0; j < legs.size(); j++) {
-				System.out.println("Leg " + j);
-				Trip begin = legs.get(j).getBegin();
-				Trip end = legs.get(j).getEnd();
-				System.out.println("Begin: \n" + "lat" + begin.getLatitude()
-						+ " " + "lon" + begin.getLongitude() + " " + "time"
-						+ begin.getTime() + " " + "busName"
-						+ begin.getBusName());
-				System.out.println("End: \n" + "lat" + end.getLatitude() + " "
-						+ "lon" + end.getLongitude() + " " + "time"
-						+ end.getTime() + " " + "busName" + end.getBusName());
-
-			}
-		}
-
-		// gets all routes
-		// String routesStr =
-		// getData(ROUTES_URL);
-		// routeDoc = CreateXML(routesStr);
-		// HashMap<String, Route> routes = parseRoutes();
-
-		// gets all stations
-		// String stationsStr =
-		// getData(STATIONS_URL);
-		// stationDoc = CreateXML(stationsStr);
-		// HashMap<String, Station> stations = parseStations();
-
-		/** route/station check **/
-		// System.out.println(routes.get("1 YELLOW ALT").getName());
-		// System.out.println(stations.get("150DALE").getName());
-		// System.out.println(stations.get("150DALE").getlatitude("150DALE:1"));
-		// routes = populateStations(routes);
-
-	}
+	}	
 
 }
